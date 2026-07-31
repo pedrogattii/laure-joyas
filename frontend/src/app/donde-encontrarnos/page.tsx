@@ -2,11 +2,9 @@
 
 import Header from '@/components/Header';
 import { MapPinIcon, CartIcon, WhatsAppIcon } from '@/components/icons/SvgIcons';
+import { BUSINESS_CONFIG } from '@/lib/constants';
 
 export default function LocationPage() {
-  const googleMapsUrl =
-    'https://www.google.com/maps/search/?api=1&query=Super+Mami+N4+Salsipuedes+Cordoba';
-
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
       <Header />
@@ -55,7 +53,7 @@ export default function LocationPage() {
                   <MapPinIcon className="w-5 h-5 text-[#c5a059] shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-gray-800 block">Dirección:</span>
-                    <span className="text-gray-600">Super Mami N°4, Ruta E-53, Salsipuedes, Córdoba</span>
+                    <span className="text-gray-600">{BUSINESS_CONFIG.storeAddress}</span>
                   </div>
                 </div>
 
@@ -63,7 +61,7 @@ export default function LocationPage() {
                   <MapPinIcon className="w-5 h-5 text-[#c5a059] shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-gray-800 block">Ubicación exacta en el paseo:</span>
-                    <span className="text-gray-600">Primera Isla al ingresar al centro comercial</span>
+                    <span className="text-gray-600">{BUSINESS_CONFIG.storeLocationDetail}</span>
                   </div>
                 </div>
 
@@ -80,10 +78,10 @@ export default function LocationPage() {
             {/* Google Maps Button */}
             <div className="pt-4 border-t border-gray-100">
               <a
-                href={googleMapsUrl}
+                href={BUSINESS_CONFIG.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-3.5 px-6 rounded shadow flex items-center justify-center gap-2 transition-transform active:scale-98"
+                className="w-full bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-3.5 px-6 rounded shadow flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer hover:shadow-md"
               >
                 <MapPinIcon className="w-4 h-4 text-black" />
                 <span>Abrir Ubicación en Google Maps</span>
@@ -118,12 +116,17 @@ export default function LocationPage() {
             </div>
 
             <div className="mt-8 bg-[#2a2a2a] p-4 rounded-lg border border-[#333] text-xs">
-              <span className="text-[#c5a059] font-bold flex items-center gap-1.5 mb-1">
+              <a
+                href={`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=Hola%20Laure%20Joyas!%20Tengo%20una%20consulta%20para%20pasar%20por%20la%20isla`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#c5a059] hover:text-[#e0bb70] font-bold flex items-center gap-1.5 mb-1 cursor-pointer transition-colors"
+              >
                 <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
-                ¿Tenés alguna duda para llegar?
-              </span>
+                ¿Tenés alguna duda para llegar? Escribinos por WhatsApp ➔
+              </a>
               <p className="text-gray-300">
-                Podés escribirnos directamente por WhatsApp antes de pasar para confirmar disponibilidad inmediata de tu producto.
+                Podés escribirnos directamente antes de pasar para confirmar disponibilidad inmediata de tu producto.
               </p>
             </div>
           </div>

@@ -1,0 +1,11 @@
+// Central business configuration for Laure Joyas
+export const BUSINESS_CONFIG = {
+  name: 'Laure Joyas',
+  // Phone number for WhatsApp orders (Format: 549 + area code + local number, e.g. 5493510000000)
+  // When the owner gets the dedicated phone number, update this value or set NEXT_PUBLIC_WHATSAPP_NUMBER in .env
+  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '5493510000000',
+  storeAddress: 'Super Mami N°4, Ruta E-53, Salsipuedes, Córdoba',
+  storeLocationDetail: 'Primera Isla al ingresar al predio comercial',
+  hours: 'Lunes a Domingos de 10:00 a 21:00 hs',
+  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Super+Mami+N4+Salsipuedes+Cordoba',
+};

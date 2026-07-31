@@ -23,7 +23,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
   return (
     <div
       onClick={() => onSelect && onSelect(product)}
-      className="bg-white rounded-lg border border-[#e5e0d8] overflow-hidden hover-luxury-lift cursor-pointer flex flex-col justify-between"
+      className="bg-white rounded-lg border border-[#e5e0d8] overflow-hidden hover-luxury-lift cursor-pointer flex flex-col justify-between group transition-all duration-300 hover:border-[#c5a059]/60 hover:shadow-lg"
     >
       <div>
         {/* Image Container */}
@@ -33,7 +33,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain p-2 hover:scale-105 transition-transform duration-300"
+              className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="text-center p-6 bg-[#efece6] rounded border border-dashed border-gray-300 w-full h-full flex flex-col items-center justify-center">
@@ -68,7 +68,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
             </span>
           </div>
 
-          <h3 className="font-serif text-base font-bold text-gray-900 line-clamp-2 mb-2 leading-snug">
+          <h3 className="font-serif text-base font-bold text-gray-900 line-clamp-2 mb-2 leading-snug group-hover:text-[#c5a059] transition-colors">
             {product.name}
           </h3>
 
@@ -118,7 +118,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
         <div className="flex gap-2">
           <button
             onClick={handleAddToCart}
-            className="flex-1 bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-2.5 rounded transition-colors shadow flex items-center justify-center gap-2"
+            className="flex-1 bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-2.5 rounded transition-all shadow flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:shadow-md"
           >
             <CartIcon className="w-4 h-4 text-black" />
             <span>Agregar al Carrito</span>

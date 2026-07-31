@@ -3,6 +3,7 @@
 import { useCart } from '@/context/CartContext';
 import Image from 'next/image';
 import { CartIcon, WhatsAppIcon, TrashIcon } from '@/components/icons/SvgIcons';
+import { BUSINESS_CONFIG } from '@/lib/constants';
 
 export default function CartDrawer() {
   const {
@@ -27,7 +28,7 @@ export default function CartDrawer() {
 
     const message = `Hola Laure Joyas! Quiero realizar la siguiente compra:%0A%0A${itemsList}%0A%0ATotal Contado (20% OFF): $${totalCash.toLocaleString('es-AR')}%0AForma de pago elegida: Transferencia / Efectivo en local Salsipuedes.`;
 
-    window.open(`https://wa.me/5493510000000?text=${message}`, '_blank');
+    window.open(`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${message}`, '_blank');
   };
 
   return (
@@ -44,7 +45,7 @@ export default function CartDrawer() {
           </div>
           <button
             onClick={() => setIsCartOpen(false)}
-            className="text-gray-400 hover:text-white text-lg font-bold p-1"
+            className="text-gray-400 hover:text-white text-lg font-bold p-1 cursor-pointer transition-colors"
           >
             ✕
           </button>
@@ -89,14 +90,14 @@ export default function CartDrawer() {
                     <div className="flex items-center border border-gray-300 rounded overflow-hidden">
                       <button
                         onClick={() => updateQuantity(product.id, quantity - 1)}
-                        className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 font-bold"
+                        className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 font-bold cursor-pointer transition-colors"
                       >
                         -
                       </button>
                       <span className="px-2 text-xs font-bold">{quantity}</span>
                       <button
                         onClick={() => updateQuantity(product.id, quantity + 1)}
-                        className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 font-bold"
+                        className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 font-bold cursor-pointer transition-colors"
                       >
                         +
                       </button>
@@ -104,7 +105,7 @@ export default function CartDrawer() {
 
                     <button
                       onClick={() => removeFromCart(product.id)}
-                      className="text-rose-600 hover:text-rose-800 p-1 ml-auto"
+                      className="text-rose-600 hover:text-rose-800 p-1 ml-auto cursor-pointer transition-colors"
                       title="Eliminar del carrito"
                     >
                       <TrashIcon className="w-4 h-4" />
@@ -153,7 +154,7 @@ export default function CartDrawer() {
 
             <button
               onClick={handleCheckout}
-              className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow flex items-center justify-center gap-2"
+              className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all"
             >
               <WhatsAppIcon className="w-4 h-4 text-white" />
               <span>Finalizar Pedido por WhatsApp</span>
@@ -161,7 +162,7 @@ export default function CartDrawer() {
 
             <button
               onClick={clearCart}
-              className="w-full text-center text-[11px] text-gray-500 hover:text-gray-700 underline"
+              className="w-full text-center text-[11px] text-gray-500 hover:text-gray-700 underline cursor-pointer transition-colors"
             >
               Vaciar Carrito
             </button>
