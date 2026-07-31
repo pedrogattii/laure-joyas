@@ -31,7 +31,11 @@ export default function POSRegisterModal({
   const selectedProduct = products.find((p) => p.id === selectedProductId);
 
   // Price calculation according to payment method
-  const isCash = paymentMethod === 'EFECTIVO' || paymentMethod === 'TRANSFERENCIA';
+  const isCash =
+    paymentMethod === 'EFECTIVO' ||
+    paymentMethod === 'TRANSFERENCIA' ||
+    paymentMethod === 'FISERV_DEBITO';
+
   const unitPrice = selectedProduct
     ? isCash
       ? selectedProduct.priceCash
@@ -149,7 +153,7 @@ export default function POSRegisterModal({
               <button
                 type="button"
                 onClick={() => setPaymentMethod('EFECTIVO')}
-                className={`p-3 rounded border font-bold text-left transition-all ${
+                className={`p-2.5 rounded border font-bold text-left transition-all ${
                   paymentMethod === 'EFECTIVO'
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
@@ -161,7 +165,7 @@ export default function POSRegisterModal({
               <button
                 type="button"
                 onClick={() => setPaymentMethod('TRANSFERENCIA')}
-                className={`p-3 rounded border font-bold text-left transition-all ${
+                className={`p-2.5 rounded border font-bold text-left transition-all ${
                   paymentMethod === 'TRANSFERENCIA'
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
@@ -172,26 +176,38 @@ export default function POSRegisterModal({
 
               <button
                 type="button"
-                onClick={() => setPaymentMethod('FISERV_TARJETA')}
-                className={`p-3 rounded border font-bold text-left transition-all ${
-                  paymentMethod === 'FISERV_TARJETA'
+                onClick={() => setPaymentMethod('FISERV_CREDITO')}
+                className={`p-2.5 rounded border font-bold text-left transition-all ${
+                  paymentMethod === 'FISERV_CREDITO'
                     ? 'border-[#c5a059] bg-[#fcf8f0] text-gray-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
                 }`}
               >
-                💳 Posnet Fiserv (Tarjeta 3 Cuotas)
+                💳 Fiserv Crédito (1 a 3 Cuotas)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('FISERV_DEBITO')}
+                className={`p-2.5 rounded border font-bold text-left transition-all ${
+                  paymentMethod === 'FISERV_DEBITO'
+                    ? 'border-purple-500 bg-purple-50 text-purple-900 shadow-sm'
+                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                💳 Fiserv Débito / Prepaga
               </button>
 
               <button
                 type="button"
                 onClick={() => setPaymentMethod('MERCADOPAGO')}
-                className={`p-3 rounded border font-bold text-left transition-all ${
+                className={`p-2.5 rounded border font-bold text-left transition-all col-span-2 ${
                   paymentMethod === 'MERCADOPAGO'
                     ? 'border-blue-500 bg-blue-50 text-blue-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
                 }`}
               >
-                📱 Mercado Pago QR
+                📱 Mercado Pago QR / Transferencia MP
               </button>
             </div>
           </div>
@@ -221,7 +237,7 @@ export default function POSRegisterModal({
               </span>
             </div>
             <span className="text-[11px] text-gray-300 font-medium bg-[#222] px-2.5 py-1 rounded border border-[#333]">
-              {isCash ? '🔥 Precio Contado (-20%)' : '💳 Precio Lista (Tarjeta)'}
+              {isCash ? '🔥 Precio Contado / Débito' : '💳 Precio Lista (Crédito)'}
             </span>
           </div>
 

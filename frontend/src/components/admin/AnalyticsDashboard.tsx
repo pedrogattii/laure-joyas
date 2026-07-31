@@ -6,7 +6,7 @@ interface SalesRecord {
   id: string;
   productName: string;
   quantity: number;
-  paymentMethod: string; // 'EFECTIVO' | 'TRANSFERENCIA' | 'FISERV_TARJETA' | 'MERCADOPAGO'
+  paymentMethod: string;
   totalAmount: number;
   date: string;
 }
@@ -30,14 +30,17 @@ export default function AnalyticsDashboard({
   const paymentTotals = {
     EFECTIVO: 0,
     TRANSFERENCIA: 0,
-    FISERV_TARJETA: 0,
+    FISERV_CREDITO: 0,
+    FISERV_DEBITO: 0,
     MERCADOPAGO: 0,
   };
 
   salesHistory.forEach((s) => {
-    const key = (s.paymentMethod || 'EFECTIVO') as keyof typeof paymentTotals;
-    if (paymentTotals[key] !== undefined) {
-      paymentTotals[key] += s.totalAmount;
+    let key = s.paymentMethod;
+    if (key === 'FISERV_TARJETA') key = 'FISERV_CREDITO';
+
+    if (paymentTotals[key as keyof typeof paymentTotals] !== undefined) {
+      paymentTotals[key as keyof typeof paymentTotals] += s.totalAmount;
     } else {
       paymentTotals.EFECTIVO += s.totalAmount;
     }
@@ -116,7 +119,7 @@ export default function AnalyticsDashboard({
             <span className="text-xs text-gray-400">Total acumulado</span>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Efectivo */}
             <div>
               <div className="flex justify-between text-xs font-semibold mb-1">
@@ -128,7 +131,7 @@ export default function AnalyticsDashboard({
                   ${paymentTotals.EFECTIVO.toLocaleString('es-AR')}
                 </span>
               </div>
-              <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
                 <div
                   className="bg-emerald-500 h-full transition-all duration-500"
                   style={{
@@ -143,13 +146,13 @@ export default function AnalyticsDashboard({
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-gray-800 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block"></span>
-                  🏦 Transferencia Bancaria / Alias (20% OFF)
+                  🏦 Transferencia / Alias (20% OFF)
                 </span>
                 <span className="font-mono font-bold text-gray-900">
                   ${paymentTotals.TRANSFERENCIA.toLocaleString('es-AR')}
                 </span>
               </div>
-              <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
                 <div
                   className="bg-teal-500 h-full transition-all duration-500"
                   style={{
@@ -159,22 +162,43 @@ export default function AnalyticsDashboard({
               </div>
             </div>
 
-            {/* Tarjeta Fiserv */}
+            {/* Fiserv Crédito */}
             <div>
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-gray-800 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#c5a059] inline-block"></span>
-                  💳 Posnet Fiserv (Tarjeta 3 Cuotas)
+                  💳 Fiserv Crédito (1 a 3 Cuotas)
                 </span>
                 <span className="font-mono font-bold text-gray-900">
-                  ${paymentTotals.FISERV_TARJETA.toLocaleString('es-AR')}
+                  ${paymentTotals.FISERV_CREDITO.toLocaleString('es-AR')}
                 </span>
               </div>
-              <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
                 <div
                   className="bg-[#c5a059] h-full transition-all duration-500"
                   style={{
-                    width: `${(paymentTotals.FISERV_TARJETA / maxPaymentTotal) * 100}%`,
+                    width: `${(paymentTotals.FISERV_CREDITO / maxPaymentTotal) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Fiserv Débito / Prepaga */}
+            <div>
+              <div className="flex justify-between text-xs font-semibold mb-1">
+                <span className="text-gray-800 flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span>
+                  💳 Fiserv Débito / Prepaga
+                </span>
+                <span className="font-mono font-bold text-gray-900">
+                  ${paymentTotals.FISERV_DEBITO.toLocaleString('es-AR')}
+                </span>
+              </div>
+              <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-purple-500 h-full transition-all duration-500"
+                  style={{
+                    width: `${(paymentTotals.FISERV_DEBITO / maxPaymentTotal) * 100}%`,
                   }}
                 />
               </div>
@@ -185,13 +209,13 @@ export default function AnalyticsDashboard({
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-gray-800 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
-                  📱 Mercado Pago QR / Web
+                  📱 Mercado Pago QR
                 </span>
                 <span className="font-mono font-bold text-gray-900">
                   ${paymentTotals.MERCADOPAGO.toLocaleString('es-AR')}
                 </span>
               </div>
-              <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
                 <div
                   className="bg-blue-500 h-full transition-all duration-500"
                   style={{
@@ -282,7 +306,7 @@ export default function AnalyticsDashboard({
               Registro de Auditoría
             </span>
             <h3 className="font-serif text-lg font-bold text-gray-900">
-              Últimas Ventas Registradas
+              Últimas Ventas Registradas en Caja
             </h3>
           </div>
           <span className="text-xs text-[#c5a059] font-bold">Actualizado al instante</span>
@@ -311,12 +335,18 @@ export default function AnalyticsDashboard({
                         className={`px-2.5 py-1 rounded text-[10px] font-bold ${
                           s.paymentMethod === 'EFECTIVO' || s.paymentMethod === 'TRANSFERENCIA'
                             ? 'bg-emerald-100 text-emerald-800'
-                            : s.paymentMethod === 'FISERV_TARJETA'
+                            : s.paymentMethod === 'FISERV_DEBITO'
+                            ? 'bg-purple-100 text-purple-800'
+                            : s.paymentMethod === 'FISERV_CREDITO' || s.paymentMethod === 'FISERV_TARJETA'
                             ? 'bg-amber-100 text-amber-900'
                             : 'bg-blue-100 text-blue-800'
                         }`}
                       >
-                        {s.paymentMethod}
+                        {s.paymentMethod === 'FISERV_CREDITO'
+                          ? 'Fiserv Crédito (3 Cuotas)'
+                          : s.paymentMethod === 'FISERV_DEBITO'
+                          ? 'Fiserv Débito / Prepaga'
+                          : s.paymentMethod}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right font-bold font-mono text-gray-900">
@@ -327,7 +357,7 @@ export default function AnalyticsDashboard({
               ) : (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-gray-400 italic">
-                    Aún no se registraron ventas en esta sesión. Podés simular una desde la pestaña de Caja Rápida.
+                    Aún no se registraron ventas en esta sesión.
                   </td>
                 </tr>
               )}
