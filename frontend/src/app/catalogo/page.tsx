@@ -12,7 +12,6 @@ export default function CatalogPage() {
   const [selectedMaterial, setSelectedMaterial] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('DEFAULT');
-  const [activeModalProduct, setActiveModalProduct] = useState<ProductItem | null>(null);
 
   // Filter and Sort Logic
   const filteredProducts = products
@@ -144,7 +143,6 @@ export default function CatalogPage() {
               <ProductCard
                 key={product.id}
                 product={product}
-                onSelect={(p) => setActiveModalProduct(p)}
               />
             ))}
           </div>
@@ -168,97 +166,6 @@ export default function CatalogPage() {
         )}
       </main>
 
-      {/* Detail Modal */}
-      {activeModalProduct && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-2xl border border-gray-200 relative animate-fadeIn">
-            <button
-              onClick={() => setActiveModalProduct(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-lg font-bold"
-            >
-              ✕
-            </button>
-
-            <div className="flex items-center gap-2 mb-3">
-              <span className="bg-[#121212] text-[#c5a059] font-mono text-xs px-2 py-0.5 rounded font-semibold">
-                {activeModalProduct.code}
-              </span>
-              <span className="text-xs font-semibold text-[#c5a059] bg-[#fcf8f0] px-2 py-0.5 rounded">
-                {activeModalProduct.category.name}
-              </span>
-            </div>
-
-            <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">
-              {activeModalProduct.name}
-            </h3>
-
-            <p className="text-xs text-gray-600 mb-6 leading-relaxed">
-              {activeModalProduct.description}
-            </p>
-
-            <div className="bg-[#faf8f3] p-4 rounded-lg border border-[#e5dfd5] mb-6 space-y-3">
-              <div className="flex justify-between items-baseline">
-                <span className="text-xs text-gray-600 font-medium">Precio Contado (Efectivo/Alias):</span>
-                <span className="text-xl font-bold text-gray-900 font-mono">
-                  ${activeModalProduct.priceCash.toLocaleString('es-AR')}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-baseline text-xs text-gray-500 border-t border-gray-200 pt-2">
-                <span>Precio Lista (Tarjetas / Cuotas):</span>
-                <span className="font-semibold text-gray-700 font-mono">
-                  ${activeModalProduct.priceList.toLocaleString('es-AR')}
-                </span>
-              </div>
-            </div>
-
-            {/* Guía de Talles para Anillos */}
-            {(activeModalProduct.category.id === 'CAT_RINGS' || activeModalProduct.category.name === 'Anillos') && (
-              <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6 shadow-sm">
-                <h4 className="font-serif text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <span>📏</span> ¿No sabes tu talle? Medilo en casa
-                </h4>
-                <div className="text-xs text-gray-600 space-y-2 mb-3">
-                  <p><strong>Paso 1:</strong> Cortá una tirita de papel o usá un hilo.</p>
-                  <p><strong>Paso 2:</strong> Envolvelo en el dedo donde vas a usar el anillo (asegurate de que pase por el nudillo).</p>
-                  <p><strong>Paso 3:</strong> Marcá con una birome donde se cruza el hilo o papel.</p>
-                  <p><strong>Paso 4:</strong> Medí la distancia con una regla (en milímetros). Agregá esta medida en el checkout o por WhatsApp.</p>
-                </div>
-                <div className="aspect-video w-full rounded overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center relative">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src="https://www.youtube.com/embed/PudJ5h3vWvQ?rel=0" 
-                    title="Guía para medir tu anillo" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                    className="absolute inset-0"
-                  ></iframe>
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setActiveModalProduct(null)}
-                className="flex-1 border border-gray-300 text-gray-700 font-semibold text-xs uppercase py-3 rounded"
-              >
-                Cerrar
-              </button>
-              <button
-                onClick={() => {
-                  alert(`Consulta iniciada para: ${activeModalProduct.name}`);
-                  setActiveModalProduct(null);
-                }}
-                className="flex-1 bg-[#c5a059] text-black font-bold text-xs uppercase py-3 rounded shadow"
-              >
-                Consultar por WhatsApp
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="bg-[#121212] text-gray-400 py-8 border-t border-[#2a2a2a] text-center text-xs">

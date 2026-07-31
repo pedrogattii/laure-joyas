@@ -4,26 +4,27 @@ import Image from 'next/image';
 import { ProductItem } from '@/lib/mockData';
 import { useCart } from '@/context/CartContext';
 import { CartIcon, CreditCardIcon } from '@/components/icons/SvgIcons';
+import Link from 'next/link';
 
 interface ProductCardProps {
   product: ProductItem;
-  onSelect?: (product: ProductItem) => void;
 }
 
-export default function ProductCard({ product, onSelect }: ProductCardProps) {
+export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const savings = product.priceList - product.priceCash;
   const installmentAmount = Math.round(product.priceList / 3);
 
   const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     addToCart(product);
   };
 
   return (
-    <div
-      onClick={() => onSelect && onSelect(product)}
-      className="bg-white rounded-lg border border-[#e5e0d8] overflow-hidden hover-luxury-lift cursor-pointer flex flex-col justify-between group transition-all duration-300 hover:border-[#c5a059]/60 hover:shadow-lg"
+    <Link
+      href={`/catalogo/${product.id}`}
+      className="bg-white rounded-lg border border-[#e5e0d8] overflow-hidden hover-luxury-lift cursor-pointer flex flex-col justify-between group transition-all duration-300 hover:border-[#c5a059]/60 hover:shadow-lg block"
     >
       <div>
         {/* Image Container */}
@@ -125,6 +126,6 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
