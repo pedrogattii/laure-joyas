@@ -51,7 +51,7 @@ export default function AboutPage() {
 
           {/* Placeholder Notice for Owner */}
           <div className="bg-[#fcf9f2] p-4 rounded-lg border border-dashed border-[#d8ccb8] text-xs text-gray-600 mt-6">
-            <span className="font-bold text-[#a8843e] block mb-1">📷 Espacio preparado para fotos de la historia:</span>
+            <span className="font-bold text-[#a8843e] block mb-1">Espacio preparado para fotos de la historia:</span>
             Acá vas a poder agregar tus imágenes del taller, fotos del equipo e hitos de la joyería con el texto que prefieras.
           </div>
         </section>
@@ -59,7 +59,9 @@ export default function AboutPage() {
         {/* Pillars / Services */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-lg border border-[#e5e0d8] shadow-sm text-center">
-            <span className="text-3xl mb-3 block">🔨</span>
+            <div className="w-12 h-12 rounded-full bg-[#fcf8f0] border border-[#c5a059] text-[#c5a059] flex items-center justify-center mx-auto mb-3 font-serif font-bold text-lg">
+              01
+            </div>
             <h3 className="font-serif text-lg font-bold text-gray-900 mb-2">Taller Propio</h3>
             <p className="text-xs text-gray-600 leading-relaxed">
               Realizamos alianzas a medida, arreglos de joyas en plata y oro, grabados personalizados y puesta a punto de relojería.
@@ -67,7 +69,9 @@ export default function AboutPage() {
           </div>
 
           <div className="bg-white p-6 rounded-lg border border-[#e5e0d8] shadow-sm text-center">
-            <span className="text-3xl mb-3 block">💎</span>
+            <div className="w-12 h-12 rounded-full bg-[#fcf8f0] border border-[#c5a059] text-[#c5a059] flex items-center justify-center mx-auto mb-3 font-serif font-bold text-lg">
+              02
+            </div>
             <h3 className="font-serif text-lg font-bold text-gray-900 mb-2">Calidad Garantizada</h3>
             <p className="text-xs text-gray-600 leading-relaxed">
               Trabajamos únicamente metales nobles probados: Plata 925 auténtica, Acero 316L inalterable y Oro 18kts certificado.
@@ -75,7 +79,9 @@ export default function AboutPage() {
           </div>
 
           <div className="bg-white p-6 rounded-lg border border-[#e5e0d8] shadow-sm text-center">
-            <span className="text-3xl mb-3 block">🤝</span>
+            <div className="w-12 h-12 rounded-full bg-[#fcf8f0] border border-[#c5a059] text-[#c5a059] flex items-center justify-center mx-auto mb-3 font-serif font-bold text-lg">
+              03
+            </div>
             <h3 className="font-serif text-lg font-bold text-gray-900 mb-2">Atención Cercana</h3>
             <p className="text-xs text-gray-600 leading-relaxed">
               Atendidos por sus propios dueños y equipo con años de experiencia asesorándote para encontrar la joya ideal.
@@ -94,7 +100,7 @@ export default function AboutPage() {
               href="/donde-encontrarnos"
               className="inline-block bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-6 py-3 rounded shadow"
             >
-              Ver Ubicación & Horarios ➔
+              Ver Ubicación & Horarios
             </Link>
           </div>
         </section>

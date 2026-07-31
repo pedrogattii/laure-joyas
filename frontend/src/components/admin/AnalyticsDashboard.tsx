@@ -1,6 +1,7 @@
 'use client';
 
 import { ProductItem } from '@/lib/mockData';
+import { CashIcon, CreditCardIcon } from '@/components/icons/SvgIcons';
 
 interface SalesRecord {
   id: string;
@@ -60,7 +61,7 @@ export default function AnalyticsDashboard({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
-            💰 Ingresos Totales (Ventas)
+            Ingresos Totales (Ventas)
           </span>
           <span className="font-serif text-2xl sm:text-3xl font-extrabold text-emerald-800 font-mono">
             ${totalSalesIncome.toLocaleString('es-AR')}
@@ -70,7 +71,7 @@ export default function AnalyticsDashboard({
 
         <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
-            📉 Egresos / Gastos del Mes
+            Egresos / Gastos del Mes
           </span>
           <span className="font-serif text-2xl sm:text-3xl font-extrabold text-rose-700 font-mono">
             ${totalExpenses.toLocaleString('es-AR')}
@@ -80,7 +81,7 @@ export default function AnalyticsDashboard({
 
         <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
-            ⚖️ Balance Neto Estimado
+            Balance Neto Estimado
           </span>
           <span
             className={`font-serif text-2xl sm:text-3xl font-extrabold font-mono ${
@@ -94,7 +95,7 @@ export default function AnalyticsDashboard({
 
         <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
-            🛍️ Total de Transacciones
+            Total de Transacciones
           </span>
           <span className="font-serif text-2xl sm:text-3xl font-extrabold text-[#c5a059]">
             {salesHistory.length} ventas
@@ -110,7 +111,7 @@ export default function AnalyticsDashboard({
           <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-6">
             <div>
               <span className="text-[10px] font-bold text-[#c5a059] uppercase tracking-widest block">
-                Gráfico Visual 1
+                Métricas de Caja
               </span>
               <h3 className="font-serif text-lg font-bold text-gray-900">
                 Ventas según Medio de Pago
@@ -125,7 +126,7 @@ export default function AnalyticsDashboard({
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-gray-800 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
-                  💵 Efectivo (20% OFF)
+                  <CashIcon className="w-3.5 h-3.5 text-emerald-600 inline" /> Efectivo (20% OFF)
                 </span>
                 <span className="font-mono font-bold text-gray-900">
                   ${paymentTotals.EFECTIVO.toLocaleString('es-AR')}
@@ -146,7 +147,7 @@ export default function AnalyticsDashboard({
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-gray-800 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block"></span>
-                  🏦 Transferencia / Alias (20% OFF)
+                  <CashIcon className="w-3.5 h-3.5 text-teal-600 inline" /> Transferencia / Alias (20% OFF)
                 </span>
                 <span className="font-mono font-bold text-gray-900">
                   ${paymentTotals.TRANSFERENCIA.toLocaleString('es-AR')}
@@ -167,7 +168,7 @@ export default function AnalyticsDashboard({
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-gray-800 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#c5a059] inline-block"></span>
-                  💳 Fiserv Crédito (1 a 3 Cuotas)
+                  <CreditCardIcon className="w-3.5 h-3.5 text-[#c5a059] inline" /> Fiserv Crédito (1 a 3 Cuotas)
                 </span>
                 <span className="font-mono font-bold text-gray-900">
                   ${paymentTotals.FISERV_CREDITO.toLocaleString('es-AR')}
@@ -188,7 +189,7 @@ export default function AnalyticsDashboard({
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-gray-800 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span>
-                  💳 Fiserv Débito / Prepaga
+                  <CreditCardIcon className="w-3.5 h-3.5 text-purple-600 inline" /> Fiserv Débito / Prepaga
                 </span>
                 <span className="font-mono font-bold text-gray-900">
                   ${paymentTotals.FISERV_DEBITO.toLocaleString('es-AR')}
@@ -209,7 +210,7 @@ export default function AnalyticsDashboard({
               <div className="flex justify-between text-xs font-semibold mb-1">
                 <span className="text-gray-800 flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
-                  📱 Mercado Pago QR
+                  Mercado Pago QR
                 </span>
                 <span className="font-mono font-bold text-gray-900">
                   ${paymentTotals.MERCADOPAGO.toLocaleString('es-AR')}
@@ -232,7 +233,7 @@ export default function AnalyticsDashboard({
           <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-6">
             <div>
               <span className="text-[10px] font-bold text-[#c5a059] uppercase tracking-widest block">
-                Gráfico Visual 2
+                Auditoría de Stock
               </span>
               <h3 className="font-serif text-lg font-bold text-gray-900">
                 Salud del Inventario (Local Salsipuedes)

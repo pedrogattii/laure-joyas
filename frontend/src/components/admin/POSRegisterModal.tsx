@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ProductItem } from '@/lib/mockData';
+import { CashIcon, CreditCardIcon, CheckIcon } from '@/components/icons/SvgIcons';
 
 interface POSRegisterModalProps {
   isOpen: boolean;
@@ -79,7 +80,7 @@ export default function POSRegisterModal({
         <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded">
-              🏪 Caja Rápida Local Salsipuedes (Isla 1)
+              Caja Rápida Local Salsipuedes (Isla 1)
             </span>
             <h2 className="font-serif text-xl font-bold text-gray-900 mt-1">
               Registrar Venta Presencial
@@ -87,7 +88,7 @@ export default function POSRegisterModal({
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-lg font-bold"
+            className="text-gray-400 hover:text-gray-600 text-lg font-bold p-1"
           >
             ✕
           </button>
@@ -153,61 +154,65 @@ export default function POSRegisterModal({
               <button
                 type="button"
                 onClick={() => setPaymentMethod('EFECTIVO')}
-                className={`p-2.5 rounded border font-bold text-left transition-all ${
+                className={`p-2.5 rounded border font-bold text-left transition-all flex items-center gap-2 ${
                   paymentMethod === 'EFECTIVO'
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
                 }`}
               >
-                💵 Efectivo (20% OFF)
+                <CashIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Efectivo (20% OFF)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPaymentMethod('TRANSFERENCIA')}
-                className={`p-2.5 rounded border font-bold text-left transition-all ${
+                className={`p-2.5 rounded border font-bold text-left transition-all flex items-center gap-2 ${
                   paymentMethod === 'TRANSFERENCIA'
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
                 }`}
               >
-                🏦 Transferencia (20% OFF)
+                <CashIcon className="w-4 h-4 text-teal-600 shrink-0" />
+                <span>Transferencia (20% OFF)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPaymentMethod('FISERV_CREDITO')}
-                className={`p-2.5 rounded border font-bold text-left transition-all ${
+                className={`p-2.5 rounded border font-bold text-left transition-all flex items-center gap-2 ${
                   paymentMethod === 'FISERV_CREDITO'
                     ? 'border-[#c5a059] bg-[#fcf8f0] text-gray-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
                 }`}
               >
-                💳 Fiserv Crédito (1 a 3 Cuotas)
+                <CreditCardIcon className="w-4 h-4 text-[#c5a059] shrink-0" />
+                <span>Fiserv Crédito (1 a 3 Cuotas)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPaymentMethod('FISERV_DEBITO')}
-                className={`p-2.5 rounded border font-bold text-left transition-all ${
+                className={`p-2.5 rounded border font-bold text-left transition-all flex items-center gap-2 ${
                   paymentMethod === 'FISERV_DEBITO'
                     ? 'border-purple-500 bg-purple-50 text-purple-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
                 }`}
               >
-                💳 Fiserv Débito / Prepaga
+                <CreditCardIcon className="w-4 h-4 text-purple-600 shrink-0" />
+                <span>Fiserv Débito / Prepaga</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPaymentMethod('MERCADOPAGO')}
-                className={`p-2.5 rounded border font-bold text-left transition-all col-span-2 ${
+                className={`p-2.5 rounded border font-bold text-left transition-all col-span-2 flex items-center justify-center gap-2 ${
                   paymentMethod === 'MERCADOPAGO'
                     ? 'border-blue-500 bg-blue-50 text-blue-900 shadow-sm'
                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
                 }`}
               >
-                📱 Mercado Pago QR / Transferencia MP
+                <span>Mercado Pago QR / Transferencia MP</span>
               </button>
             </div>
           </div>
@@ -237,7 +242,7 @@ export default function POSRegisterModal({
               </span>
             </div>
             <span className="text-[11px] text-gray-300 font-medium bg-[#222] px-2.5 py-1 rounded border border-[#333]">
-              {isCash ? '🔥 Precio Contado / Débito' : '💳 Precio Lista (Crédito)'}
+              {isCash ? 'Precio Contado / Débito' : 'Precio Lista (Crédito)'}
             </span>
           </div>
 
@@ -253,7 +258,8 @@ export default function POSRegisterModal({
               type="submit"
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider px-6 py-2.5 rounded shadow flex items-center gap-2"
             >
-              <span>✅</span> Confirmar & Descontar Stock
+              <CheckIcon className="w-4 h-4 text-white" />
+              <span>Confirmar & Descontar Stock</span>
             </button>
           </div>
         </form>

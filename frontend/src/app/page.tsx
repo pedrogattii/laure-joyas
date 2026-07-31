@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import ProductCard from '@/components/ProductCard';
 import { INITIAL_PRODUCTS, ProductItem } from '@/lib/mockData';
+import { MapPinIcon } from '@/components/icons/SvgIcons';
 
 export default function HomePage() {
   const [products] = useState<ProductItem[]>(INITIAL_PRODUCTS);
@@ -35,13 +36,14 @@ export default function HomePage() {
               href="/catalogo"
               className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-widest px-8 py-3.5 rounded shadow-lg transition-transform hover:scale-105"
             >
-              Ver Catálogo Completo ➔
+              Ver Catálogo Completo
             </Link>
             <Link
               href="/donde-encontrarnos"
-              className="bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-200 font-semibold text-xs uppercase tracking-widest px-6 py-3.5 rounded border border-[#444] transition-colors"
+              className="bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-200 font-semibold text-xs uppercase tracking-widest px-6 py-3.5 rounded border border-[#444] transition-colors flex items-center gap-2"
             >
-              📍 Cómo Llegar & Retiros
+              <MapPinIcon className="w-4 h-4 text-[#c5a059]" />
+              <span>Cómo Llegar & Retiros</span>
             </Link>
           </div>
         </div>
@@ -55,7 +57,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
               <div>
                 <span className="text-xs font-bold text-rose-600 uppercase tracking-widest block mb-1">
-                  🔥 Oportunidades del Mes
+                  Oportunidades del Mes
                 </span>
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900">
                   Ofertas Especiales
@@ -65,7 +67,7 @@ export default function HomePage() {
                 href="/catalogo"
                 className="text-xs font-bold text-[#c5a059] hover:underline uppercase tracking-wider"
               >
-                Ver Todas ➔
+                Ver Todas
               </Link>
             </div>
 
@@ -86,7 +88,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
             <div>
               <span className="text-xs font-bold text-[#c5a059] uppercase tracking-widest block mb-1">
-                ✨ Selección Exclusiva
+                Selección Exclusiva
               </span>
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900">
                 Productos Destacados
@@ -96,7 +98,7 @@ export default function HomePage() {
               href="/catalogo"
               className="text-xs font-bold text-[#c5a059] hover:underline uppercase tracking-wider"
             >
-              Ir al Catálogo ➔
+              Ir al Catálogo
             </Link>
           </div>
 

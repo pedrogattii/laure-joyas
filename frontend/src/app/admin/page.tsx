@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import ProductFormModal from '@/components/admin/ProductFormModal';
@@ -9,6 +8,7 @@ import POSRegisterModal from '@/components/admin/POSRegisterModal';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { INITIAL_PRODUCTS, ProductItem } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
+import { PlusIcon, CreditCardIcon } from '@/components/icons/SvgIcons';
 
 interface SalesRecord {
   id: string;
@@ -20,7 +20,7 @@ interface SalesRecord {
 }
 
 export default function AdminPage() {
-  const { user, isAdmin, isEmployee, loginAs, logout } = useAuth();
+  const { user, loginAs, logout } = useAuth();
 
   const [products, setProducts] = useState<ProductItem[]>(INITIAL_PRODUCTS);
   const [salesHistory, setSalesHistory] = useState<SalesRecord[]>([
@@ -36,7 +36,7 @@ export default function AdminPage() {
       id: 'sale-2',
       productName: 'Abridores Oro 18kts Bolita N°3',
       quantity: 1,
-      paymentMethod: 'FISERV_TARJETA',
+      paymentMethod: 'FISERV_CREDITO',
       totalAmount: 70000,
       date: 'Hoy 12:30 hs',
     },
@@ -81,7 +81,7 @@ export default function AdminPage() {
     };
 
     setSalesHistory((prev) => [newRecord, ...prev]);
-    alert(`✅ Venta registrada con éxito. Se descontaron ${saleData.quantity} unidades del stock de la isla.`);
+    alert(`Venta registrada con éxito. Se descontaron ${saleData.quantity} unidades del stock de la isla.`);
   };
 
   return (
@@ -118,7 +118,7 @@ export default function AdminPage() {
                   : 'text-gray-300 hover:text-white'
               }`}
             >
-              👑 Dueña (Admin)
+              Dueña (Admin)
             </button>
             <button
               onClick={() => loginAs('EMPLOYEE')}
@@ -128,7 +128,7 @@ export default function AdminPage() {
                   : 'text-gray-300 hover:text-white'
               }`}
             >
-              🏪 Empleado (Caja)
+              Empleado (Caja)
             </button>
             {user && (
               <button
@@ -156,7 +156,7 @@ export default function AdminPage() {
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                📊 Dashboard & Gráficos
+                Dashboard & Gráficos
               </button>
             )}
 
@@ -168,7 +168,7 @@ export default function AdminPage() {
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
-              🏪 Registrar Venta (Caja Rápida)
+              Registrar Venta (Caja Rápida)
             </button>
 
             <button
@@ -179,7 +179,7 @@ export default function AdminPage() {
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
-              📋 Inventario & Carga de Productos ({products.length})
+              Inventario & Carga ({products.length})
             </button>
           </div>
 
@@ -188,7 +188,8 @@ export default function AdminPage() {
               onClick={() => setIsProductModalOpen(true)}
               className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-4 py-2 rounded shadow flex items-center gap-1.5"
             >
-              <span>➕</span> Cargar Producto
+              <PlusIcon className="w-4 h-4 text-black" />
+              <span>Cargar Producto</span>
             </button>
           </div>
         </div>
@@ -218,7 +219,8 @@ export default function AdminPage() {
                 onClick={() => setIsPOSModalOpen(true)}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded shadow flex items-center gap-2"
               >
-                <span>💳</span> Abrir Caja Rápida & Cobrar Venta
+                <CreditCardIcon className="w-4 h-4 text-white" />
+                <span>Abrir Caja Rápida & Cobrar Venta</span>
               </button>
             </div>
 
@@ -257,9 +259,10 @@ export default function AdminPage() {
               </h3>
               <button
                 onClick={() => setIsProductModalOpen(true)}
-                className="bg-[#121212] text-[#c5a059] font-bold text-xs uppercase px-3 py-1.5 rounded"
+                className="bg-[#121212] text-[#c5a059] font-bold text-xs uppercase px-3 py-1.5 rounded flex items-center gap-1"
               >
-                + Cargar Producto
+                <PlusIcon className="w-3.5 h-3.5 text-[#c5a059]" />
+                <span>Cargar Producto</span>
               </button>
             </div>
 

@@ -1,9 +1,9 @@
 'use client';
 
 import Header from '@/components/Header';
+import { MapPinIcon, CartIcon, WhatsAppIcon } from '@/components/icons/SvgIcons';
 
 export default function LocationPage() {
-  // Enlace provisional a Google Maps buscando Super Mami Salsipuedes
   const googleMapsUrl =
     'https://www.google.com/maps/search/?api=1&query=Super+Mami+N4+Salsipuedes+Cordoba';
 
@@ -52,7 +52,7 @@ export default function LocationPage() {
 
               <div className="space-y-4 border-t border-gray-100 pt-4 text-xs">
                 <div className="flex items-start gap-3">
-                  <span className="text-lg">📍</span>
+                  <MapPinIcon className="w-5 h-5 text-[#c5a059] shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-gray-800 block">Dirección:</span>
                     <span className="text-gray-600">Super Mami N°4, Ruta E-53, Salsipuedes, Córdoba</span>
@@ -60,7 +60,7 @@ export default function LocationPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <span className="text-lg">📍</span>
+                  <MapPinIcon className="w-5 h-5 text-[#c5a059] shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-gray-800 block">Ubicación exacta en el paseo:</span>
                     <span className="text-gray-600">Primera Isla al ingresar al centro comercial</span>
@@ -68,15 +68,7 @@ export default function LocationPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <span className="text-lg">🕒</span>
-                  <div>
-                    <span className="font-bold text-gray-800 block">Horarios de Atención:</span>
-                    <span className="text-gray-600">Lunes a Domingos de 10:00 a 21:00 hs</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="text-lg">🛍️</span>
+                  <CartIcon className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-gray-800 block">Retiro de compras web:</span>
                     <span className="text-emerald-700 font-semibold">Gratis e Inmediato coordinando la compra</span>
@@ -93,10 +85,11 @@ export default function LocationPage() {
                 rel="noopener noreferrer"
                 className="w-full bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-3.5 px-6 rounded shadow flex items-center justify-center gap-2 transition-transform active:scale-98"
               >
-                <span>🗺️</span> Abrir Ubicación en Google Maps
+                <MapPinIcon className="w-4 h-4 text-black" />
+                <span>Abrir Ubicación en Google Maps</span>
               </a>
               <p className="text-[10px] text-gray-400 text-center mt-2">
-                *(Enlace listo para ser actualizado con el pin oficial de la isla)*
+                *(Enlace directo al predio Super Mami Salsipuedes)*
               </p>
             </div>
           </div>
@@ -125,8 +118,9 @@ export default function LocationPage() {
             </div>
 
             <div className="mt-8 bg-[#2a2a2a] p-4 rounded-lg border border-[#333] text-xs">
-              <span className="text-[#c5a059] font-bold block mb-1">
-                💬 ¿Tenés alguna duda para llegar?
+              <span className="text-[#c5a059] font-bold flex items-center gap-1.5 mb-1">
+                <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
+                ¿Tenés alguna duda para llegar?
               </span>
               <p className="text-gray-300">
                 Podés escribirnos directamente por WhatsApp antes de pasar para confirmar disponibilidad inmediata de tu producto.

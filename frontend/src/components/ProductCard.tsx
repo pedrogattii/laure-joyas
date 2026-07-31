@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { ProductItem } from '@/lib/mockData';
 import { useCart } from '@/context/CartContext';
+import { CartIcon, CreditCardIcon } from '@/components/icons/SvgIcons';
 
 interface ProductCardProps {
   product: ProductItem;
@@ -36,9 +37,8 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
             />
           ) : (
             <div className="text-center p-6 bg-[#efece6] rounded border border-dashed border-gray-300 w-full h-full flex flex-col items-center justify-center">
-              <span className="text-3xl mb-2">✨</span>
-              <span className="text-xs text-gray-500 font-medium">Foto próximamente</span>
-              <span className="text-[10px] text-gray-400 mt-1">Joyas Laure</span>
+              <span className="text-xs text-gray-500 font-medium tracking-wider">Foto próximamente</span>
+              <span className="text-[10px] text-gray-400 mt-1 uppercase font-semibold">Joyas Laure</span>
             </div>
           )}
 
@@ -51,7 +51,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
 
           {/* Top Right 20% OFF Hook Badge */}
           <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-            <span className="bg-rose-600 text-white text-[11px] font-extrabold uppercase px-2.5 py-1 rounded shadow-md border border-rose-700 animate-pulse">
+            <span className="bg-rose-600 text-white text-[11px] font-extrabold uppercase px-2.5 py-1 rounded shadow-md border border-rose-700">
               20% OFF Contado
             </span>
           </div>
@@ -94,7 +94,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
 
           {savings > 0 && (
             <div className="mt-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 inline-block">
-              💰 ¡Ahorrás ${savings.toLocaleString('es-AR')}!
+              Ahorrás ${savings.toLocaleString('es-AR')} abonando contado
             </div>
           )}
         </div>
@@ -102,22 +102,26 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
         {/* Credit Card Installments */}
         <div className="bg-gray-50 p-2.5 rounded border border-gray-200 text-xs mb-4">
           <div className="flex items-center justify-between text-gray-700">
-            <span className="font-semibold">3 Cuotas Sin Interés:</span>
+            <span className="font-semibold flex items-center gap-1">
+              <CreditCardIcon className="w-3.5 h-3.5 text-gray-500" />
+              3 Cuotas Sin Interés:
+            </span>
             <span className="font-bold font-mono text-gray-900">
               3x ${installmentAmount.toLocaleString('es-AR')}
             </span>
           </div>
           <div className="text-[10px] text-gray-500 mt-0.5">
-            💳 Todos los bancos ($ {product.priceList.toLocaleString('es-AR')} total)
+            Todos los bancos (${product.priceList.toLocaleString('es-AR')} total)
           </div>
         </div>
 
         <div className="flex gap-2">
           <button
             onClick={handleAddToCart}
-            className="flex-1 bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-2.5 rounded transition-colors shadow flex items-center justify-center gap-1.5"
+            className="flex-1 bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-2.5 rounded transition-colors shadow flex items-center justify-center gap-2"
           >
-            <span>🛍️</span> Agregar al Carrito
+            <CartIcon className="w-4 h-4 text-black" />
+            <span>Agregar al Carrito</span>
           </button>
         </div>
       </div>

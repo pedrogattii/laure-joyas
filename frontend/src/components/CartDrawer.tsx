@@ -2,6 +2,7 @@
 
 import { useCart } from '@/context/CartContext';
 import Image from 'next/image';
+import { CartIcon, WhatsAppIcon, TrashIcon } from '@/components/icons/SvgIcons';
 
 export default function CartDrawer() {
   const {
@@ -35,14 +36,15 @@ export default function CartDrawer() {
         {/* Cart Header */}
         <div className="p-5 border-b border-gray-200 bg-[#121212] text-white flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-[#c5a059] font-bold text-lg">🛍️ Carrito de Compras</span>
+            <CartIcon className="w-5 h-5 text-[#c5a059]" />
+            <span className="font-serif font-bold text-lg text-white">Carrito de Compras</span>
             <span className="bg-[#c5a059] text-black text-xs font-bold px-2 py-0.5 rounded-full">
               {itemCount}
             </span>
           </div>
           <button
             onClick={() => setIsCartOpen(false)}
-            className="text-gray-400 hover:text-white text-lg font-bold"
+            className="text-gray-400 hover:text-white text-lg font-bold p-1"
           >
             ✕
           </button>
@@ -63,7 +65,7 @@ export default function CartDrawer() {
                       className="object-contain p-1"
                     />
                   ) : (
-                    <span className="text-xs text-gray-400">Sin foto</span>
+                    <span className="text-[10px] text-gray-400">Sin foto</span>
                   )}
                 </div>
 
@@ -102,9 +104,10 @@ export default function CartDrawer() {
 
                     <button
                       onClick={() => removeFromCart(product.id)}
-                      className="text-[10px] text-rose-600 hover:underline font-semibold ml-auto"
+                      className="text-rose-600 hover:text-rose-800 p-1 ml-auto"
+                      title="Eliminar del carrito"
                     >
-                      Eliminar
+                      <TrashIcon className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -112,7 +115,7 @@ export default function CartDrawer() {
             ))
           ) : (
             <div className="text-center py-16">
-              <span className="text-4xl mb-2 block">🛒</span>
+              <CartIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="font-serif text-sm font-bold text-gray-800">Tu carrito está vacío</p>
               <p className="text-xs text-gray-500 mt-1">Explorá nuestro catálogo para agregar joyas.</p>
             </div>
@@ -134,7 +137,7 @@ export default function CartDrawer() {
 
               {totalSavings > 0 && (
                 <div className="mt-1 text-[10px] font-bold text-emerald-800">
-                  🔥 ¡Estás ahorrando ${totalSavings.toLocaleString('es-AR')}!
+                  Estás ahorrando ${totalSavings.toLocaleString('es-AR')}
                 </div>
               )}
             </div>
@@ -145,14 +148,15 @@ export default function CartDrawer() {
               <span className="font-semibold font-mono">${totalList.toLocaleString('es-AR')}</span>
             </div>
             <p className="text-[10px] text-gray-500">
-              💳 O 3 cuotas sin interés de ${Math.round(totalList / 3).toLocaleString('es-AR')} (Todos los bancos)
+              O 3 cuotas sin interés de ${Math.round(totalList / 3).toLocaleString('es-AR')} (Todos los bancos)
             </p>
 
             <button
               onClick={handleCheckout}
-              className="w-full bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow flex items-center justify-center gap-2"
+              className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow flex items-center justify-center gap-2"
             >
-              <span>💬</span> Finalizar Pedido por WhatsApp
+              <WhatsAppIcon className="w-4 h-4 text-white" />
+              <span>Finalizar Pedido por WhatsApp</span>
             </button>
 
             <button

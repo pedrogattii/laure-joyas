@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useAuth, UserRole } from '@/context/AuthContext';
+import { UserIcon, GearIcon, CreditCardIcon } from '@/components/icons/SvgIcons';
 
 export default function LoginPage() {
   const { user, loginAs, logout } = useAuth();
@@ -78,7 +79,7 @@ export default function LoginPage() {
               {/* Quick Login Profile Selector for Demo */}
               <div className="mb-6 bg-[#f7f5f0] p-4 rounded-lg border border-[#e5e0d8] space-y-3">
                 <span className="text-xs font-bold text-gray-800 uppercase tracking-wider block text-center">
-                  ⚡ Ingreso Rápido de Prueba (1-Clic):
+                  Ingreso Rápido de Prueba (1-Clic):
                 </span>
 
                 <div className="space-y-2">
@@ -87,7 +88,10 @@ export default function LoginPage() {
                     onClick={() => handleQuickLogin('ADMIN')}
                     className="w-full bg-[#121212] hover:bg-[#222] text-[#c5a059] font-bold text-xs py-2.5 px-3 rounded text-left flex items-center justify-between transition-colors shadow-sm"
                   >
-                    <span>👑 Dueña (Administrador Total)</span>
+                    <span className="flex items-center gap-2">
+                      <GearIcon className="w-4 h-4 text-[#c5a059]" />
+                      Dueña (Administrador Total)
+                    </span>
                     <span className="text-[10px] text-gray-400">Dashboard + Stock</span>
                   </button>
 
@@ -96,7 +100,10 @@ export default function LoginPage() {
                     onClick={() => handleQuickLogin('EMPLOYEE')}
                     className="w-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-800 font-bold text-xs py-2.5 px-3 rounded text-left flex items-center justify-between transition-colors shadow-sm"
                   >
-                    <span>🏪 Empleado (Caja Salsipuedes)</span>
+                    <span className="flex items-center gap-2">
+                      <CreditCardIcon className="w-4 h-4 text-emerald-700" />
+                      Empleado (Caja Salsipuedes)
+                    </span>
                     <span className="text-[10px] text-emerald-700">Caja Rápida POS</span>
                   </button>
 
@@ -105,7 +112,10 @@ export default function LoginPage() {
                     onClick={() => handleQuickLogin('CUSTOMER')}
                     className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs py-2 px-3 rounded text-left flex items-center justify-between transition-colors"
                   >
-                    <span>👤 Cliente Web</span>
+                    <span className="flex items-center gap-2">
+                      <UserIcon className="w-4 h-4 text-gray-600" />
+                      Cliente Web
+                    </span>
                     <span className="text-[10px] text-gray-500">Navegación</span>
                   </button>
                 </div>
@@ -159,7 +169,7 @@ export default function LoginPage() {
 
           <div className="mt-6 pt-4 border-t border-gray-100 text-center">
             <p className="text-[11px] text-gray-500 leading-relaxed">
-              💡 <em>Los clientes pueden navegar libremente por el catálogo sin necesidad de iniciar sesión.</em>
+              <em>Los clientes pueden navegar libremente por el catálogo sin necesidad de iniciar sesión.</em>
             </p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import ProductCard from '@/components/ProductCard';
 import { INITIAL_PRODUCTS, CATEGORIES, MATERIALS, ProductItem } from '@/lib/mockData';
+import { SearchIcon } from '@/components/icons/SvgIcons';
 
 export default function CatalogPage() {
   const [products] = useState<ProductItem[]>(INITIAL_PRODUCTS);
@@ -67,13 +68,16 @@ export default function CatalogPage() {
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
                 Buscador:
               </label>
-              <input
-                type="text"
-                placeholder="Nombre o código SKU..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Nombre o código SKU..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none"
+                />
+                <SearchIcon className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+              </div>
             </div>
 
             {/* Category */}
@@ -84,7 +88,7 @@ export default function CatalogPage() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none bg-white"
               >
                 <option value="ALL">Todas las Categorías</option>
                 {CATEGORIES.map((cat) => (
@@ -103,7 +107,7 @@ export default function CatalogPage() {
               <select
                 value={selectedMaterial}
                 onChange={(e) => setSelectedMaterial(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none bg-white"
               >
                 <option value="ALL">Todos los Materiales</option>
                 {MATERIALS.map((mat) => (
@@ -125,8 +129,8 @@ export default function CatalogPage() {
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none bg-[#fcf8f0] font-semibold text-gray-800"
               >
                 <option value="DEFAULT">Relevancia / Novedades</option>
-                <option value="PRICE_LOW_HIGH">Precio: Menor a Mayor ⬆</option>
-                <option value="PRICE_HIGH_LOW">Precio: Mayor a Menor ⬇</option>
+                <option value="PRICE_LOW_HIGH">Precio: Menor a Mayor</option>
+                <option value="PRICE_HIGH_LOW">Precio: Mayor a Menor</option>
                 <option value="NAME_AZ">Nombre (A - Z)</option>
               </select>
             </div>
@@ -146,7 +150,7 @@ export default function CatalogPage() {
           </div>
         ) : (
           <div className="bg-white p-12 rounded-lg border border-[#e5e0d8] text-center max-w-md mx-auto my-12">
-            <span className="text-4xl mb-3 block">🔍</span>
+            <SearchIcon className="w-10 h-10 text-gray-400 mx-auto mb-3" />
             <h3 className="font-serif text-lg font-bold text-gray-800 mb-1">No hay resultados</h3>
             <p className="text-xs text-gray-500 mb-4">No encontramos joyas que coincidan con los filtros seleccionados.</p>
             <button

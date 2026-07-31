@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { CartIcon, UserIcon, GearIcon } from '@/components/icons/SvgIcons';
 
 export default function Header() {
   const pathname = usePathname();
@@ -20,19 +21,19 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-[#121212] text-white border-b border-[#2a2a2a] shadow-md">
       {/* Top Notification Banner */}
-      <div className="bg-[#c5a059] text-black text-xs text-center py-1.5 font-medium tracking-wider uppercase px-4">
+      <div className="bg-[#c5a059] text-black text-[11px] sm:text-xs text-center py-1.5 font-medium tracking-wider uppercase px-4">
         🔥 ¡Aprovechá el <strong>20% OFF en Efectivo / Transferencia</strong>! • Local: Super Mami N°4 Salsipuedes (Isla 1)
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 items-center h-20">
-          {/* Column 1: Brand Logo (Left) */}
-          <div className="flex items-center justify-start">
+        <div className="flex items-center justify-between h-20 gap-4">
+          {/* Brand Logo (Left) */}
+          <div className="flex items-center shrink-0">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-full border border-[#c5a059] flex items-center justify-center bg-[#1e1e1e] group-hover:scale-105 transition-transform shrink-0">
                 <span className="text-[#c5a059] font-serif text-xl font-bold">LJ</span>
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <span className="font-serif text-xl sm:text-2xl tracking-widest font-bold block text-white group-hover:text-[#c5a059] transition-colors leading-none">
                   LAURE JOYAS
                 </span>
@@ -43,8 +44,8 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Column 2: Centered Navigation Tabs (Center) */}
-          <nav className="hidden md:flex items-center justify-center gap-1.5">
+          {/* Centered Navigation Tabs (Center) */}
+          <nav className="hidden lg:flex items-center justify-center gap-1 xl:gap-2 mx-auto">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -63,44 +64,46 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Column 3: Cart Button, Login & Admin Links (Right) */}
-          <div className="flex items-center justify-end gap-2.5">
+          {/* Action Buttons Container (Right) */}
+          <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
             {/* Cart Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white border border-[#333] px-3 py-2 rounded text-xs font-semibold flex items-center gap-2 relative transition-all"
+              className="bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white border border-[#333] px-2.5 sm:px-3 py-2 rounded text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
               title="Ver Carrito de Compras"
             >
-              <span className="text-base">🛍️</span>
+              <CartIcon className="w-4 h-4 text-[#c5a059]" />
               <span className="hidden sm:inline">Carrito</span>
               {itemCount > 0 && (
-                <span className="bg-[#c5a059] text-black font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="bg-[#c5a059] text-black font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center ml-0.5">
                   {itemCount}
                 </span>
               )}
             </button>
 
-            {/* Login / User Status */}
+            {/* Login / User Status Button */}
             <Link
               href="/login"
-              className="text-xs text-gray-300 hover:text-[#c5a059] px-2.5 py-2 rounded bg-[#1e1e1e] border border-[#333] flex items-center gap-1.5"
+              className="text-xs text-gray-300 hover:text-[#c5a059] px-2.5 py-2 rounded bg-[#1e1e1e] border border-[#333] flex items-center gap-1.5 transition-all shadow-sm"
+              title="Iniciar Sesión"
             >
-              <span>👤</span>
-              <span className="hidden lg:inline">{user ? user.name.split(' ')[0] : 'Ingresar'}</span>
+              <UserIcon className="w-4 h-4 text-[#c5a059]" />
+              <span className="hidden md:inline">{user ? user.name.split(' ')[0] : 'Ingresar'}</span>
             </Link>
 
             {/* Admin Button */}
             <Link
               href="/admin"
-              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-3.5 py-2 rounded transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap"
+              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-3 sm:px-3.5 py-2 rounded transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap"
             >
-              <span>⚙️</span> <span className="hidden sm:inline">Admin / Stock</span>
+              <GearIcon className="w-4 h-4 text-black" />
+              <span className="hidden sm:inline">Admin / Stock</span>
             </Link>
           </div>
         </div>
 
-        {/* Mobile Navigation Bar */}
-        <div className="md:hidden flex items-center justify-around border-t border-[#222] py-2.5 text-[11px] uppercase font-semibold">
+        {/* Mobile / Tablet Navigation Bar */}
+        <div className="lg:hidden flex items-center justify-around border-t border-[#222] py-2.5 text-[11px] uppercase font-semibold">
           {navLinks.map((link) => (
             <Link
               key={link.href}
