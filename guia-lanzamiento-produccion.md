@@ -107,3 +107,29 @@ Para que los clientes busquen "Laure Joyas Salsipuedes" y el GPS los lleve al Su
    - Google te pedirá verificar que eres el dueño. Generalmente en Argentina envían una tarjeta postal por correo (tarda 15 días) con un código PIN, o bien te permiten grabar un video rápido mostrando tu local e inventario para verificación inmediata.
 4. **Publicación y Enlace:**
    - Una vez verificado, obtendrás un enlace corto. Ese enlace lo pegaremos en la sección "Dónde Encontrarnos" de nuestra web.
+
+---
+
+## 📈 7. Opciones de Hosting: Escalabilidad y Costos (De $0 al Infinito)
+
+Si la web crece drásticamente (miles de visitas diarias o expansión a otras provincias), la arquitectura actual (Next.js + NestJS + PostgreSQL) está diseñada para soportarlo sin reescribir código. Aquí tienes la ruta más inteligente para el bolsillo:
+
+### Fase 1: El Inicio (Costo $0 - Ideal para arrancar)
+Esta es la configuración inicial recomendada para que el negocio no tenga gastos fijos tecnológicos al empezar:
+*   **Frontend (Next.js):** **Vercel (Plan Hobby - $0)**. Vercel es el creador de Next.js. Te da ancho de banda casi ilimitado para un comercio normal y protección contra ataques gratis.
+*   **Backend (NestJS):** **Render (Plan Free - $0)**. El servidor se "dormirá" si no hay ventas por 15 minutos (tardará unos segundos extras en despertar al siguiente cliente), pero es gratis.
+*   **Base de Datos (PostgreSQL):** **Supabase (Plan Free - $0)**. Te da hasta 500MB de base de datos. Para texto de joyas y registros de ventas, 500MB son suficientes para *años* de ventas.
+
+### Fase 2: Crecimiento y Tráfico Constante (Costo ~$12 USD/mes)
+Cuando haya tráfico constante y la demora de unos segundos del backend gratuito sea molesta para los clientes:
+*   **Frontend:** **Vercel (Plan Hobby - $0)**. Sigue siendo gratis.
+*   **Backend:** **Render (Starter Plan - $7 USD/mes)** o **Railway ($5 USD/mes)**. El servidor backend pasará a estar prendido las 24 horas del día. Respuestas instantáneas.
+*   **Base de Datos:** Sigue en el plan gratuito de **Supabase ($0)**.
+
+### Fase 3: Éxito Masivo / Franquicias (Costo ~$35 a $100+ USD/mes)
+Si en el futuro abren múltiples locales, franquicias, o hay miles de transacciones diarias:
+*   **Frontend:** **Vercel Pro ($20 USD/mes)**. Mayor ancho de banda y equipo de colaboradores.
+*   **Backend:** **Render (Standard/Pro Plan - $25+ USD/mes)**. Se auto-escalará (creará clones del servidor mágicamente si hay picos de usuarios, por ejemplo en un CyberMonday).
+*   **Base de Datos:** **Supabase Pro ($25 USD/mes)** o migración con un clic a **AWS RDS (Amazon Web Services)** o **Google Cloud SQL**.
+
+**Migración Fácil:** Toda nuestra base de datos está modelada con `Prisma`. Si alguna vez Supabase o Render cierran o se vuelven caros, puedes mudar todo tu sistema a **DigitalOcean**, **Amazon AWS** o **Google Cloud** en un fin de semana sin tocar el código fuente, solo cambiando la URL de conexión.
