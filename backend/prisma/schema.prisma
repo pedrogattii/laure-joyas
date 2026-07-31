@@ -1,0 +1,189 @@
+// Prisma schema para JewelryOS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum MovementType {
+  IN          // Ingreso de mercadería
+  OUT         // Egreso / Ajuste manual
+  SALE        // Venta
+  TRANSFER    // Transferencia entre sucursales
+}
+
+enum PaymentMethod {
+  CASH            // Efectivo
+  TRANSFER        // Transferencia bancaria / Alias
+  CREDIT_CARD     // Tarjeta de crédito
+  DEBIT_CARD      // Tarjeta de débito
+  MERCADO_PAGO    // Mercado Pago QR / Checkout
+}
+
+enum SaleStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(EMPLOYEE)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movements InventoryMovement[]
+  sales     Sale[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  codePrefix  String?   // Ej: AN para Anillos, AR para Aros
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+model Material {
+  id          String    @id @default(uuid())
+  name        String    @unique // Ej: Plata 925, Plata y Oro Double, Acero 316, Oro 18kts
+  codePrefix  String?   // Ej: PL, PO, AC, OR
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("materials")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  code        String   @unique // Ej: AN-PL-000001
+  name        String
+  description String?
+  priceList   Decimal  // Precio de lista (tarjetas, cuotas)
+  priceCash   Decimal  // Precio contado (efectivo / transferencia)
+  active      Boolean  @default(true)
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  materialId  String
+  material    Material @relation(fields: [materialId], references: [id])
+
+  images      ProductImage[]
+  inventory   Inventory[]
+  saleItems   SaleItem[]
+  movements   InventoryMovement[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  url       String
+  isPrimary Boolean  @default(false)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("product_images")
+}
+
+model Store {
+  id        String      @id @default(uuid())
+  name      String      // Ej: Salsipuedes (Shopping), Río Ceballos (Centro), Web
+  address   String?
+  isWeb     Boolean     @default(false)
+  inventory Inventory[]
+  sales     Sale[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("stores")
+}
+
+model Inventory {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id])
+  quantity  Int      @default(0)
+  minStock  Int      @default(1)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, storeId])
+  @@map("inventories")
+}
+
+model InventoryMovement {
+  id        String       @id @default(uuid())
+  productId String
+  product   Product      @relation(fields: [productId], references: [id])
+  type      MovementType
+  quantity  Int          // Positivo o negativo según tipo
+  reason    String?
+  userId    String?
+  user      User?        @relation(fields: [userId], references: [id])
+  saleId    String?
+  sale      Sale?        @relation(fields: [saleId], references: [id])
+  createdAt DateTime     @default(now())
+
+  @@map("inventory_movements")
+}
+
+model Sale {
+  id            String        @id @default(uuid())
+  saleNumber    String        @unique // Ej: VTA-2026-00001
+  storeId       String
+  store         Store         @relation(fields: [storeId], references: [id])
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+  totalAmount   Decimal
+  paymentMethod PaymentMethod
+  status        SaleStatus    @default(COMPLETED)
+  notes         String?
+
+  items         SaleItem[]
+  movements     InventoryMovement[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id        String   @id @default(uuid())
+  saleId    String
+  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Decimal
+  subtotal  Decimal
+
+  @@map("sale_items")
+}
