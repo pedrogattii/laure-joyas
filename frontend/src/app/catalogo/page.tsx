@@ -212,6 +212,33 @@ export default function CatalogPage() {
               </div>
             </div>
 
+            {/* Guía de Talles para Anillos */}
+            {(activeModalProduct.category.id === 'CAT_RINGS' || activeModalProduct.category.name === 'Anillos') && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6 shadow-sm">
+                <h4 className="font-serif text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <span>📏</span> ¿No sabes tu talle? Medilo en casa
+                </h4>
+                <div className="text-xs text-gray-600 space-y-2 mb-3">
+                  <p><strong>Paso 1:</strong> Cortá una tirita de papel o usá un hilo.</p>
+                  <p><strong>Paso 2:</strong> Envolvelo en el dedo donde vas a usar el anillo (asegurate de que pase por el nudillo).</p>
+                  <p><strong>Paso 3:</strong> Marcá con una birome donde se cruza el hilo o papel.</p>
+                  <p><strong>Paso 4:</strong> Medí la distancia con una regla (en milímetros). Agregá esta medida en el checkout o por WhatsApp.</p>
+                </div>
+                <div className="aspect-video w-full rounded overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center relative">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src="https://www.youtube.com/embed/PudJ5h3vWvQ?rel=0" 
+                    title="Guía para medir tu anillo" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                    className="absolute inset-0"
+                  ></iframe>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button
                 onClick={() => setActiveModalProduct(null)}

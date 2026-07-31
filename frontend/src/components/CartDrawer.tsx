@@ -2,8 +2,8 @@
 
 import { useCart } from '@/context/CartContext';
 import Image from 'next/image';
-import { CartIcon, WhatsAppIcon, TrashIcon } from '@/components/icons/SvgIcons';
-import { BUSINESS_CONFIG } from '@/lib/constants';
+import { CartIcon, TrashIcon } from '@/components/icons/SvgIcons';
+import { useRouter } from 'next/navigation';
 
 export default function CartDrawer() {
   const {
@@ -19,17 +19,10 @@ export default function CartDrawer() {
     itemCount,
   } = useCart();
 
+  const router = useRouter();
+  
   if (!isCartOpen) return null;
 
-  const handleCheckout = () => {
-    const itemsList = cart
-      .map((item) => `• ${item.quantity}x ${item.product.name} (SKU: ${item.product.code}) - $${item.product.priceCash.toLocaleString('es-AR')}`)
-      .join('%0A');
-
-    const message = `Hola Laure Joyas! Quiero realizar la siguiente compra:%0A%0A${itemsList}%0A%0ATotal Contado (20% OFF): $${totalCash.toLocaleString('es-AR')}%0AForma de pago elegida: Transferencia / Efectivo en local Salsipuedes.`;
-
-    window.open(`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${message}`, '_blank');
-  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end animate-fadeIn">
@@ -153,11 +146,13 @@ export default function CartDrawer() {
             </p>
 
             <button
-              onClick={handleCheckout}
-              className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all"
+              onClick={() => {
+                setIsCartOpen(false);
+                router.push('/checkout');
+              }}
+              className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all"
             >
-              <WhatsAppIcon className="w-4 h-4 text-white" />
-              <span>Finalizar Pedido por WhatsApp</span>
+              <span>Ir al Checkout / Pagar</span>
             </button>
 
             <button
