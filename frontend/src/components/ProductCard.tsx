@@ -1,9 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { ProductItem } from '@/lib/mockData';
+import type { ProductItem } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
-import { CartIcon, CreditCardIcon } from '@/components/icons/SvgIcons';
+import { useWishlist } from '@/context/WishlistContext';
+import { useToast } from '@/context/ToastContext';
+import { CartIcon, CreditCardIcon, HeartIcon, HeartFilledIcon } from '@/components/icons/SvgIcons';
 import Link from 'next/link';
 
 interface ProductCardProps {
@@ -12,19 +14,38 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const { showToast } = useToast();
   const savings = product.priceList - product.priceCash;
   const installmentAmount = Math.round(product.priceList / 3);
+  const isFav = isInWishlist(product.id);
+  const isOutOfStock = product.stock <= 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isOutOfStock) {
+      showToast('Este producto no tiene stock disponible', 'warning');
+      return;
+    }
     addToCart(product);
+    showToast(`${product.name} agregado al carrito`, 'success');
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+    showToast(
+      isFav ? 'Eliminado de favoritos' : '❤️ Guardado en favoritos',
+      isFav ? 'info' : 'success'
+    );
   };
 
   return (
     <Link
       href={`/catalogo/${product.id}`}
-      className="bg-white rounded-lg border border-[#e5e0d8] overflow-hidden hover-luxury-lift cursor-pointer flex flex-col justify-between group transition-all duration-300 hover:border-[#c5a059]/60 hover:shadow-lg block"
+      className={`bg-white rounded-lg border border-[#e5e0d8] overflow-hidden hover-luxury-lift cursor-pointer flex flex-col justify-between group transition-all duration-300 hover:border-[#c5a059]/60 hover:shadow-lg block relative ${isOutOfStock ? 'opacity-75' : ''}`}
     >
       <div>
         {/* Image Container */}
@@ -34,7 +55,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+              className={`object-contain p-2 group-hover:scale-105 transition-transform duration-300 ${isOutOfStock ? 'grayscale' : ''}`}
             />
           ) : (
             <div className="text-center p-6 bg-[#efece6] rounded border border-dashed border-gray-300 w-full h-full flex flex-col items-center justify-center">
@@ -43,18 +64,44 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
+          {/* Out of Stock Overlay */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+              <span className="bg-[#121212] text-white font-bold text-sm uppercase tracking-widest px-4 py-2 rounded shadow-lg border border-gray-600">
+                Sin Stock
+              </span>
+            </div>
+          )}
+
           {/* Top Left SKU Badge */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1">
+          <div className="absolute top-3 left-3 flex flex-col gap-1 z-20">
             <span className="bg-[#121212] text-[#c5a059] text-[10px] font-mono font-semibold px-2 py-0.5 rounded shadow">
               {product.code}
             </span>
           </div>
 
-          {/* Top Right 20% OFF Hook Badge */}
-          <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-            <span className="bg-rose-600 text-white text-[11px] font-extrabold uppercase px-2.5 py-1 rounded shadow-md border border-rose-700">
-              20% OFF Contado
-            </span>
+          {/* Top Right: 20% OFF + Wishlist Heart */}
+          <div className="absolute top-3 right-3 flex flex-col items-end gap-2 z-20">
+            {!isOutOfStock && (
+              <span className="bg-rose-600 text-white text-[11px] font-extrabold uppercase px-2.5 py-1 rounded shadow-md border border-rose-700">
+                20% OFF Contado
+              </span>
+            )}
+            <button
+              onClick={handleToggleWishlist}
+              className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all active:scale-90 ${
+                isFav
+                  ? 'bg-rose-500 text-white'
+                  : 'bg-white/90 text-gray-400 hover:text-rose-500'
+              }`}
+              title={isFav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+            >
+              {isFav ? (
+                <HeartFilledIcon className="w-5 h-5" />
+              ) : (
+                <HeartIcon className="w-5 h-5" />
+              )}
+            </button>
           </div>
         </div>
 
@@ -119,10 +166,15 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex gap-2">
           <button
             onClick={handleAddToCart}
-            className="flex-1 bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider py-2.5 rounded transition-all shadow flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:shadow-md"
+            disabled={isOutOfStock}
+            className={`flex-1 font-bold text-xs uppercase tracking-wider py-2.5 rounded transition-all shadow flex items-center justify-center gap-2 active:scale-95 ${
+              isOutOfStock
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-[#c5a059] hover:bg-[#a8843e] text-black cursor-pointer hover:shadow-md'
+            }`}
           >
-            <CartIcon className="w-4 h-4 text-black" />
-            <span>Agregar al Carrito</span>
+            <CartIcon className="w-4 h-4" />
+            <span>{isOutOfStock ? 'Sin Stock' : 'Agregar al Carrito'}</span>
           </button>
         </div>
       </div>

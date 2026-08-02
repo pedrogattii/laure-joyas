@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import { CartIcon, UserIcon, GearIcon } from '@/components/icons/SvgIcons';
+import { useWishlist } from '@/context/WishlistContext';
+import { CartIcon, UserIcon, GearIcon, HeartIcon } from '@/components/icons/SvgIcons';
 
 export default function Header() {
   const pathname = usePathname();
   const { itemCount, setIsCartOpen } = useCart();
   const { user } = useAuth();
+  const { wishlistCount } = useWishlist();
 
   const navLinks = [
     { name: 'Inicio', href: '/' },
@@ -38,7 +40,7 @@ export default function Header() {
                   LAURE JOYAS
                 </span>
                 <span className="text-[9px] sm:text-[10px] text-gray-400 tracking-widest uppercase block mt-1 group-hover:text-gray-300">
-                  Joyería & Relojería
+                  Joyería &amp; Relojería
                 </span>
               </div>
             </Link>
@@ -66,6 +68,21 @@ export default function Header() {
 
           {/* Action Buttons Container (Right) */}
           <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Wishlist Button */}
+            <Link
+              href="/favoritos"
+              className="relative bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white hover:text-rose-400 border border-[#333] hover:border-rose-400/50 px-2.5 py-2 rounded text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer group active:scale-95"
+              title="Mis Favoritos"
+            >
+              <HeartIcon className="w-4 h-4 text-rose-400 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline transition-colors">Favoritos</span>
+              {wishlistCount > 0 && (
+                <span className="bg-rose-500 text-white font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             {/* Cart Button */}
             <button
               onClick={() => setIsCartOpen(true)}

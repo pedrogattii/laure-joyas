@@ -1,30 +1,6 @@
-export interface Category {
-  id: string;
-  name: string;
-  codePrefix: string;
-}
-
-export interface Material {
-  id: string;
-  name: string;
-  codePrefix: string;
-}
-
-export interface ProductItem {
-  id: string;
-  code: string;
-  name: string;
-  description: string;
-  priceList: number; // Precio lista (tarjeta en 3 cuotas)
-  priceCash: number; // Precio contado (20% OFF en efectivo/transferencia)
-  category: Category;
-  material: Material;
-  image?: string;
-  stock: number;
-  inStock: boolean;
-  isFeatured?: boolean;
-  isOffer?: boolean;
-}
+// Re-export types from the canonical source for backward compatibility
+export type { Category, Material, ProductItem } from './types';
+import type { Category, Material, ProductItem } from './types';
 
 export const CATEGORIES: Category[] = [
   { id: 'cat-1', name: 'Anillos', codePrefix: 'AN' },
