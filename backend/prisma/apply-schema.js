@@ -39,6 +39,19 @@ async function main() {
 
     ALTER TABLE IF EXISTS "materials" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()::text;
     ALTER TABLE IF EXISTS "materials" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
+
+    -- Habilitar replicación de Supabase Realtime para transmitir cambios al instante a todos los navegadores
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
+        CREATE PUBLICATION supabase_realtime FOR ALL TABLES;
+      ELSE
+        ALTER PUBLICATION supabase_realtime ADD TABLE "sales", "products", "inventories", "cash_closures", "sale_items", "categories", "materials";
+      END IF;
+    EXCEPTION WHEN OTHERS THEN
+      -- Silently ignore if already added
+      NULL;
+    END $$;
   `);
   
   console.log('✅ ¡Todas las tablas fueron creadas exitosamente en Supabase!');

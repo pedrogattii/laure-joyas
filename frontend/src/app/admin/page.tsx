@@ -25,8 +25,8 @@ export default function AdminPage() {
   const { showToast } = useToast();
 
   const { products, loading: productsLoading, fetchProducts } = useSupabaseProducts();
-  const { sales: salesHistory, loading: salesLoading } = useSupabaseSales();
-  const { closures } = useSupabaseCashClosures();
+  const { sales: salesHistory, loading: salesLoading, fetchSales } = useSupabaseSales();
+  const { closures, fetchClosures } = useSupabaseCashClosures();
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'pos' | 'inventory'>('dashboard');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
@@ -101,6 +101,8 @@ export default function AdminPage() {
         `✓ Venta registrada: ${saleData.quantity}x ${saleData.product.name} — $${saleData.totalAmount.toLocaleString('es-AR')}`,
         'success'
       );
+      fetchSales();
+      fetchProducts();
     } else {
       showToast('Error al registrar la venta. Intenta nuevamente.', 'error');
     }
@@ -450,6 +452,10 @@ export default function AdminPage() {
         onClose={() => setIsCashClosureOpen(false)}
         salesHistory={activeSessionSales}
         operatorName={user ? user.name : 'Dueña (Adriana)'}
+        onSessionStatusChange={() => {
+          fetchClosures();
+          fetchSales();
+        }}
       />
     </div>
   );

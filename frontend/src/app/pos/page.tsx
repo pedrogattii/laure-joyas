@@ -31,8 +31,8 @@ export default function MobilePosAppPage() {
   const { showToast } = useToast();
 
   const { products, loading: productsLoading, fetchProducts } = useSupabaseProducts();
-  const { sales: salesHistory, loading: salesLoading } = useSupabaseSales();
-  const { closures } = useSupabaseCashClosures();
+  const { sales: salesHistory, loading: salesLoading, fetchSales } = useSupabaseSales();
+  const { closures, fetchClosures } = useSupabaseCashClosures();
 
   const [isPOSModalOpen, setIsPOSModalOpen] = useState(false);
   const [isCashClosureOpen, setIsCashClosureOpen] = useState(false);
@@ -95,6 +95,8 @@ export default function MobilePosAppPage() {
         `✓ Venta cobrada: ${saleData.quantity}x ${saleData.product.name} ($${saleData.totalAmount.toLocaleString('es-AR')})`,
         'success'
       );
+      fetchSales();
+      fetchProducts();
     } else {
       showToast('Error al procesar la venta.', 'error');
     }
@@ -496,6 +498,10 @@ export default function MobilePosAppPage() {
         onClose={() => setIsCashClosureOpen(false)}
         salesHistory={activeSessionSales}
         operatorName={currentUser.name}
+        onSessionStatusChange={() => {
+          fetchClosures();
+          fetchSales();
+        }}
       />
 
       <ProductFormModal

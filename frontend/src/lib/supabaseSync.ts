@@ -355,13 +355,22 @@ export function useSupabaseCashClosures() {
       }
 
       if (data) {
-        // Map back to CashClosureRecord from JSON metadata
-        const records: CashClosureRecord[] = data.map((row: any) => ({
-          ...row.metadata,
-          id: row.id, // Prefer db id or metadata id
-          status: row.status,
-          reopenCount: row.reopenCount
-        }));
+        const records: CashClosureRecord[] = data.map((row: any) => {
+          const rawClosedAt = row.closedAt || row.metadata?.closedAt;
+          const closedAtNum = typeof rawClosedAt === 'number'
+            ? rawClosedAt
+            : (rawClosedAt ? new Date(rawClosedAt).getTime() : Date.now());
+
+          return {
+            ...row.metadata,
+            id: row.id,
+            closureNumber: row.closureNumber || row.metadata?.closureNumber || `CIERRE-${row.id}`,
+            closedBy: row.closedBy || row.metadata?.closedBy || 'Operador',
+            closedAt: closedAtNum,
+            status: row.status || row.metadata?.status || 'CLOSED',
+            reopenCount: row.reopenCount || 0
+          };
+        });
         setClosures(records);
       }
     } catch (e) {
