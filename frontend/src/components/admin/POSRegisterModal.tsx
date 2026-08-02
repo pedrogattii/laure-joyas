@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ProductItem } from '@/lib/mockData';
+import type { ProductItem } from '@/lib/types';
+import { useToast } from '@/context/ToastContext';
 import { CashIcon, CreditCardIcon, CheckIcon } from '@/components/icons/SvgIcons';
 
 interface POSRegisterModalProps {
@@ -22,6 +23,7 @@ export default function POSRegisterModal({
   products,
   onSaleSuccess,
 }: POSRegisterModalProps) {
+  const { showToast } = useToast();
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [paymentMethod, setPaymentMethod] = useState<string>('EFECTIVO');
@@ -49,12 +51,12 @@ export default function POSRegisterModal({
     e.preventDefault();
 
     if (!selectedProduct) {
-      alert('Por favor seleccioná un producto de la lista');
+      showToast('Por favor seleccioná un producto de la lista', 'warning');
       return;
     }
 
     if (selectedProduct.stock < quantity) {
-      alert(`Stock insuficiente. Stock actual en la isla: ${selectedProduct.stock} unidades.`);
+      showToast(`Stock insuficiente. Stock actual en la isla: ${selectedProduct.stock} unidades.`, 'error');
       return;
     }
 

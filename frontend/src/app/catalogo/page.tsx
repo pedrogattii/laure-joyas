@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { INITIAL_PRODUCTS, CATEGORIES, MATERIALS, ProductItem } from '@/lib/mockData';
+import { INITIAL_PRODUCTS, CATEGORIES, MATERIALS } from '@/lib/mockData';
+import type { ProductItem } from '@/lib/types';
 import { SearchIcon } from '@/components/icons/SvgIcons';
 
 export default function CatalogPage() {
@@ -12,6 +14,17 @@ export default function CatalogPage() {
   const [selectedMaterial, setSelectedMaterial] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('DEFAULT');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+
+  // Compute price boundaries from product data
+  const priceBounds = useMemo(() => {
+    const prices = products.map((p) => p.priceCash);
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+  }, [products]);
+
+  // Initialize price range on first render
+  const effectiveMin = priceRange[0] || priceBounds.min;
+  const effectiveMax = priceRange[1] || priceBounds.max;
 
   // Filter and Sort Logic
   const filteredProducts = products
@@ -21,7 +34,8 @@ export default function CatalogPage() {
       const matchesSearch =
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.code.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesMaterial && matchesSearch;
+      const matchesPrice = p.priceCash >= effectiveMin && p.priceCash <= effectiveMax;
+      return matchesCategory && matchesMaterial && matchesSearch && matchesPrice;
     })
     .sort((a, b) => {
       if (sortBy === 'PRICE_LOW_HIGH') {
@@ -35,6 +49,14 @@ export default function CatalogPage() {
       }
       return 0; // DEFAULT
     });
+
+  const handleResetFilters = () => {
+    setSelectedCategory('ALL');
+    setSelectedMaterial('ALL');
+    setSearchQuery('');
+    setSortBy('DEFAULT');
+    setPriceRange([0, 0]);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
@@ -61,7 +83,7 @@ export default function CatalogPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
         {/* Filter and Sorting Control Bar */}
         <div className="bg-white p-6 rounded-lg border border-[#e5e0d8] shadow-sm mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {/* Search */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
@@ -117,6 +139,30 @@ export default function CatalogPage() {
               </select>
             </div>
 
+            {/* Price Range */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                Precio Contado (hasta):
+              </label>
+              <div className="space-y-1">
+                <input
+                  type="range"
+                  min={priceBounds.min}
+                  max={priceBounds.max}
+                  step={1000}
+                  value={effectiveMax}
+                  onChange={(e) => setPriceRange([effectiveMin, parseInt(e.target.value)])}
+                  className="w-full accent-[#c5a059]"
+                />
+                <div className="flex justify-between text-[10px] text-gray-500 font-mono">
+                  <span>${priceBounds.min.toLocaleString('es-AR')}</span>
+                  <span className="font-bold text-[#c5a059] text-xs">
+                    Hasta ${effectiveMax.toLocaleString('es-AR')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* Sort By Price */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
@@ -152,13 +198,8 @@ export default function CatalogPage() {
             <h3 className="font-serif text-lg font-bold text-gray-800 mb-1">No hay resultados</h3>
             <p className="text-xs text-gray-500 mb-4">No encontramos joyas que coincidan con los filtros seleccionados.</p>
             <button
-              onClick={() => {
-                setSelectedCategory('ALL');
-                setSelectedMaterial('ALL');
-                setSearchQuery('');
-                setSortBy('DEFAULT');
-              }}
-              className="bg-[#c5a059] text-black font-semibold text-xs uppercase px-4 py-2 rounded"
+              onClick={handleResetFilters}
+              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-semibold text-xs uppercase px-5 py-2.5 rounded btn-animate cursor-pointer shadow"
             >
               Restablecer Filtros
             </button>
@@ -166,15 +207,7 @@ export default function CatalogPage() {
         )}
       </main>
 
-
-      {/* Footer */}
-      <footer className="bg-[#121212] text-gray-400 py-8 border-t border-[#2a2a2a] text-center text-xs">
-        <div className="max-w-7xl mx-auto px-4">
-          <p className="font-serif text-white font-bold text-sm mb-1">LAURE JOYAS</p>
-          <p className="mb-4">Super Mami N°4 Salsipuedes (Primera Isla) • Córdoba, Argentina</p>
-          <p className="text-gray-500">© 2026 Laure Joyas. Todos los derechos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

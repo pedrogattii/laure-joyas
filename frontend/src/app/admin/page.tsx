@@ -1,57 +1,72 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import ProductFormModal from '@/components/admin/ProductFormModal';
 import POSRegisterModal from '@/components/admin/POSRegisterModal';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
-import { INITIAL_PRODUCTS, ProductItem } from '@/lib/mockData';
+import DailyCashClosureModal from '@/components/admin/DailyCashClosureModal';
+import { INITIAL_PRODUCTS } from '@/lib/mockData';
+import type { ProductItem, SalesRecord } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
-import { PlusIcon, CreditCardIcon } from '@/components/icons/SvgIcons';
-
-interface SalesRecord {
-  id: string;
-  productName: string;
-  quantity: number;
-  paymentMethod: string;
-  totalAmount: number;
-  date: string;
-}
+import { useToast } from '@/context/ToastContext';
+import { PlusIcon, CreditCardIcon, ClockIcon, WifiOffIcon } from '@/components/icons/SvgIcons';
+import {
+  getSavedSalesHistory,
+  addSaleToHistory,
+  getOfflineQueueCount,
+  isOnline,
+} from '@/lib/offlineQueue';
 
 export default function AdminPage() {
   const { user, loginAs, logout } = useAuth();
+  const { showToast } = useToast();
 
   const [products, setProducts] = useState<ProductItem[]>(INITIAL_PRODUCTS);
-  const [salesHistory, setSalesHistory] = useState<SalesRecord[]>([
-    {
-      id: 'sale-1',
-      productName: 'Anillo Plata 925 con Detalle Oro Double 18k',
-      quantity: 1,
-      paymentMethod: 'TRANSFERENCIA',
-      totalAmount: 40000,
-      date: 'Hoy 14:15 hs',
-    },
-    {
-      id: 'sale-2',
-      productName: 'Abridores Oro 18kts Bolita N°3',
-      quantity: 1,
-      paymentMethod: 'FISERV_CREDITO',
-      totalAmount: 70000,
-      date: 'Hoy 12:30 hs',
-    },
-  ]);
+  const [salesHistory, setSalesHistory] = useState<SalesRecord[]>([]);
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'pos' | 'inventory'>('dashboard');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
   const [isPOSModalOpen, setIsPOSModalOpen] = useState<boolean>(false);
+  const [isCashClosureOpen, setIsCashClosureOpen] = useState<boolean>(false);
+
+  const [online, setOnline] = useState(true);
+  const [offlinePending, setOfflinePending] = useState(0);
 
   // Auto-set initial active tab according to role
   const currentUserRole = user?.role || 'ADMIN';
 
+  // Load persisted sales history from localStorage on mount
+  useEffect(() => {
+    const saved = getSavedSalesHistory();
+    if (saved.length > 0) {
+      setSalesHistory(saved);
+    }
+    setOnline(isOnline());
+    setOfflinePending(getOfflineQueueCount());
+
+    const handleOnline = () => {
+      setOnline(true);
+      showToast('Conexión restablecida', 'success');
+    };
+    const handleOffline = () => {
+      setOnline(false);
+      showToast('Sin conexión — las ventas se guardarán localmente', 'warning');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   // Handle adding new product
   const handleAddProduct = (newProduct: ProductItem) => {
     setProducts((prev) => [newProduct, ...prev]);
+    showToast(`Producto "${newProduct.name}" cargado exitosamente`, 'success');
   };
 
   // Handle registering new in-person sale (Caja Rápida)
@@ -70,35 +85,62 @@ export default function AdminPage() {
       )
     );
 
-    // 2. Add to sales history
+    // 2. Create sale record with timestamp
     const newRecord: SalesRecord = {
       id: `sale-${Date.now()}`,
       productName: saleData.product.name,
+      productCode: saleData.product.code,
       quantity: saleData.quantity,
       paymentMethod: saleData.paymentMethod,
       totalAmount: saleData.totalAmount,
       date: `Hoy ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs`,
+      timestamp: Date.now(),
     };
 
-    setSalesHistory((prev) => [newRecord, ...prev]);
-    alert(`Venta registrada con éxito. Se descontaron ${saleData.quantity} unidades del stock de la isla.`);
+    // 3. Persist to localStorage and update state
+    const updatedHistory = addSaleToHistory(newRecord);
+    setSalesHistory(updatedHistory);
+
+    showToast(
+      `✓ Venta registrada: ${saleData.quantity}x ${saleData.product.name} — $${saleData.totalAmount.toLocaleString('es-AR')}`,
+      'success'
+    );
   };
+
+  // Get today's sales for daily reporting
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todaySales = salesHistory.filter((s) => s.timestamp >= todayStart.getTime());
+  const todayTotal = todaySales.reduce((acc, s) => acc + s.totalAmount, 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
       <Header />
 
+      {/* Offline Banner */}
+      {!online && (
+        <div className="bg-amber-500 text-black text-center py-2 px-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 animate-fadeIn">
+          <WifiOffIcon className="w-4 h-4" />
+          <span>Sin conexión — Las ventas se guardan en tu celular</span>
+        </div>
+      )}
+
       {/* Admin Top Header */}
       <div className="bg-[#121212] text-white py-8 border-b border-[#2a2a2a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="text-[#c5a059] text-xs font-semibold uppercase tracking-widest block">
                 Sistema de Gestión & Inventario Cruzado
               </span>
               <span className="bg-[#222] text-[#c5a059] border border-[#444] text-[10px] font-bold px-2 py-0.5 rounded">
                 Rol: {currentUserRole}
               </span>
+              {offlinePending > 0 && (
+                <span className="bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded">
+                  {offlinePending} ventas pendientes de sincronizar
+                </span>
+              )}
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white">
               {user ? user.name : 'Panel de Administración'} — Salsipuedes
@@ -145,8 +187,8 @@ export default function AdminPage() {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
         {/* Navigation Tabs Bar */}
-        <div className="flex flex-wrap items-center justify-between border-b border-gray-300 mb-8 bg-white p-2 rounded-t-lg shadow-sm">
-          <div className="flex gap-2">
+        <div className="flex flex-wrap items-center justify-between border-b border-gray-300 mb-8 bg-white p-2 rounded-t-lg shadow-sm gap-2">
+          <div className="flex gap-2 flex-wrap">
             {currentUserRole === 'ADMIN' && (
               <button
                 onClick={() => setActiveTab('dashboard')}
@@ -183,13 +225,20 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div className="p-2">
+          <div className="flex gap-2 p-2">
+            <button
+              onClick={() => setIsCashClosureOpen(true)}
+              className="bg-[#121212] hover:bg-black text-white font-bold text-xs uppercase tracking-wider px-4 py-2 rounded shadow flex items-center gap-1.5 active:scale-95 transition-all"
+            >
+              <ClockIcon className="w-4 h-4 text-[#c5a059]" />
+              <span className="hidden sm:inline">Cerrar Caja</span>
+            </button>
             <button
               onClick={() => setIsProductModalOpen(true)}
-              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-4 py-2 rounded shadow flex items-center gap-1.5"
+              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-4 py-2 rounded shadow flex items-center gap-1.5 active:scale-95 transition-all"
             >
               <PlusIcon className="w-4 h-4 text-black" />
-              <span>Cargar Producto</span>
+              <span className="hidden sm:inline">Cargar Producto</span>
             </button>
           </div>
         </div>
@@ -201,52 +250,72 @@ export default function AdminPage() {
 
         {/* TAB 2: CAJA RAPIDA / POS LOCAL */}
         {activeTab === 'pos' && (
-          <div className="bg-white p-8 rounded-xl border border-[#e5e0d8] shadow-sm space-y-6 animate-fadeIn">
+          <div className="bg-white p-6 sm:p-8 rounded-xl border border-[#e5e0d8] shadow-sm space-y-6 animate-fadeIn">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded">
                   Punto de Venta Local (Isla Super Mami N°4)
                 </span>
-                <h2 className="font-serif text-2xl font-bold text-gray-900 mt-1">
-                  Módulo de Caja Rápida para Empleados
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-gray-900 mt-1">
+                  Módulo de Caja Rápida
                 </h2>
                 <p className="text-xs text-gray-600 mt-1">
-                  Cada venta presencial registrada acá descuenta automáticamente el stock del inventario cruzado de la web.
+                  Cada venta registrada descuenta automáticamente el stock del inventario cruzado.
                 </p>
               </div>
 
               <button
                 onClick={() => setIsPOSModalOpen(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded shadow flex items-center gap-2"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm uppercase tracking-wider px-6 py-4 rounded-lg shadow flex items-center gap-2 active:scale-95 transition-all w-full sm:w-auto justify-center"
               >
-                <CreditCardIcon className="w-4 h-4 text-white" />
-                <span>Abrir Caja Rápida & Cobrar Venta</span>
+                <CreditCardIcon className="w-5 h-5 text-white" />
+                <span>Cobrar Venta</span>
               </button>
             </div>
 
-            {/* Quick Actions / Recent Transactions Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Quick Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-[#fbf9f5] p-5 rounded-lg border border-[#e5dfd5]">
                 <span className="text-xs font-bold text-gray-600 uppercase block mb-1">Ventas del Día</span>
                 <span className="font-serif text-2xl font-bold text-gray-900">
-                  {salesHistory.length} transacciones
+                  {todaySales.length} transacciones
                 </span>
               </div>
 
               <div className="bg-[#fbf9f5] p-5 rounded-lg border border-[#e5dfd5]">
                 <span className="text-xs font-bold text-gray-600 uppercase block mb-1">Total Facturado Hoy</span>
                 <span className="font-serif text-2xl font-bold text-emerald-800 font-mono">
-                  ${salesHistory.reduce((acc, s) => acc + s.totalAmount, 0).toLocaleString('es-AR')}
+                  ${todayTotal.toLocaleString('es-AR')}
                 </span>
               </div>
 
               <div className="bg-[#fbf9f5] p-5 rounded-lg border border-[#e5dfd5]">
                 <span className="text-xs font-bold text-gray-600 uppercase block mb-1">Sucursal Física</span>
                 <span className="font-serif text-base font-bold text-[#c5a059] block mt-1">
-                  Isla 1 — Super Mami N°4 Salsipuedes
+                  Isla 1 — Super Mami N°4
                 </span>
               </div>
             </div>
+
+            {/* Recent Sales Table (mobile-friendly list) */}
+            {todaySales.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600">Últimas ventas de hoy</h3>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {todaySales.slice(0, 10).map((sale) => (
+                    <div key={sale.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-gray-900 truncate">{sale.productName}</p>
+                        <p className="text-gray-500">{sale.date} • {sale.paymentMethod} • {sale.quantity}un.</p>
+                      </div>
+                      <span className="font-mono font-bold text-emerald-700 shrink-0 ml-3">
+                        ${sale.totalAmount.toLocaleString('es-AR')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -357,6 +426,13 @@ export default function AdminPage() {
         onClose={() => setIsPOSModalOpen(false)}
         products={products}
         onSaleSuccess={handlePOSSaleSuccess}
+      />
+
+      {/* Daily Cash Closure Modal */}
+      <DailyCashClosureModal
+        isOpen={isCashClosureOpen}
+        onClose={() => setIsCashClosureOpen(false)}
+        salesHistory={todaySales}
       />
     </div>
   );

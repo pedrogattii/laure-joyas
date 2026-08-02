@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { INITIAL_PRODUCTS, ProductItem } from '@/lib/mockData';
+import { INITIAL_PRODUCTS } from '@/lib/mockData';
+import type { ProductItem } from '@/lib/types';
 import { MapPinIcon } from '@/components/icons/SvgIcons';
 
 export default function HomePage() {
   const [products] = useState<ProductItem[]>(INITIAL_PRODUCTS);
-  const [activeModalProduct, setActiveModalProduct] = useState<ProductItem | null>(null);
 
   const featuredProducts = products.filter((p) => p.isFeatured);
   const offerProducts = products.filter((p) => p.isOffer);
@@ -22,10 +23,10 @@ export default function HomePage() {
       <section className="bg-[#121212] text-white py-16 px-4 sm:px-6 lg:px-8 border-b border-[#2a2a2a] relative overflow-hidden">
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <span className="text-[#c5a059] text-xs font-semibold tracking-widest uppercase mb-3 block">
-            Joyería & Orfebrería • Salsipuedes, Córdoba
+            Joyería &amp; Orfebrería • Salsipuedes, Córdoba
           </span>
           <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-white">
-            Elegancia en Plata 925 & Oro 18kts
+            Elegancia en Plata 925 &amp; Oro 18kts
           </h1>
           <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto mb-8 font-light leading-relaxed">
             Descubrí nuestras piezas exclusivas. Nos encontrás en <strong>Super Mami N°4 Salsipuedes (Isla 1)</strong>. Aprovechá nuestros descuentos especiales en pago contado por transferencia o efectivo.
@@ -43,7 +44,7 @@ export default function HomePage() {
               className="bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-200 font-semibold text-xs uppercase tracking-widest px-6 py-3.5 rounded border border-[#444] transition-colors flex items-center gap-2"
             >
               <MapPinIcon className="w-4 h-4 text-[#c5a059]" />
-              <span>Cómo Llegar & Retiros</span>
+              <span>Cómo Llegar &amp; Retiros</span>
             </Link>
           </div>
         </div>
@@ -76,7 +77,6 @@ export default function HomePage() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onSelect={(p) => setActiveModalProduct(p)}
                 />
               ))}
             </div>
@@ -107,7 +107,6 @@ export default function HomePage() {
               <ProductCard
                 key={product.id}
                 product={product}
-                onSelect={(p) => setActiveModalProduct(p)}
               />
             ))}
           </div>
@@ -132,85 +131,13 @@ export default function HomePage() {
               href="/donde-encontrarnos"
               className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded text-center shadow"
             >
-              Ver Ubicación & Horarios
+              Ver Ubicación &amp; Horarios
             </Link>
           </div>
         </section>
       </main>
 
-      {/* Detail Modal */}
-      {activeModalProduct && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-2xl border border-gray-200 relative animate-fadeIn">
-            <button
-              onClick={() => setActiveModalProduct(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-lg font-bold"
-            >
-              ✕
-            </button>
-
-            <div className="flex items-center gap-2 mb-3">
-              <span className="bg-[#121212] text-[#c5a059] font-mono text-xs px-2 py-0.5 rounded font-semibold">
-                {activeModalProduct.code}
-              </span>
-              <span className="text-xs font-semibold text-[#c5a059] bg-[#fcf8f0] px-2 py-0.5 rounded">
-                {activeModalProduct.category.name}
-              </span>
-            </div>
-
-            <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">
-              {activeModalProduct.name}
-            </h3>
-
-            <p className="text-xs text-gray-600 mb-6 leading-relaxed">
-              {activeModalProduct.description}
-            </p>
-
-            <div className="bg-[#faf8f3] p-4 rounded-lg border border-[#e5dfd5] mb-6 space-y-3">
-              <div className="flex justify-between items-baseline">
-                <span className="text-xs text-gray-600 font-medium">Precio Contado (Efectivo/Alias):</span>
-                <span className="text-xl font-bold text-gray-900 font-mono">
-                  ${activeModalProduct.priceCash.toLocaleString('es-AR')}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-baseline text-xs text-gray-500 border-t border-gray-200 pt-2">
-                <span>Precio Lista (Tarjetas / Cuotas):</span>
-                <span className="font-semibold text-gray-700 font-mono">
-                  ${activeModalProduct.priceList.toLocaleString('es-AR')}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setActiveModalProduct(null)}
-                className="flex-1 border border-gray-300 text-gray-700 font-semibold text-xs uppercase py-3 rounded"
-              >
-                Cerrar
-              </button>
-              <button
-                onClick={() => {
-                  alert(`Consulta enviada para: ${activeModalProduct.name}`);
-                  setActiveModalProduct(null);
-                }}
-                className="flex-1 bg-[#c5a059] text-black font-bold text-xs uppercase py-3 rounded shadow"
-              >
-                Consultar por WhatsApp
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <footer className="bg-[#121212] text-gray-400 py-8 border-t border-[#2a2a2a] text-center text-xs">
-        <div className="max-w-7xl mx-auto px-4">
-          <p className="font-serif text-white font-bold text-sm mb-1">LAURE JOYAS</p>
-          <p className="mb-4">Super Mami N°4 Salsipuedes (Primera Isla) • Córdoba, Argentina</p>
-          <p className="text-gray-500">© 2026 Laure Joyas. Todos los derechos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

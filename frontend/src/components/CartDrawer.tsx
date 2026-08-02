@@ -150,7 +150,7 @@ export default function CartDrawer() {
                 setIsCartOpen(false);
                 router.push('/checkout');
               }}
-              className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all"
+              className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow flex items-center justify-center gap-2 btn-animate cursor-pointer"
             >
               <span>Ir al Checkout / Pagar</span>
             </button>

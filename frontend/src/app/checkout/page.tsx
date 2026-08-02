@@ -171,7 +171,7 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 form="checkout-form"
-                className="w-full bg-[#121212] hover:bg-black text-white font-bold text-xs uppercase py-3 rounded shadow transition-colors"
+                className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-bold text-xs uppercase py-3.5 rounded shadow btn-animate cursor-pointer"
               >
                 Finalizar Compra
               </button>
@@ -185,7 +185,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handleWhatsAppModification}
-                className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-xs uppercase py-3 rounded shadow flex items-center justify-center gap-2 transition-colors"
+                className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-xs uppercase py-3.5 rounded shadow-md flex items-center justify-center gap-2 btn-whatsapp cursor-pointer"
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 <span>Modificar pedido por WhatsApp</span>

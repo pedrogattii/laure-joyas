@@ -1,16 +1,7 @@
 'use client';
 
-import { ProductItem } from '@/lib/mockData';
+import type { ProductItem, SalesRecord } from '@/lib/types';
 import { CashIcon, CreditCardIcon } from '@/components/icons/SvgIcons';
-
-interface SalesRecord {
-  id: string;
-  productName: string;
-  quantity: number;
-  paymentMethod: string;
-  totalAmount: number;
-  date: string;
-}
 
 interface AnalyticsDashboardProps {
   products: ProductItem[];
