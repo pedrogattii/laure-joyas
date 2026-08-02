@@ -40,11 +40,94 @@ h1, h2, h3, h4, .font-serif {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
 }
 
+/* Global Clickable Elements Cursor Pointer Rule */
+button,
+a,
+select,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+[role="button"],
+label[for] {
+  cursor: pointer !important;
+}
+
+/* Custom Cursor & Interactive Polish for Inputs/Selects */
+select, input[type="range"] {
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+select:hover {
+  border-color: var(--accent-gold);
+}
+
+/* Luxury Card Hover Animation */
 .hover-luxury-lift {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
 }
 
 .hover-luxury-lift:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 36px -12px rgba(197, 160, 89, 0.25);
+  box-shadow: 0 16px 36px -12px rgba(197, 160, 89, 0.28);
 }
+
+/* Unified Button Micro-Interactions */
+.btn-animate {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.btn-animate:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.btn-animate:active {
+  transform: translateY(0) scale(0.97);
+  filter: brightness(0.95);
+}
+
+/* WhatsApp Pulse & Hover Glow */
+.btn-whatsapp {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(37, 211, 102, 0.4);
+}
+
+.btn-whatsapp:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Toast slide-up animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fade-in for modals */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
