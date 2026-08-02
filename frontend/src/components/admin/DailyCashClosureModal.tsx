@@ -62,9 +62,14 @@ export default function DailyCashClosureModal({
   };
 
   const handleShareWhatsApp = () => {
-    const encoded = encodeURIComponent(report);
-    // Use wa.me without number so user can choose the recipient
-    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    if (BUSINESS_CONFIG.whatsappEnabled) {
+      const encoded = encodeURIComponent(report);
+      // Use wa.me without number so user can choose the recipient
+      window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    } else {
+      // Fallback: Copy report to clipboard for pasting into any messaging app
+      handleCopyReport();
+    }
   };
 
   const handleCloseCash = () => {

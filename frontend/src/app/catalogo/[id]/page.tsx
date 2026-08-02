@@ -44,9 +44,21 @@ export default function ProductDetailPage() {
   const isFav = isInWishlist(product.id);
   const isOutOfStock = product.stock <= 0;
 
-  const handleWhatsAppConsult = () => {
+  const handleWhatsAppConsult = async () => {
     const message = `Hola Laure Joyas! 👋 Me interesa el producto *[${product.code}] ${product.name}* ($${product.priceCash.toLocaleString('es-AR')} contado). ¿Tienen disponibilidad?`;
-    window.open(`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    
+    if (BUSINESS_CONFIG.whatsappEnabled) {
+      // Direct WhatsApp link (ready for when official business number is configured)
+      window.open(`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    } else {
+      // Fallback: Copy inquiry text to clipboard and notify customer
+      try {
+        await navigator.clipboard.writeText(message);
+        showToast('✓ Consulta copiada al portapapeles. ¡Contactanos en el local!', 'success');
+      } catch {
+        showToast(`Consulta: SKU ${product.code} - ${product.name}`, 'info');
+      }
+    }
   };
 
   const handleAddToCartAndBuy = () => {

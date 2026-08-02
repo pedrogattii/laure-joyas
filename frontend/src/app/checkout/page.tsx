@@ -8,9 +8,12 @@ import { WhatsAppIcon } from '@/components/icons/SvgIcons';
 import { BUSINESS_CONFIG } from '@/lib/constants';
 import Image from 'next/image';
 
+import { useToast } from '@/context/ToastContext';
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, totalCash, totalList, clearCart } = useCart();
+  const { showToast } = useToast();
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -30,19 +33,31 @@ export default function CheckoutPage() {
 
   const handleFinishPurchase = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`¡Gracias ${formData.firstName}! Tu pedido ha sido confirmado con éxito. Nos pondremos en contacto contigo pronto.`);
+    showToast(`¡Gracias ${formData.firstName}! Tu pedido ha sido registrado con éxito.`, 'success');
     clearCart();
     router.push('/');
   };
 
-  const handleWhatsAppModification = () => {
+  const handleWhatsAppModification = async () => {
     const itemsList = cart
       .map((item) => `• ${item.quantity}x ${item.product.name} (SKU: ${item.product.code}) - $${(formData.paymentMethod === 'cash' ? item.product.priceCash : item.product.priceList).toLocaleString('es-AR')}`)
-      .join('%0A');
+      .join('\n');
 
-    const message = `Hola Laure Joyas! Quiero realizar la siguiente compra pero necesito hacer unas modificaciones (ej. talle de anillo):%0A%0A${itemsList}%0A%0ATotal: $${currentTotal.toLocaleString('es-AR')}%0AForma de pago elegida: ${formData.paymentMethod === 'cash' ? 'Efectivo/Transferencia' : 'Tarjetas (Precio Lista)'}%0A%0AMis datos:%0A- Nombre: ${formData.firstName} ${formData.lastName}%0A- Teléfono: ${formData.phone}`;
+    const message = `Hola Laure Joyas! Quiero realizar la siguiente compra pero necesito hacer unas modificaciones (ej. talle de anillo):\n\n${itemsList}\n\nTotal: $${currentTotal.toLocaleString('es-AR')}\nForma de pago elegida: ${formData.paymentMethod === 'cash' ? 'Efectivo/Transferencia' : 'Tarjetas (Precio Lista)'}\n\nMis datos:\n- Nombre: ${formData.firstName} ${formData.lastName}\n- Teléfono: ${formData.phone}`;
 
-    window.open(`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${message}`, '_blank');
+    if (BUSINESS_CONFIG.whatsappEnabled) {
+      // Direct WhatsApp link (ready for when official business number is configured)
+      const encodedMsg = encodeURIComponent(message);
+      window.open(`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodedMsg}`, '_blank');
+    } else {
+      // Fallback: Copy to clipboard and inform customer
+      try {
+        await navigator.clipboard.writeText(message);
+        showToast('✓ Datos de pedido copiados al portapapeles.', 'success');
+      } catch {
+        showToast('Pedido preparado. Presentalo en la caja del local.', 'info');
+      }
+    }
   };
 
   if (cart.length === 0) {
