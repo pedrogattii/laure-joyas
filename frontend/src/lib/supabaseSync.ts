@@ -338,6 +338,19 @@ export async function registerSupabaseCashClosure(record: any) {
   return true;
 }
 
+export async function updateSupabaseCashClosureStatus(closureId: string, status: 'CLOSED' | 'REOPENED') {
+  const { error } = await supabase
+    .from('cash_closures')
+    .update({ status })
+    .eq('id', closureId);
+
+  if (error) {
+    console.error('Error updating cash closure status in Supabase:', error);
+    return false;
+  }
+  return true;
+}
+
 export function useSupabaseCashClosures() {
   const [closures, setClosures] = useState<CashClosureRecord[]>([]);
   const [loading, setLoading] = useState(true);

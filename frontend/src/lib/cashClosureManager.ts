@@ -102,7 +102,7 @@ export function getActiveSessionSales(allSales: SalesRecord[], closures?: CashCl
   return allSales;
 }
 
-import { registerSupabaseCashClosure } from './supabaseSync';
+import { registerSupabaseCashClosure, updateSupabaseCashClosureStatus } from './supabaseSync';
 
 // --- Perform Cash Closure ---
 
@@ -185,7 +185,7 @@ export function getReopensCountInLast24h(): number {
   return session.reopenTimestamps.filter((t) => t >= twentyFourHoursAgo).length;
 }
 
-export function reopenCashSession(operatorName: string): { success: boolean; message: string } {
+export async function reopenCashSession(operatorName: string): Promise<{ success: boolean; message: string }> {
   const session = getCashSessionState();
 
   if (!session.isClosed) {
@@ -209,8 +209,9 @@ export function reopenCashSession(operatorName: string): { success: boolean; mes
   session.reopenTimestamps = updatedTimestamps;
   saveCashSessionState(session);
 
-  // Update record status in history if exists
+  // Update record status in history & Supabase if exists
   if (session.lastClosureId) {
+    await updateSupabaseCashClosureStatus(session.lastClosureId, 'REOPENED');
     const history = getCashClosureHistory();
     const updatedHistory = history.map((r) =>
       r.id === session.lastClosureId ? { ...r, status: 'REOPENED' as const } : r

@@ -91,8 +91,8 @@ export default function DailyCashClosureModal({
     }
   };
 
-  const handleReopenSession = () => {
-    const result = reopenCashSession(operatorName);
+  const handleReopenSession = async () => {
+    const result = await reopenCashSession(operatorName);
     if (result.success) {
       showToast(result.message, 'success');
       if (onSessionStatusChange) onSessionStatusChange();
