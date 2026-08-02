@@ -21,6 +21,7 @@ import {
   getSavedProducts,
   saveProducts,
 } from '@/lib/offlineQueue';
+import { getActiveSessionSales } from '@/lib/cashClosureManager';
 
 export default function AdminPage() {
   const { user, loginAs, logout } = useAuth();
@@ -119,11 +120,9 @@ export default function AdminPage() {
     );
   };
 
-  // Get today's sales for daily reporting
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todaySales = salesHistory.filter((s) => s.timestamp >= todayStart.getTime());
-  const todayTotal = todaySales.reduce((acc, s) => acc + s.totalAmount, 0);
+  // Get active cash session sales for daily reporting
+  const activeSessionSales = getActiveSessionSales(salesHistory);
+  const todayTotal = activeSessionSales.reduce((acc, s) => acc + s.totalAmount, 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
@@ -309,7 +308,7 @@ export default function AdminPage() {
               <div className="bg-[#fbf9f5] p-5 rounded-lg border border-[#e5dfd5]">
                 <span className="text-xs font-bold text-gray-600 uppercase block mb-1">Ventas del Día</span>
                 <span className="font-serif text-2xl font-bold text-gray-900">
-                  {todaySales.length} transacciones
+                  {activeSessionSales.length} transacciones
                 </span>
               </div>
 
@@ -329,11 +328,11 @@ export default function AdminPage() {
             </div>
 
             {/* Recent Sales Table (mobile-friendly list) */}
-            {todaySales.length > 0 && (
+            {activeSessionSales.length > 0 && (
               <div className="space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600">Últimas ventas de hoy</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600">Últimas ventas de esta caja</h3>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {todaySales.slice(0, 10).map((sale) => (
+                  {activeSessionSales.slice(0, 10).map((sale) => (
                     <div key={sale.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-gray-900 truncate">{sale.productName}</p>
@@ -463,7 +462,8 @@ export default function AdminPage() {
       <DailyCashClosureModal
         isOpen={isCashClosureOpen}
         onClose={() => setIsCashClosureOpen(false)}
-        salesHistory={todaySales}
+        salesHistory={activeSessionSales}
+        operatorName={user ? user.name : 'Dueña (Adriana)'}
       />
     </div>
   );

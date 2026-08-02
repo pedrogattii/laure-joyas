@@ -27,6 +27,7 @@ import {
   getSavedProducts,
   saveProducts,
 } from '@/lib/offlineQueue';
+import { getActiveSessionSales } from '@/lib/cashClosureManager';
 
 export default function MobilePosAppPage() {
   const { user, loginAs } = useAuth();
@@ -128,16 +129,14 @@ export default function MobilePosAppPage() {
     showToast(`Producto "${newProduct.name}" cargado al stock`, 'success');
   };
 
-  // Today's sales calculations
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todaySales = useMemo(
-    () => salesHistory.filter((s) => s.timestamp >= todayStart.getTime()),
+  // Active cash session sales calculations
+  const activeSessionSales = useMemo(
+    () => getActiveSessionSales(salesHistory),
     [salesHistory]
   );
   const todayTotal = useMemo(
-    () => todaySales.reduce((acc, s) => acc + s.totalAmount, 0),
-    [todaySales]
+    () => activeSessionSales.reduce((acc, s) => acc + s.totalAmount, 0),
+    [activeSessionSales]
   );
 
   // Filtered stock list
@@ -262,7 +261,7 @@ export default function MobilePosAppPage() {
                   Ventas de Hoy
                 </span>
                 <span className="font-serif text-2xl font-bold text-white">
-                  {todaySales.length}
+                  {activeSessionSales.length}
                 </span>
                 <span className="text-[10px] text-gray-500 block mt-0.5">transacciones</span>
               </div>
@@ -282,7 +281,7 @@ export default function MobilePosAppPage() {
             <div className="bg-[#1e1e1e] p-4 rounded-xl border border-[#333]">
               <div className="flex items-center justify-between mb-3 border-b border-[#2a2a2a] pb-2">
                 <h3 className="font-serif text-sm font-bold text-gray-200">
-                  Últimas Ventas ({todaySales.length})
+                  Últimas Ventas ({activeSessionSales.length})
                 </h3>
                 <button
                   onClick={() => setIsCashClosureOpen(true)}
@@ -293,9 +292,9 @@ export default function MobilePosAppPage() {
                 </button>
               </div>
 
-              {todaySales.length > 0 ? (
+              {activeSessionSales.length > 0 ? (
                 <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
-                  {todaySales.map((sale) => (
+                  {activeSessionSales.map((sale) => (
                     <div
                       key={sale.id}
                       className="p-3 bg-[#121212] rounded-lg border border-[#2a2a2a] flex items-center justify-between text-xs"
@@ -505,7 +504,8 @@ export default function MobilePosAppPage() {
       <DailyCashClosureModal
         isOpen={isCashClosureOpen}
         onClose={() => setIsCashClosureOpen(false)}
-        salesHistory={todaySales}
+        salesHistory={activeSessionSales}
+        operatorName={currentUser.name}
       />
 
       <ProductFormModal
