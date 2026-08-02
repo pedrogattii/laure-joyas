@@ -6,13 +6,86 @@ import type { CashClosureRecord } from './cashClosureManager';
 // Store ID for Salsipuedes (Isla 1) - Hardcoded for prototype purposes based on Prisma Seed
 const STORE_ID = 'store-salsipuedes-isla';
 
+// Helper to generate a valid RFC4122 v4 UUID
+export function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+export function isValidUUID(uuid: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
+export function useSupabaseCategories() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase.from('categories').select('*').order('name');
+      if (error) {
+        console.error('Error fetching categories from Supabase:', error);
+        return;
+      }
+      if (data) {
+        setCategories(data as Category[]);
+      }
+    } catch (e) {
+      console.error('Unexpected error fetching categories:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  return { categories, loading, fetchCategories };
+}
+
+export function useSupabaseMaterials() {
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMaterials = async () => {
+    try {
+      const { data, error } = await supabase.from('materials').select('*').order('name');
+      if (error) {
+        console.error('Error fetching materials from Supabase:', error);
+        return;
+      }
+      if (data) {
+        setMaterials(data as Material[]);
+      }
+    } catch (e) {
+      console.error('Unexpected error fetching materials:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMaterials();
+  }, []);
+
+  return { materials, loading, fetchMaterials };
+}
+
 export function useSupabaseProducts() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProducts = async () => {
     try {
-      // We need to fetch products, categories, materials, and inventory stock
+      // Fetch products, categories, materials, and inventory stock
       const { data, error } = await supabase
         .from('products')
         .select(`
@@ -30,7 +103,6 @@ export function useSupabaseProducts() {
 
       if (data) {
         const formatted: ProductItem[] = data.map((p: any) => {
-          // Find inventory for our store
           const inv = p.inventory?.find((i: any) => i.storeId === STORE_ID);
           const stock = inv ? inv.quantity : 0;
 
@@ -59,20 +131,17 @@ export function useSupabaseProducts() {
   useEffect(() => {
     fetchProducts();
 
-    // Subscribe to realtime changes on inventories table
     const inventorySubscription = supabase
       .channel('public:inventories')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'inventories' },
-        (payload) => {
-          // Re-fetch everything if stock changes to keep it simple and accurate
+        () => {
           fetchProducts();
         }
       )
       .subscribe();
       
-    // Subscribe to product changes too (new products, price changes)
     const productSubscription = supabase
       .channel('public:products')
       .on(
@@ -92,7 +161,6 @@ export function useSupabaseProducts() {
 
   return { products, loading, fetchProducts };
 }
-
 
 const PAYMENT_METHOD_TO_DB: Record<string, string> = {
   EFECTIVO: 'CASH',
@@ -141,7 +209,6 @@ export function useSupabaseSales() {
       }
 
       if (data) {
-        // Flatten the sales
         const flatSales: SalesRecord[] = [];
         data.forEach((sale: any) => {
           sale.items?.forEach((item: any) => {
@@ -158,7 +225,6 @@ export function useSupabaseSales() {
           });
         });
         
-        // Sort by timestamp desc
         flatSales.sort((a, b) => b.timestamp - a.timestamp);
         setSales(flatSales);
       }
@@ -202,7 +268,8 @@ export async function registerSupabaseSale(saleData: {
 }) {
   const dbPaymentMethod = PAYMENT_METHOD_TO_DB[saleData.paymentMethod] || 'CASH';
   const now = new Date().toISOString();
-  const saleId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `sale-${Date.now()}`;
+  const saleId = generateUUID();
+  const validUserId = saleData.userId && isValidUUID(saleData.userId) ? saleData.userId : null;
 
   const { data: sale, error: saleError } = await supabase
     .from('sales')
@@ -210,7 +277,7 @@ export async function registerSupabaseSale(saleData: {
       id: saleId,
       saleNumber: `VTA-${Date.now()}`,
       storeId: STORE_ID,
-      userId: saleData.userId || null,
+      userId: validUserId,
       totalAmount: saleData.totalAmount,
       paymentMethod: dbPaymentMethod,
       status: 'COMPLETED',
@@ -220,11 +287,11 @@ export async function registerSupabaseSale(saleData: {
     .single();
 
   if (saleError || !sale) {
-    console.error('Error creating sale:', saleError);
+    console.error('Error creating sale in Supabase:', saleError);
     return false;
   }
 
-  const itemId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `item-${Date.now()}`;
+  const itemId = generateUUID();
 
   const { error: itemError } = await supabase
     .from('sale_items')
@@ -238,7 +305,7 @@ export async function registerSupabaseSale(saleData: {
     });
 
   if (itemError) {
-    console.error('Error creating sale item:', itemError);
+    console.error('Error creating sale item in Supabase:', itemError);
     return false;
   }
 
@@ -271,7 +338,7 @@ export async function registerSupabaseProduct(productData: {
   stock: number;
 }) {
   const now = new Date().toISOString();
-  const prodId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `prod-${Date.now()}`;
+  const prodId = generateUUID();
 
   const { data: prod, error: prodError } = await supabase
     .from('products')
@@ -295,7 +362,7 @@ export async function registerSupabaseProduct(productData: {
     return false;
   }
 
-  const invId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `inv-${Date.now()}`;
+  const invId = generateUUID();
 
   const { error: invError } = await supabase
     .from('inventories')
@@ -316,9 +383,8 @@ export async function registerSupabaseProduct(productData: {
   return true;
 }
 
-
 export async function registerSupabaseCashClosure(record: any) {
-  const closureId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `closure-${Date.now()}`;
+  const closureId = isValidUUID(record.id) ? record.id : generateUUID();
   const { error } = await supabase
     .from('cash_closures')
     .insert({

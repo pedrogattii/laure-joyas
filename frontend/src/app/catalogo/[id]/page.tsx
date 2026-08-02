@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { INITIAL_PRODUCTS } from '@/lib/mockData';
+import { useSupabaseProducts } from '@/lib/supabaseSync';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
@@ -15,11 +16,14 @@ import Link from 'next/link';
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { products, loading } = useSupabaseProducts();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { showToast } = useToast();
-  
-  const product = INITIAL_PRODUCTS.find((p) => p.id === params.id);
+
+  const allProducts = products.length > 0 ? products : INITIAL_PRODUCTS;
+  const product = allProducts.find((p) => p.id === params.id) || INITIAL_PRODUCTS.find((p) => p.id === params.id);
+
 
   if (!product) {
     return (

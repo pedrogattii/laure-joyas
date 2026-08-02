@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { CATEGORIES, MATERIALS, ProductItem } from '@/lib/mockData';
+import { useState, useEffect } from 'react';
+import { CATEGORIES as MOCK_CATEGORIES, MATERIALS as MOCK_MATERIALS, ProductItem } from '@/lib/mockData';
+import { useSupabaseCategories, useSupabaseMaterials } from '@/lib/supabaseSync';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -16,11 +17,17 @@ export default function ProductFormModal({
   onAddProduct,
   existingCount,
 }: ProductFormModalProps) {
+  const { categories: dbCategories, loading: catLoading } = useSupabaseCategories();
+  const { materials: dbMaterials, loading: matLoading } = useSupabaseMaterials();
+
+  const categoriesList = dbCategories.length > 0 ? dbCategories : MOCK_CATEGORIES;
+  const materialsList = dbMaterials.length > 0 ? dbMaterials : MOCK_MATERIALS;
+
   const [step, setStep] = useState<number>(1);
 
   // Form State
-  const [categoryId, setCategoryId] = useState<string>(CATEGORIES[0].id);
-  const [materialId, setMaterialId] = useState<string>(MATERIALS[0].id);
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [materialId, setMaterialId] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [priceList, setPriceList] = useState<string>('');
@@ -29,10 +36,20 @@ export default function ProductFormModal({
   const [imageUrl, setImageUrl] = useState<string>('');
   const [noPhotoForNow, setNoPhotoForNow] = useState<boolean>(true);
 
+  useEffect(() => {
+    if (!categoryId && categoriesList.length > 0) {
+      setCategoryId(categoriesList[0].id);
+    }
+    if (!materialId && materialsList.length > 0) {
+      setMaterialId(materialsList[0].id);
+    }
+  }, [categoriesList, materialsList, categoryId, materialId]);
+
   if (!isOpen) return null;
 
-  const selectedCategory = CATEGORIES.find((c) => c.id === categoryId) || CATEGORIES[0];
-  const selectedMaterial = MATERIALS.find((m) => m.id === materialId) || MATERIALS[0];
+  const selectedCategory = categoriesList.find((c) => c.id === categoryId) || categoriesList[0];
+  const selectedMaterial = materialsList.find((m) => m.id === materialId) || materialsList[0];
+
 
   // Auto Code calculation
   const generatedCode = `${selectedCategory.codePrefix}-${selectedMaterial.codePrefix}-${(existingCount + 1).toString().padStart(6, '0')}`;
@@ -122,7 +139,7 @@ export default function ProductFormModal({
                   1. ¿Qué tipo de producto es? (Categoría)
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {CATEGORIES.map((cat) => (
+                  {categoriesList.map((cat) => (
                     <button
                       key={cat.id}
                       type="button"
@@ -144,7 +161,7 @@ export default function ProductFormModal({
                   2. ¿De qué material está confeccionado?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {MATERIALS.map((mat) => (
+                  {materialsList.map((mat) => (
                     <button
                       key={mat.id}
                       type="button"
