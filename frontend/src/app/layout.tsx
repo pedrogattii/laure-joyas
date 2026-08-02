@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -17,9 +17,19 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#c5a059",
+};
+
 export const metadata: Metadata = {
   title: "LAURE JOYAS — Joyería & Orfebrería en Salsipuedes",
   description: "Joyería fina en Plata 925, Plata y Oro Double y Oro 18kts. Local en Super Mami N°4 Salsipuedes.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "LJ POS",
+  },
 };
 
 export default function RootLayout({
