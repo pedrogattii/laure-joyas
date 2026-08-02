@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import ProductFormModal from '@/components/admin/ProductFormModal';
 import POSRegisterModal from '@/components/admin/POSRegisterModal';
@@ -186,6 +187,25 @@ export default function AdminPage() {
 
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        {/* PWA App Install Banner */}
+        <div className="mb-6 bg-[#121212] text-white p-4 rounded-xl border border-[#c5a059]/40 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">📱</span>
+            <div>
+              <h3 className="font-serif text-sm font-bold text-[#c5a059]">¿Usás el celular en el local? Instalá la App LJ POS</h3>
+              <p className="text-xs text-gray-300 mt-0.5">Acceso rápido a pantalla completa en iOS (Safari) y Android (Chrome).</p>
+            </div>
+          </div>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Link
+              href="/pos"
+              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase px-4 py-2.5 rounded shadow btn-animate text-center w-full sm:w-auto"
+            >
+              Abrir Modo App Móvil (/pos)
+            </Link>
+          </div>
+        </div>
+
         {/* Navigation Tabs Bar */}
         <div className="flex flex-wrap items-center justify-between border-b border-gray-300 mb-8 bg-white p-2 rounded-t-lg shadow-sm gap-2">
           <div className="flex gap-2 flex-wrap">

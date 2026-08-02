@@ -7,6 +7,7 @@ import { useToast } from '@/context/ToastContext';
 import POSRegisterModal from '@/components/admin/POSRegisterModal';
 import DailyCashClosureModal from '@/components/admin/DailyCashClosureModal';
 import ProductFormModal from '@/components/admin/ProductFormModal';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { INITIAL_PRODUCTS } from '@/lib/mockData';
 import type { ProductItem, SalesRecord } from '@/lib/types';
 import {
@@ -36,7 +37,7 @@ export default function MobilePosAppPage() {
   const [isCashClosureOpen, setIsCashClosureOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'cobrar' | 'stock' | 'cierre'>('cobrar');
+  const [activeTab, setActiveTab] = useState<'cobrar' | 'stock' | 'cierre' | 'dashboard'>('cobrar');
   const [searchQuery, setSearchQuery] = useState('');
   const [online, setOnline] = useState(true);
   const [offlinePending, setOfflinePending] = useState(0);
@@ -410,11 +411,26 @@ export default function MobilePosAppPage() {
             </div>
           </div>
         )}
+
+        {/* TAB 4: DASHBOARD (ADMIN / ADRIANA ONLY) */}
+        {activeTab === 'dashboard' && currentUser.role === 'ADMIN' && (
+          <div className="space-y-4 animate-fadeIn bg-white text-gray-900 p-4 rounded-2xl shadow-xl border border-[#333]">
+            <div className="border-b border-gray-200 pb-2 mb-2">
+              <span className="text-[10px] font-bold text-[#c5a059] uppercase tracking-widest block">
+                Acceso Exclusivo Dueña (Adriana)
+              </span>
+              <h2 className="font-serif text-lg font-bold text-gray-900">
+                Dashboard &amp; Métricas del Negocio
+              </h2>
+            </div>
+            <AnalyticsDashboard products={products} salesHistory={salesHistory} />
+          </div>
+        )}
       </main>
 
       {/* Bottom App Navigation Bar (Mobile Native Style) */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#1e1e1e] border-t border-[#2a2a2a] p-2 max-w-lg mx-auto shadow-2xl">
-        <div className="grid grid-cols-3 gap-1">
+        <div className={`grid ${currentUser.role === 'ADMIN' ? 'grid-cols-4' : 'grid-cols-3'} gap-1`}>
           <button
             onClick={() => setActiveTab('cobrar')}
             className={`flex flex-col items-center py-2 px-1 rounded-xl text-xs font-bold transition-all btn-animate ${
@@ -424,7 +440,7 @@ export default function MobilePosAppPage() {
             }`}
           >
             <CashIcon className="w-5 h-5 mb-0.5" />
-            <span>Cobrar Venta</span>
+            <span>Cobrar</span>
           </button>
 
           <button
@@ -436,7 +452,7 @@ export default function MobilePosAppPage() {
             }`}
           >
             <SearchIcon className="w-5 h-5 mb-0.5" />
-            <span>Stock Isla</span>
+            <span>Stock</span>
           </button>
 
           <button
@@ -448,8 +464,22 @@ export default function MobilePosAppPage() {
             }`}
           >
             <ClockIcon className="w-5 h-5 mb-0.5" />
-            <span>Cierre Caja</span>
+            <span>Cierre</span>
           </button>
+
+          {currentUser.role === 'ADMIN' && (
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex flex-col items-center py-2 px-1 rounded-xl text-xs font-bold transition-all btn-animate ${
+                activeTab === 'dashboard'
+                  ? 'bg-[#c5a059] text-black shadow'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <UserIcon className="w-5 h-5 mb-0.5" />
+              <span>Métricas</span>
+            </button>
+          )}
         </div>
       </nav>
 

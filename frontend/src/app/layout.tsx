@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   title: "LAURE JOYAS — Joyería & Orfebrería en Salsipuedes",
   description: "Joyería fina en Plata 925, Plata y Oro Double y Oro 18kts. Local en Super Mami N°4 Salsipuedes.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/icon.svg",
+    apple: "/icons/icon.svg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

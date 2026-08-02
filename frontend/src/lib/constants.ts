@@ -1,8 +1,8 @@
 // Central business configuration for Laure Joyas
 export const BUSINESS_CONFIG = {
   name: 'Laure Joyas',
-  // Feature flag: set to true when the business gets its dedicated WhatsApp number
-  whatsappEnabled: false,
+  // Feature flag for WhatsApp integration (enabled)
+  whatsappEnabled: true,
   // Phone number for WhatsApp orders (Format: 549 + area code + local number, e.g. 5493510000000)
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '5493510000000',
   storeAddress: 'Super Mami N°4, Ruta E-53, Salsipuedes, Córdoba',
