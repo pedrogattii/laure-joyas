@@ -131,20 +131,57 @@ export default function POSRegisterModal({
             </div>
           )}
 
-          {/* Quantity */}
+          {/* Quantity Controls */}
           <div>
             <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
               2. Cantidad de Unidades Vendidas *
             </label>
-            <input
-              type="number"
-              min="1"
-              max={selectedProduct ? selectedProduct.stock : 99}
-              required
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 1)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none font-bold"
-            />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="w-11 h-11 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-900 font-extrabold text-lg rounded-lg border border-gray-300 flex items-center justify-center btn-animate cursor-pointer shrink-0"
+                title="Restar 1 unidad"
+              >
+                -
+              </button>
+
+              <input
+                type="number"
+                min="1"
+                max={selectedProduct ? selectedProduct.stock : 99}
+                required
+                value={quantity}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (isNaN(val) || val <= 0) {
+                    setQuantity(1);
+                  } else if (selectedProduct && val > selectedProduct.stock) {
+                    setQuantity(selectedProduct.stock);
+                    showToast(`Stock máximo disponible: ${selectedProduct.stock} unidades`, 'warning');
+                  } else {
+                    setQuantity(val);
+                  }
+                }}
+                className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#c5a059] focus:outline-none font-extrabold text-center text-gray-900 bg-white shadow-inner font-mono"
+              />
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedProduct && quantity >= selectedProduct.stock) {
+                    showToast(`Stock máximo en la isla: ${selectedProduct.stock} unidades`, 'warning');
+                    return;
+                  }
+                  setQuantity((q) => q + 1);
+                }}
+                className="w-11 h-11 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-900 font-extrabold text-lg rounded-lg border border-gray-300 flex items-center justify-center btn-animate cursor-pointer shrink-0"
+                title="Sumar 1 unidad"
+              >
+                +
+              </button>
+            </div>
           </div>
 
           {/* Payment Method Selector */}
@@ -229,7 +266,7 @@ export default function POSRegisterModal({
               placeholder="Ej: Cliente frecuente, regalo con grabado..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none text-xs"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none text-xs text-gray-900 bg-white placeholder-gray-500"
             />
           </div>
 

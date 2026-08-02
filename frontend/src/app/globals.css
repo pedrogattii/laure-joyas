@@ -20,6 +20,24 @@ body {
   font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Explicit input text visibility and contrast */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+select,
+textarea {
+  color: #111827 !important;
+  background-color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important;
+  opacity: 1;
+}
+
 h1, h2, h3, h4, .font-serif {
   font-family: var(--font-playfair), 'Georgia', serif;
 }

@@ -40,10 +40,18 @@ export default function MobilePosAppPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [online, setOnline] = useState(true);
   const [offlinePending, setOfflinePending] = useState(0);
-  const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(true);
+  const [isStandalone, setIsStandalone] = useState(false);
 
-  // Load sales history & connection state
+  // Load sales history & connection state & detect PWA standalone mode
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const standalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (navigator as any).standalone === true;
+      setIsStandalone(!!standalone);
+    }
+
     const saved = getSavedSalesHistory();
     if (saved.length > 0) {
       setSalesHistory(saved);
@@ -190,33 +198,35 @@ export default function MobilePosAppPage() {
 
       {/* Main Content Body */}
       <main className="max-w-lg mx-auto w-full p-4 flex-grow space-y-6">
-        {/* PWA Install Banner */}
-        <div className="bg-[#1e1e1e] border border-[#333] rounded-xl p-4 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">📱</span>
-              <div>
-                <p className="font-bold text-xs text-white">¿Tener como App en tu cel?</p>
-                <p className="text-[11px] text-gray-400">Instalá el acceso rápido en la pantalla</p>
+        {/* PWA Install Banner (Visible in browser, hidden when installed as App) */}
+        {!isStandalone && (
+          <div className="bg-[#1e1e1e] border border-[#333] rounded-xl p-4 shadow-lg animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📱</span>
+                <div>
+                  <p className="font-bold text-xs text-white">¿Tener como App en tu cel?</p>
+                  <p className="text-[11px] text-gray-400">Instalá el acceso rápido en tu pantalla de inicio</p>
+                </div>
               </div>
+              <button
+                onClick={() => setShowInstallGuide(!showInstallGuide)}
+                className="text-xs text-[#c5a059] font-bold underline px-2 py-1 btn-animate"
+              >
+                {showInstallGuide ? 'Ocultar' : 'Ver cómo'}
+              </button>
             </div>
-            <button
-              onClick={() => setShowInstallGuide(!showInstallGuide)}
-              className="text-xs text-[#c5a059] font-bold underline px-2 py-1 btn-animate"
-            >
-              {showInstallGuide ? 'Ocultar' : 'Ver cómo'}
-            </button>
-          </div>
 
-          {showInstallGuide && (
-            <div className="mt-3 pt-3 border-t border-[#333] text-xs text-gray-300 space-y-2 animate-fadeIn">
-              <p className="font-bold text-[#c5a059]">En iPhone (Safari):</p>
-              <p className="text-[11px] text-gray-400">Tocá el botón Compartir ⎋ → &quot;Agregar a inicio&quot; ➕</p>
-              <p className="font-bold text-[#c5a059] pt-1">En Android (Chrome):</p>
-              <p className="text-[11px] text-gray-400">Tocá los 3 puntos ⋮ → &quot;Instalar aplicación&quot;</p>
-            </div>
-          )}
-        </div>
+            {showInstallGuide && (
+              <div className="mt-3 pt-3 border-t border-[#333] text-xs text-gray-300 space-y-2 animate-fadeIn">
+                <p className="font-bold text-[#c5a059]">En iPhone (Safari):</p>
+                <p className="text-[11px] text-gray-400">Tocá el botón Compartir ⎋ → &quot;Agregar a inicio&quot; ➕</p>
+                <p className="font-bold text-[#c5a059] pt-1">En Android (Chrome):</p>
+                <p className="text-[11px] text-gray-400">Tocá los 3 puntos ⋮ → &quot;Instalar aplicación&quot;</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* TAB 1: COBRAR & ACCIONES RAPIDAS */}
         {activeTab === 'cobrar' && (
