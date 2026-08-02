@@ -24,15 +24,15 @@ interface AuthContextType {
 const DEFAULT_USERS: Record<UserRole, UserSession> = {
   ADMIN: {
     id: 'usr-admin',
-    name: 'Laura (Dueña)',
-    email: 'laura@laurejoyas.com.ar',
+    name: 'Adriana (Dueña)',
+    email: 'adriana@laurejoyas.com.ar',
     role: 'ADMIN',
     storeName: 'Salsipuedes (Shopping)',
   },
   EMPLOYEE: {
     id: 'usr-employee',
-    name: 'Sofia (Caja Salsipuedes)',
-    email: 'caja@laurejoyas.com.ar',
+    name: 'Martina (Caja Salsipuedes)',
+    email: 'martina@laurejoyas.com.ar',
     role: 'EMPLOYEE',
     storeName: 'Salsipuedes (Isla 1)',
   },
