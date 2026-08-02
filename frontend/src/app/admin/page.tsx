@@ -18,7 +18,7 @@ import {
   isOnline,
 } from '@/lib/offlineQueue';
 import { getActiveSessionSales } from '@/lib/cashClosureManager';
-import { useSupabaseProducts, useSupabaseSales, registerSupabaseSale, registerSupabaseProduct } from '@/lib/supabaseSync';
+import { useSupabaseProducts, useSupabaseSales, useSupabaseCashClosures, registerSupabaseSale, registerSupabaseProduct } from '@/lib/supabaseSync';
 
 export default function AdminPage() {
   const { user, loginAs, logout } = useAuth();
@@ -26,6 +26,7 @@ export default function AdminPage() {
 
   const { products, loading: productsLoading, fetchProducts } = useSupabaseProducts();
   const { sales: salesHistory, loading: salesLoading } = useSupabaseSales();
+  const { closures } = useSupabaseCashClosures();
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'pos' | 'inventory'>('dashboard');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
@@ -106,7 +107,7 @@ export default function AdminPage() {
   };
 
   // Get active cash session sales for daily reporting
-  const activeSessionSales = getActiveSessionSales(salesHistory);
+  const activeSessionSales = getActiveSessionSales(salesHistory, closures);
   const todayTotal = activeSessionSales.reduce((acc, s) => acc + s.totalAmount, 0);
 
   return (

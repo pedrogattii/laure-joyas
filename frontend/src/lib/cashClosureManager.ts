@@ -87,14 +87,19 @@ export function saveCashClosureRecord(record: CashClosureRecord): void {
 
 // --- Active Session Sales Filter ---
 
-export function getActiveSessionSales(allSales: SalesRecord[]): SalesRecord[] {
+export function getActiveSessionSales(allSales: SalesRecord[], closures?: CashClosureRecord[]): SalesRecord[] {
+  if (closures && closures.length > 0) {
+    const latestClosed = closures.find(c => c.status === 'CLOSED');
+    if (latestClosed) {
+      const closedAt = typeof latestClosed.closedAt === 'number' ? latestClosed.closedAt : new Date(latestClosed.closedAt).getTime();
+      return allSales.filter((s) => s.timestamp > closedAt);
+    }
+  }
   const session = getCashSessionState();
   if (session.isClosed && session.closedAt) {
-    // If closed and not reopened, active sales after closure
     return allSales.filter((s) => s.timestamp > session.closedAt!);
   }
-  // Otherwise, all sales since session opened
-  return allSales.filter((s) => s.timestamp >= session.openedAt);
+  return allSales;
 }
 
 import { registerSupabaseCashClosure } from './supabaseSync';

@@ -94,6 +94,27 @@ export function useSupabaseProducts() {
 }
 
 
+const PAYMENT_METHOD_TO_DB: Record<string, string> = {
+  EFECTIVO: 'CASH',
+  TRANSFERENCIA: 'TRANSFER',
+  FISERV_CREDITO: 'CREDIT_CARD',
+  FISERV_DEBITO: 'DEBIT_CARD',
+  MERCADOPAGO: 'MERCADO_PAGO',
+  CASH: 'CASH',
+  TRANSFER: 'TRANSFER',
+  CREDIT_CARD: 'CREDIT_CARD',
+  DEBIT_CARD: 'DEBIT_CARD',
+  MERCADO_PAGO: 'MERCADO_PAGO',
+};
+
+const PAYMENT_METHOD_FROM_DB: Record<string, string> = {
+  CASH: 'EFECTIVO',
+  TRANSFER: 'TRANSFERENCIA',
+  CREDIT_CARD: 'FISERV_CREDITO',
+  DEBIT_CARD: 'FISERV_DEBITO',
+  MERCADO_PAGO: 'MERCADOPAGO',
+};
+
 export function useSupabaseSales() {
   const [sales, setSales] = useState<SalesRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,18 +141,16 @@ export function useSupabaseSales() {
       }
 
       if (data) {
-        // Flatten the sales (Supabase returns sale with items, our frontend expects flat items for history)
+        // Flatten the sales
         const flatSales: SalesRecord[] = [];
         data.forEach((sale: any) => {
-          // For prototype: If multiple items, we create a record for each, or consolidate.
-          // Since our POS currently sells 1 type of product per transaction (based on how handlePOSSaleSuccess is built)
           sale.items?.forEach((item: any) => {
             flatSales.push({
-              id: sale.id, // Using sale ID as grouping
+              id: sale.id,
               productName: item.product?.name || 'Producto Desconocido',
               productCode: item.product?.code || 'SKU-???',
               quantity: item.quantity,
-              paymentMethod: sale.paymentMethod,
+              paymentMethod: PAYMENT_METHOD_FROM_DB[sale.paymentMethod] || sale.paymentMethod,
               totalAmount: Number(sale.totalAmount),
               date: `Hoy ${new Date(sale.createdAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs`,
               timestamp: new Date(sale.createdAt).getTime(),
@@ -181,6 +200,8 @@ export async function registerSupabaseSale(saleData: {
   paymentMethod: string;
   userId?: string;
 }) {
+  const dbPaymentMethod = PAYMENT_METHOD_TO_DB[saleData.paymentMethod] || 'CASH';
+
   const { data: sale, error: saleError } = await supabase
     .from('sales')
     .insert({
@@ -188,7 +209,7 @@ export async function registerSupabaseSale(saleData: {
       storeId: STORE_ID,
       userId: saleData.userId || null,
       totalAmount: saleData.totalAmount,
-      paymentMethod: saleData.paymentMethod,
+      paymentMethod: dbPaymentMethod,
       status: 'COMPLETED'
     })
     .select()

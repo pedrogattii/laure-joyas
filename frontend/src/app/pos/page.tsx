@@ -24,14 +24,15 @@ import {
   isOnline,
 } from '@/lib/offlineQueue';
 import { getActiveSessionSales } from '@/lib/cashClosureManager';
-import { useSupabaseProducts, useSupabaseSales, registerSupabaseSale } from '@/lib/supabaseSync';
+import { useSupabaseProducts, useSupabaseSales, useSupabaseCashClosures, registerSupabaseSale, registerSupabaseProduct } from '@/lib/supabaseSync';
 
 export default function MobilePosAppPage() {
   const { user, loginAs } = useAuth();
   const { showToast } = useToast();
 
-  const { products, loading: productsLoading } = useSupabaseProducts();
+  const { products, loading: productsLoading, fetchProducts } = useSupabaseProducts();
   const { sales: salesHistory, loading: salesLoading } = useSupabaseSales();
+  const { closures } = useSupabaseCashClosures();
 
   const [isPOSModalOpen, setIsPOSModalOpen] = useState(false);
   const [isCashClosureOpen, setIsCashClosureOpen] = useState(false);
@@ -99,14 +100,29 @@ export default function MobilePosAppPage() {
     }
   };
 
-  const handleAddProduct = (newProduct: ProductItem) => {
-    showToast(`Producto "${newProduct.name}" cargado. Guardado remoto pronto.`, 'success');
+  const handleAddProduct = async (newProduct: ProductItem) => {
+    const success = await registerSupabaseProduct({
+      code: newProduct.code,
+      name: newProduct.name,
+      description: newProduct.description,
+      priceList: newProduct.priceList,
+      priceCash: newProduct.priceCash,
+      categoryId: newProduct.category.id,
+      materialId: newProduct.material.id,
+      stock: newProduct.stock,
+    });
+    if (success) {
+      showToast(`✓ Producto "${newProduct.name}" guardado exitosamente en Supabase.`, 'success');
+      fetchProducts();
+    } else {
+      showToast('Error al guardar el producto en Supabase.', 'error');
+    }
   };
 
   // Active cash session sales calculations
   const activeSessionSales = useMemo(
-    () => getActiveSessionSales(salesHistory),
-    [salesHistory]
+    () => getActiveSessionSales(salesHistory, closures),
+    [salesHistory, closures]
   );
   const todayTotal = useMemo(
     () => activeSessionSales.reduce((acc, s) => acc + s.totalAmount, 0),
