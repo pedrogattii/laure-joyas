@@ -18,6 +18,8 @@ import {
   addSaleToHistory,
   getOfflineQueueCount,
   isOnline,
+  getSavedProducts,
+  saveProducts,
 } from '@/lib/offlineQueue';
 
 export default function AdminPage() {
@@ -38,12 +40,15 @@ export default function AdminPage() {
   // Auto-set initial active tab according to role
   const currentUserRole = user?.role || 'ADMIN';
 
-  // Load persisted sales history from localStorage on mount
+  // Load persisted sales history & stock from localStorage on mount
   useEffect(() => {
     const saved = getSavedSalesHistory();
     if (saved.length > 0) {
       setSalesHistory(saved);
     }
+    const savedProds = getSavedProducts(INITIAL_PRODUCTS);
+    setProducts(savedProds);
+
     setOnline(isOnline());
     setOfflinePending(getOfflineQueueCount());
 
@@ -66,7 +71,11 @@ export default function AdminPage() {
 
   // Handle adding new product
   const handleAddProduct = (newProduct: ProductItem) => {
-    setProducts((prev) => [newProduct, ...prev]);
+    setProducts((prev) => {
+      const updated = [newProduct, ...prev];
+      saveProducts(updated);
+      return updated;
+    });
     showToast(`Producto "${newProduct.name}" cargado exitosamente`, 'success');
   };
 
@@ -77,14 +86,16 @@ export default function AdminPage() {
     paymentMethod: string;
     totalAmount: number;
   }) => {
-    // 1. Decrement stock from inventory in real-time
-    setProducts((prevProducts) =>
-      prevProducts.map((p) =>
+    // 1. Decrement stock from inventory in real-time & persist
+    setProducts((prevProducts) => {
+      const updated = prevProducts.map((p) =>
         p.id === saleData.product.id
           ? { ...p, stock: Math.max(0, p.stock - saleData.quantity) }
           : p
-      )
-    );
+      );
+      saveProducts(updated);
+      return updated;
+    });
 
     // 2. Create sale record with timestamp
     const newRecord: SalesRecord = {

@@ -24,6 +24,8 @@ import {
   addSaleToHistory,
   getOfflineQueueCount,
   isOnline,
+  getSavedProducts,
+  saveProducts,
 } from '@/lib/offlineQueue';
 
 export default function MobilePosAppPage() {
@@ -44,7 +46,7 @@ export default function MobilePosAppPage() {
   const [showInstallGuide, setShowInstallGuide] = useState(true);
   const [isStandalone, setIsStandalone] = useState(false);
 
-  // Load sales history & connection state & detect PWA standalone mode
+  // Load sales history & connection state & inventory stock & detect PWA standalone mode
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const standalone =
@@ -57,6 +59,9 @@ export default function MobilePosAppPage() {
     if (saved.length > 0) {
       setSalesHistory(saved);
     }
+    const savedProds = getSavedProducts(INITIAL_PRODUCTS);
+    setProducts(savedProds);
+
     setOnline(isOnline());
     setOfflinePending(getOfflineQueueCount());
 
@@ -84,13 +89,15 @@ export default function MobilePosAppPage() {
     paymentMethod: string;
     totalAmount: number;
   }) => {
-    setProducts((prev) =>
-      prev.map((p) =>
+    setProducts((prev) => {
+      const updated = prev.map((p) =>
         p.id === saleData.product.id
           ? { ...p, stock: Math.max(0, p.stock - saleData.quantity) }
           : p
-      )
-    );
+      );
+      saveProducts(updated);
+      return updated;
+    });
 
     const newRecord: SalesRecord = {
       id: `sale-${Date.now()}`,
@@ -113,7 +120,11 @@ export default function MobilePosAppPage() {
   };
 
   const handleAddProduct = (newProduct: ProductItem) => {
-    setProducts((prev) => [newProduct, ...prev]);
+    setProducts((prev) => {
+      const updated = [newProduct, ...prev];
+      saveProducts(updated);
+      return updated;
+    });
     showToast(`Producto "${newProduct.name}" cargado al stock`, 'success');
   };
 

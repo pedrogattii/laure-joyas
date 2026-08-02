@@ -1,10 +1,11 @@
 // Offline queue for POS sales when WiFi is unavailable at the store.
 // Saves pending sales to localStorage and provides sync helpers.
 
-import type { SalesRecord } from '@/lib/types';
+import type { ProductItem, SalesRecord } from '@/lib/types';
 
 const OFFLINE_QUEUE_KEY = 'lj_offline_sales_queue';
 const SALES_HISTORY_KEY = 'lj_sales_history';
+const INVENTORY_STOCK_KEY = 'lj_inventory_stock';
 
 // --- Offline Queue ---
 
@@ -32,7 +33,7 @@ export function getOfflineQueueCount(): number {
   return getOfflineQueue().length;
 }
 
-// --- Persistent Sales History (localStorage until backend is connected) ---
+// --- Persistent Sales History ---
 
 export function getSavedSalesHistory(): SalesRecord[] {
   if (typeof window === 'undefined') return [];
@@ -45,6 +46,7 @@ export function getSavedSalesHistory(): SalesRecord[] {
 }
 
 export function saveSalesHistory(sales: SalesRecord[]): void {
+  if (typeof window === 'undefined') return;
   localStorage.setItem(SALES_HISTORY_KEY, JSON.stringify(sales));
 }
 
@@ -55,6 +57,23 @@ export function addSaleToHistory(sale: SalesRecord): SalesRecord[] {
   return updated;
 }
 
+// --- Persistent Inventory Stock ---
+
+export function getSavedProducts(defaultProducts: ProductItem[]): ProductItem[] {
+  if (typeof window === 'undefined') return defaultProducts;
+  try {
+    const raw = localStorage.getItem(INVENTORY_STOCK_KEY);
+    return raw ? JSON.parse(raw) : defaultProducts;
+  } catch {
+    return defaultProducts;
+  }
+}
+
+export function saveProducts(products: ProductItem[]): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(INVENTORY_STOCK_KEY, JSON.stringify(products));
+}
+
 // --- Connection check ---
 
 export function isOnline(): boolean {
@@ -62,7 +81,7 @@ export function isOnline(): boolean {
   return navigator.onLine;
 }
 
-// --- Daily Cash Report Generator ---
+// --- Itemized Daily Cash Report Generator ---
 
 export function generateDailyCashReport(sales: SalesRecord[]): string {
   const today = new Date().toLocaleDateString('es-AR', {
@@ -72,19 +91,6 @@ export function generateDailyCashReport(sales: SalesRecord[]): string {
     day: 'numeric',
   });
 
-  // Group by payment method
-  const byMethod: Record<string, { count: number; total: number }> = {};
-  let grandTotal = 0;
-
-  for (const sale of sales) {
-    if (!byMethod[sale.paymentMethod]) {
-      byMethod[sale.paymentMethod] = { count: 0, total: 0 };
-    }
-    byMethod[sale.paymentMethod].count += 1;
-    byMethod[sale.paymentMethod].total += sale.totalAmount;
-    grandTotal += sale.totalAmount;
-  }
-
   const methodLabels: Record<string, string> = {
     EFECTIVO: '💵 Efectivo',
     TRANSFERENCIA: '🏦 Transferencia',
@@ -93,18 +99,37 @@ export function generateDailyCashReport(sales: SalesRecord[]): string {
     MERCADOPAGO: '📱 Mercado Pago',
   };
 
+  // Group sales by payment method with full sales list
+  const byMethod: Record<string, { count: number; total: number; items: SalesRecord[] }> = {};
+  let grandTotal = 0;
+
+  for (const sale of sales) {
+    if (!byMethod[sale.paymentMethod]) {
+      byMethod[sale.paymentMethod] = { count: 0, total: 0, items: [] };
+    }
+    byMethod[sale.paymentMethod].count += 1;
+    byMethod[sale.paymentMethod].total += sale.totalAmount;
+    byMethod[sale.paymentMethod].items.push(sale);
+    grandTotal += sale.totalAmount;
+  }
+
   let report = `📊 *CIERRE DE CAJA — LAURE JOYAS*\n`;
   report += `📅 ${today}\n`;
+  report += `📍 Isla 1 — Super Mami N°4 Salsipuedes\n`;
   report += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
+  // Method breakdown with itemized products
   for (const [method, data] of Object.entries(byMethod)) {
     const label = methodLabels[method] || method;
-    report += `${label}\n`;
-    report += `   ${data.count} venta${data.count > 1 ? 's' : ''} → $${data.total.toLocaleString('es-AR')}\n\n`;
+    report += `${label} (${data.count} venta${data.count > 1 ? 's' : ''} → *$${data.total.toLocaleString('es-AR')}*)\n`;
+    for (const item of data.items) {
+      report += `   • ${item.quantity}x ${item.productName} (SKU: ${item.productCode}) - $${item.totalAmount.toLocaleString('es-AR')}\n`;
+    }
+    report += `\n`;
   }
 
   report += `━━━━━━━━━━━━━━━━━━━━━\n`;
-  report += `💰 *TOTAL DEL DÍA: $${grandTotal.toLocaleString('es-AR')}*\n`;
+  report += `💰 *TOTAL FACTURADO HOY: $${grandTotal.toLocaleString('es-AR')}*\n`;
   report += `📝 Total de transacciones: ${sales.length}\n`;
 
   return report;
