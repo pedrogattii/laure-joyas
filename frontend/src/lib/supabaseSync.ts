@@ -201,16 +201,20 @@ export async function registerSupabaseSale(saleData: {
   userId?: string;
 }) {
   const dbPaymentMethod = PAYMENT_METHOD_TO_DB[saleData.paymentMethod] || 'CASH';
+  const now = new Date().toISOString();
+  const saleId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `sale-${Date.now()}`;
 
   const { data: sale, error: saleError } = await supabase
     .from('sales')
     .insert({
+      id: saleId,
       saleNumber: `VTA-${Date.now()}`,
       storeId: STORE_ID,
       userId: saleData.userId || null,
       totalAmount: saleData.totalAmount,
       paymentMethod: dbPaymentMethod,
-      status: 'COMPLETED'
+      status: 'COMPLETED',
+      updatedAt: now,
     })
     .select()
     .single();
@@ -220,9 +224,12 @@ export async function registerSupabaseSale(saleData: {
     return false;
   }
 
+  const itemId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `item-${Date.now()}`;
+
   const { error: itemError } = await supabase
     .from('sale_items')
     .insert({
+      id: itemId,
       saleId: sale.id,
       productId: saleData.productId,
       quantity: saleData.quantity,
@@ -235,8 +242,7 @@ export async function registerSupabaseSale(saleData: {
     return false;
   }
 
-  // Update inventory (Supabase RPC or just update directly)
-  // For prototype, fetch current stock and deduct
+  // Update inventory
   const { data: inv } = await supabase
     .from('inventories')
     .select('id, quantity')
@@ -247,7 +253,7 @@ export async function registerSupabaseSale(saleData: {
   if (inv) {
     await supabase
       .from('inventories')
-      .update({ quantity: Math.max(0, inv.quantity - saleData.quantity) })
+      .update({ quantity: Math.max(0, inv.quantity - saleData.quantity), updatedAt: now })
       .eq('id', inv.id);
   }
 
@@ -264,9 +270,13 @@ export async function registerSupabaseProduct(productData: {
   materialId: string;
   stock: number;
 }) {
+  const now = new Date().toISOString();
+  const prodId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `prod-${Date.now()}`;
+
   const { data: prod, error: prodError } = await supabase
     .from('products')
     .insert({
+      id: prodId,
       code: productData.code,
       name: productData.name,
       description: productData.description || '',
@@ -275,6 +285,7 @@ export async function registerSupabaseProduct(productData: {
       categoryId: productData.categoryId,
       materialId: productData.materialId,
       active: true,
+      updatedAt: now,
     })
     .select()
     .single();
@@ -284,13 +295,17 @@ export async function registerSupabaseProduct(productData: {
     return false;
   }
 
+  const invId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `inv-${Date.now()}`;
+
   const { error: invError } = await supabase
     .from('inventories')
     .insert({
+      id: invId,
       productId: prod.id,
       storeId: STORE_ID,
       quantity: productData.stock,
       minStock: 1,
+      updatedAt: now,
     });
 
   if (invError) {
@@ -303,9 +318,11 @@ export async function registerSupabaseProduct(productData: {
 
 
 export async function registerSupabaseCashClosure(record: any) {
+  const closureId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `closure-${Date.now()}`;
   const { error } = await supabase
     .from('cash_closures')
     .insert({
+      id: closureId,
       closureNumber: record.closureNumber,
       closedBy: record.closedBy,
       totalAmount: record.totalAmount,
