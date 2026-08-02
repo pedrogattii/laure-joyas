@@ -100,17 +100,21 @@ export function generateDailyCashReport(sales: SalesRecord[]): string {
   };
 
   // Group sales by payment method with full sales list
+  const safeSales = Array.isArray(sales) ? sales : [];
   const byMethod: Record<string, { count: number; total: number; items: SalesRecord[] }> = {};
   let grandTotal = 0;
 
-  for (const sale of sales) {
-    if (!byMethod[sale.paymentMethod]) {
-      byMethod[sale.paymentMethod] = { count: 0, total: 0, items: [] };
+  for (const sale of safeSales) {
+    const methodKey = sale && sale.paymentMethod ? sale.paymentMethod : 'EFECTIVO';
+    const amount = sale && typeof sale.totalAmount === 'number' ? sale.totalAmount : Number(sale?.totalAmount || 0);
+
+    if (!byMethod[methodKey]) {
+      byMethod[methodKey] = { count: 0, total: 0, items: [] };
     }
-    byMethod[sale.paymentMethod].count += 1;
-    byMethod[sale.paymentMethod].total += sale.totalAmount;
-    byMethod[sale.paymentMethod].items.push(sale);
-    grandTotal += sale.totalAmount;
+    byMethod[methodKey].count += 1;
+    byMethod[methodKey].total += amount;
+    byMethod[methodKey].items.push(sale);
+    grandTotal += amount;
   }
 
   let report = `📊 *CIERRE DE CAJA — LAURE JOYAS*\n`;

@@ -108,29 +108,34 @@ export default function CashClosureHistoryModal({
               </div>
 
               {/* Itemized Sales in this closure */}
-              <div>
-                <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                  Detalle de Joyas Vendidas ({selectedRecord.sales.length} transacciones):
-                </h4>
-                <div className="space-y-2 max-h-56 overflow-y-auto">
-                  {selectedRecord.sales.map((sale) => (
-                    <div
-                      key={sale.id}
-                      className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-xs flex justify-between items-center"
-                    >
-                      <div>
-                        <p className="font-bold text-gray-900">{sale.productName}</p>
-                        <p className="text-[10px] text-gray-500">
-                          SKU: {sale.productCode} • {sale.quantity}un. • {sale.paymentMethod}
-                        </p>
-                      </div>
-                      <span className="font-mono font-bold text-emerald-800">
-                        ${sale.totalAmount.toLocaleString('es-AR')}
-                      </span>
+              {(() => {
+                const closureSales = Array.isArray(selectedRecord?.sales) ? selectedRecord.sales : [];
+                return (
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                      Detalle de Joyas Vendidas ({closureSales.length} transacciones):
+                    </h4>
+                    <div className="space-y-2 max-h-56 overflow-y-auto">
+                      {closureSales.map((sale) => (
+                        <div
+                          key={sale.id}
+                          className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-xs flex justify-between items-center"
+                        >
+                          <div>
+                            <p className="font-bold text-gray-900">{sale.productName || 'Joya Vendida'}</p>
+                            <p className="text-[10px] text-gray-500">
+                              SKU: {sale.productCode || 'N/A'} • {sale.quantity || 1}un. • {sale.paymentMethod || 'EFECTIVO'}
+                            </p>
+                          </div>
+                          <span className="font-mono font-bold text-emerald-800">
+                            ${Number(sale.totalAmount || 0).toLocaleString('es-AR')}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                );
+              })()}
 
               {/* Actions for this closure */}
               <div className="flex gap-2 pt-2">

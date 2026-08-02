@@ -34,19 +34,23 @@ export default function DailyCashClosureModal({
 
   if (!isOpen) return null;
 
+  const safeSalesHistory = Array.isArray(salesHistory) ? salesHistory : [];
   const sessionState = getCashSessionState();
-  const report = generateDailyCashReport(salesHistory);
+  const report = generateDailyCashReport(safeSalesHistory);
 
   // Group by method for visual display
   const byMethod: Record<string, { count: number; total: number }> = {};
   let grandTotal = 0;
-  for (const sale of salesHistory) {
-    if (!byMethod[sale.paymentMethod]) {
-      byMethod[sale.paymentMethod] = { count: 0, total: 0 };
+  for (const sale of safeSalesHistory) {
+    const pm = sale && sale.paymentMethod ? sale.paymentMethod : 'EFECTIVO';
+    const amount = sale && typeof sale.totalAmount === 'number' ? sale.totalAmount : Number(sale?.totalAmount || 0);
+
+    if (!byMethod[pm]) {
+      byMethod[pm] = { count: 0, total: 0 };
     }
-    byMethod[sale.paymentMethod].count += 1;
-    byMethod[sale.paymentMethod].total += sale.totalAmount;
-    grandTotal += sale.totalAmount;
+    byMethod[pm].count += 1;
+    byMethod[pm].total += amount;
+    grandTotal += amount;
   }
 
   const methodLabels: Record<string, { label: string; color: string }> = {
