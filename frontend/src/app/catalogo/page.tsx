@@ -4,12 +4,13 @@ import { useState, useMemo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { INITIAL_PRODUCTS, CATEGORIES, MATERIALS } from '@/lib/mockData';
+import { CATEGORIES, MATERIALS } from '@/lib/mockData';
 import type { ProductItem } from '@/lib/types';
 import { SearchIcon } from '@/components/icons/SvgIcons';
+import { useSupabaseProducts } from '@/lib/supabaseSync';
 
 export default function CatalogPage() {
-  const [products] = useState<ProductItem[]>(INITIAL_PRODUCTS);
+  const { products, loading } = useSupabaseProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedMaterial, setSelectedMaterial] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -18,6 +19,7 @@ export default function CatalogPage() {
 
   // Compute price boundaries from product data
   const priceBounds = useMemo(() => {
+    if (products.length === 0) return { min: 0, max: 100000 };
     const prices = products.map((p) => p.priceCash);
     return { min: Math.min(...prices), max: Math.max(...prices) };
   }, [products]);

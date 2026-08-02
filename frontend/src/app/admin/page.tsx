@@ -18,13 +18,13 @@ import {
   isOnline,
 } from '@/lib/offlineQueue';
 import { getActiveSessionSales } from '@/lib/cashClosureManager';
-import { useSupabaseProducts, useSupabaseSales, registerSupabaseSale } from '@/lib/supabaseSync';
+import { useSupabaseProducts, useSupabaseSales, registerSupabaseSale, registerSupabaseProduct } from '@/lib/supabaseSync';
 
 export default function AdminPage() {
   const { user, loginAs, logout } = useAuth();
   const { showToast } = useToast();
 
-  const { products, loading: productsLoading } = useSupabaseProducts();
+  const { products, loading: productsLoading, fetchProducts } = useSupabaseProducts();
   const { sales: salesHistory, loading: salesLoading } = useSupabaseSales();
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'pos' | 'inventory'>('dashboard');
@@ -62,9 +62,23 @@ export default function AdminPage() {
   }, []);
 
   // Handle adding new product
-  const handleAddProduct = (newProduct: ProductItem) => {
-    // Note: For real app, insert into Supabase here. For now, it's view only or we can wait for sync.
-    showToast(`Producto "${newProduct.name}" cargado. La inserción a BDD se hará próximamente.`, 'success');
+  const handleAddProduct = async (newProduct: ProductItem) => {
+    const success = await registerSupabaseProduct({
+      code: newProduct.code,
+      name: newProduct.name,
+      description: newProduct.description,
+      priceList: newProduct.priceList,
+      priceCash: newProduct.priceCash,
+      categoryId: newProduct.category.id,
+      materialId: newProduct.material.id,
+      stock: newProduct.stock,
+    });
+    if (success) {
+      showToast(`✓ Producto "${newProduct.name}" guardado exitosamente en Supabase.`, 'success');
+      fetchProducts();
+    } else {
+      showToast('Error al guardar el producto en Supabase.', 'error');
+    }
   };
 
   // Handle registering new in-person sale (Caja Rápida)

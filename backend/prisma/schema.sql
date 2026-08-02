@@ -116,3 +116,16 @@ CREATE TABLE "sale_items" (
     "unitPrice" DECIMAL(65,30) NOT NULL,
     "subtotal" DECIMAL(65,30) NOT NULL
 );
+
+-- Tabla Cash Closures
+CREATE TABLE IF NOT EXISTS "cash_closures" (
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    "closureNumber" TEXT NOT NULL UNIQUE,
+    "closedBy" TEXT NOT NULL,
+    "totalAmount" DECIMAL(65,30) NOT NULL,
+    "totalTransactions" INTEGER NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'CLOSED',
+    "reopenCount" INTEGER NOT NULL DEFAULT 0,
+    "metadata" JSONB,
+    "closedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

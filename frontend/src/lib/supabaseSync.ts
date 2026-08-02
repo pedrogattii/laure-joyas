@@ -233,6 +233,54 @@ export async function registerSupabaseSale(saleData: {
   return true;
 }
 
+export async function registerSupabaseProduct(productData: {
+  code: string;
+  name: string;
+  description?: string;
+  priceList: number;
+  priceCash: number;
+  categoryId: string;
+  materialId: string;
+  stock: number;
+}) {
+  const { data: prod, error: prodError } = await supabase
+    .from('products')
+    .insert({
+      code: productData.code,
+      name: productData.name,
+      description: productData.description || '',
+      priceList: productData.priceList,
+      priceCash: productData.priceCash,
+      categoryId: productData.categoryId,
+      materialId: productData.materialId,
+      active: true,
+    })
+    .select()
+    .single();
+
+  if (prodError || !prod) {
+    console.error('Error creating product in Supabase:', prodError);
+    return false;
+  }
+
+  const { error: invError } = await supabase
+    .from('inventories')
+    .insert({
+      productId: prod.id,
+      storeId: STORE_ID,
+      quantity: productData.stock,
+      minStock: 1,
+    });
+
+  if (invError) {
+    console.error('Error creating inventory in Supabase:', invError);
+    return false;
+  }
+
+  return true;
+}
+
+
 export async function registerSupabaseCashClosure(record: any) {
   const { error } = await supabase
     .from('cash_closures')
