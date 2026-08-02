@@ -81,8 +81,8 @@ export default function DailyCashClosureModal({
     }
   };
 
-  const handleConfirmClose = () => {
-    const result = confirmCashClosure(salesHistory, operatorName);
+  const handleConfirmClose = async () => {
+    const result = await confirmCashClosure(salesHistory, operatorName);
     if (result.success) {
       showToast(result.message, 'success');
       if (onSessionStatusChange) onSessionStatusChange();

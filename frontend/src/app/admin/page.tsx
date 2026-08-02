@@ -14,21 +14,18 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { PlusIcon, CreditCardIcon, ClockIcon, WifiOffIcon } from '@/components/icons/SvgIcons';
 import {
-  getSavedSalesHistory,
-  addSaleToHistory,
   getOfflineQueueCount,
   isOnline,
-  getSavedProducts,
-  saveProducts,
 } from '@/lib/offlineQueue';
 import { getActiveSessionSales } from '@/lib/cashClosureManager';
+import { useSupabaseProducts, useSupabaseSales, registerSupabaseSale } from '@/lib/supabaseSync';
 
 export default function AdminPage() {
   const { user, loginAs, logout } = useAuth();
   const { showToast } = useToast();
 
-  const [products, setProducts] = useState<ProductItem[]>(INITIAL_PRODUCTS);
-  const [salesHistory, setSalesHistory] = useState<SalesRecord[]>([]);
+  const { products, loading: productsLoading } = useSupabaseProducts();
+  const { sales: salesHistory, loading: salesLoading } = useSupabaseSales();
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'pos' | 'inventory'>('dashboard');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
@@ -41,14 +38,8 @@ export default function AdminPage() {
   // Auto-set initial active tab according to role
   const currentUserRole = user?.role || 'ADMIN';
 
-  // Load persisted sales history & stock from localStorage on mount
+  // Load connection status
   useEffect(() => {
-    const saved = getSavedSalesHistory();
-    if (saved.length > 0) {
-      setSalesHistory(saved);
-    }
-    const savedProds = getSavedProducts(INITIAL_PRODUCTS);
-    setProducts(savedProds);
 
     setOnline(isOnline());
     setOfflinePending(getOfflineQueueCount());
@@ -72,52 +63,32 @@ export default function AdminPage() {
 
   // Handle adding new product
   const handleAddProduct = (newProduct: ProductItem) => {
-    setProducts((prev) => {
-      const updated = [newProduct, ...prev];
-      saveProducts(updated);
-      return updated;
-    });
-    showToast(`Producto "${newProduct.name}" cargado exitosamente`, 'success');
+    // Note: For real app, insert into Supabase here. For now, it's view only or we can wait for sync.
+    showToast(`Producto "${newProduct.name}" cargado. La inserción a BDD se hará próximamente.`, 'success');
   };
 
   // Handle registering new in-person sale (Caja Rápida)
-  const handlePOSSaleSuccess = (saleData: {
+  const handlePOSSaleSuccess = async (saleData: {
     product: ProductItem;
     quantity: number;
     paymentMethod: string;
     totalAmount: number;
   }) => {
-    // 1. Decrement stock from inventory in real-time & persist
-    setProducts((prevProducts) => {
-      const updated = prevProducts.map((p) =>
-        p.id === saleData.product.id
-          ? { ...p, stock: Math.max(0, p.stock - saleData.quantity) }
-          : p
-      );
-      saveProducts(updated);
-      return updated;
+    const success = await registerSupabaseSale({
+      productId: saleData.product.id,
+      quantity: saleData.quantity,
+      totalAmount: saleData.totalAmount,
+      paymentMethod: saleData.paymentMethod,
     });
 
-    // 2. Create sale record with timestamp
-    const newRecord: SalesRecord = {
-      id: `sale-${Date.now()}`,
-      productName: saleData.product.name,
-      productCode: saleData.product.code,
-      quantity: saleData.quantity,
-      paymentMethod: saleData.paymentMethod,
-      totalAmount: saleData.totalAmount,
-      date: `Hoy ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs`,
-      timestamp: Date.now(),
-    };
-
-    // 3. Persist to localStorage and update state
-    const updatedHistory = addSaleToHistory(newRecord);
-    setSalesHistory(updatedHistory);
-
-    showToast(
-      `✓ Venta registrada: ${saleData.quantity}x ${saleData.product.name} — $${saleData.totalAmount.toLocaleString('es-AR')}`,
-      'success'
-    );
+    if (success) {
+      showToast(
+        `✓ Venta registrada: ${saleData.quantity}x ${saleData.product.name} — $${saleData.totalAmount.toLocaleString('es-AR')}`,
+        'success'
+      );
+    } else {
+      showToast('Error al registrar la venta. Intenta nuevamente.', 'error');
+    }
   };
 
   // Get active cash session sales for daily reporting

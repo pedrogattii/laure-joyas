@@ -97,12 +97,14 @@ export function getActiveSessionSales(allSales: SalesRecord[]): SalesRecord[] {
   return allSales.filter((s) => s.timestamp >= session.openedAt);
 }
 
+import { registerSupabaseCashClosure } from './supabaseSync';
+
 // --- Perform Cash Closure ---
 
-export function confirmCashClosure(
+export async function confirmCashClosure(
   sessionSales: SalesRecord[],
   operatorName: string
-): { success: boolean; record?: CashClosureRecord; message: string } {
+): Promise<{ success: boolean; record?: CashClosureRecord; message: string }> {
   if (sessionSales.length === 0) {
     return { success: false, message: 'No hay ventas registradas en esta caja activa para cerrar.' };
   }
@@ -146,8 +148,15 @@ export function confirmCashClosure(
     status: 'CLOSED',
   };
 
-  // Save closure record in 30-day history
-  saveCashClosureRecord(record);
+  // Save closure record in Supabase
+  const success = await registerSupabaseCashClosure(record);
+  
+  if (!success) {
+    return {
+      success: false,
+      message: 'Hubo un error al guardar el cierre de caja en la nube.',
+    };
+  }
 
   // Update current session to CLOSED & open new session timestamp
   const session = getCashSessionState();

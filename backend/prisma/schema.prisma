@@ -187,3 +187,19 @@ model SaleItem {
 
   @@map("sale_items")
 }
+
+model CashClosure {
+  id                String   @id @default(uuid())
+  closureNumber     String   @unique
+  closedBy          String
+  closedAt          DateTime @default(now())
+  totalAmount       Decimal
+  totalTransactions Int
+  reopenCount       Int      @default(0)
+  status            String   @default("CLOSED") // CLOSED or REOPENED
+  
+  // JSON field to store aggregated totals by payment method and the list of sales for historical purposes
+  metadata          Json
+
+  @@map("cash_closures")
+}

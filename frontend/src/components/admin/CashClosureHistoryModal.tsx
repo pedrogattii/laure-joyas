@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import {
-  getCashClosureHistory,
   CashClosureRecord,
 } from '@/lib/cashClosureManager';
 import { generateDailyCashReport } from '@/lib/offlineQueue';
 import { useToast } from '@/context/ToastContext';
 import { ShareIcon, WhatsAppIcon, ClockIcon } from '@/components/icons/SvgIcons';
 import { BUSINESS_CONFIG } from '@/lib/constants';
+import { useSupabaseCashClosures } from '@/lib/supabaseSync';
 
 interface CashClosureHistoryModalProps {
   isOpen: boolean;
@@ -21,10 +21,10 @@ export default function CashClosureHistoryModal({
 }: CashClosureHistoryModalProps) {
   const { showToast } = useToast();
   const [selectedRecord, setSelectedRecord] = useState<CashClosureRecord | null>(null);
+  
+  const { closures: history, loading } = useSupabaseCashClosures();
 
   if (!isOpen) return null;
-
-  const history = getCashClosureHistory();
 
   const handleCopyRecordReport = async (record: CashClosureRecord) => {
     const reportText = generateDailyCashReport(record.sales);

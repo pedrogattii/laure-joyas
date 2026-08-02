@@ -20,21 +20,18 @@ import {
   UserIcon,
 } from '@/components/icons/SvgIcons';
 import {
-  getSavedSalesHistory,
-  addSaleToHistory,
   getOfflineQueueCount,
   isOnline,
-  getSavedProducts,
-  saveProducts,
 } from '@/lib/offlineQueue';
 import { getActiveSessionSales } from '@/lib/cashClosureManager';
+import { useSupabaseProducts, useSupabaseSales, registerSupabaseSale } from '@/lib/supabaseSync';
 
 export default function MobilePosAppPage() {
   const { user, loginAs } = useAuth();
   const { showToast } = useToast();
 
-  const [products, setProducts] = useState<ProductItem[]>(INITIAL_PRODUCTS);
-  const [salesHistory, setSalesHistory] = useState<SalesRecord[]>([]);
+  const { products, loading: productsLoading } = useSupabaseProducts();
+  const { sales: salesHistory, loading: salesLoading } = useSupabaseSales();
 
   const [isPOSModalOpen, setIsPOSModalOpen] = useState(false);
   const [isCashClosureOpen, setIsCashClosureOpen] = useState(false);
@@ -56,12 +53,7 @@ export default function MobilePosAppPage() {
       setIsStandalone(!!standalone);
     }
 
-    const saved = getSavedSalesHistory();
-    if (saved.length > 0) {
-      setSalesHistory(saved);
-    }
-    const savedProds = getSavedProducts(INITIAL_PRODUCTS);
-    setProducts(savedProds);
+    // Connection state polling
 
     setOnline(isOnline());
     setOfflinePending(getOfflineQueueCount());
@@ -84,49 +76,31 @@ export default function MobilePosAppPage() {
   }, []);
 
   // Handle registering a new sale
-  const handlePOSSaleSuccess = (saleData: {
+  const handlePOSSaleSuccess = async (saleData: {
     product: ProductItem;
     quantity: number;
     paymentMethod: string;
     totalAmount: number;
   }) => {
-    setProducts((prev) => {
-      const updated = prev.map((p) =>
-        p.id === saleData.product.id
-          ? { ...p, stock: Math.max(0, p.stock - saleData.quantity) }
-          : p
-      );
-      saveProducts(updated);
-      return updated;
+    const success = await registerSupabaseSale({
+      productId: saleData.product.id,
+      quantity: saleData.quantity,
+      totalAmount: saleData.totalAmount,
+      paymentMethod: saleData.paymentMethod,
     });
 
-    const newRecord: SalesRecord = {
-      id: `sale-${Date.now()}`,
-      productName: saleData.product.name,
-      productCode: saleData.product.code,
-      quantity: saleData.quantity,
-      paymentMethod: saleData.paymentMethod,
-      totalAmount: saleData.totalAmount,
-      date: `Hoy ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs`,
-      timestamp: Date.now(),
-    };
-
-    const updated = addSaleToHistory(newRecord);
-    setSalesHistory(updated);
-
-    showToast(
-      `✓ Venta cobrada: ${saleData.quantity}x ${saleData.product.name} ($${saleData.totalAmount.toLocaleString('es-AR')})`,
-      'success'
-    );
+    if (success) {
+      showToast(
+        `✓ Venta cobrada: ${saleData.quantity}x ${saleData.product.name} ($${saleData.totalAmount.toLocaleString('es-AR')})`,
+        'success'
+      );
+    } else {
+      showToast('Error al procesar la venta.', 'error');
+    }
   };
 
   const handleAddProduct = (newProduct: ProductItem) => {
-    setProducts((prev) => {
-      const updated = [newProduct, ...prev];
-      saveProducts(updated);
-      return updated;
-    });
-    showToast(`Producto "${newProduct.name}" cargado al stock`, 'success');
+    showToast(`Producto "${newProduct.name}" cargado. Guardado remoto pronto.`, 'success');
   };
 
   // Active cash session sales calculations
