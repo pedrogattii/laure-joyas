@@ -29,6 +29,20 @@ export interface ProductItem {
   isOffer?: boolean;
 }
 
+export type ExpenseCategory = 'PROVEEDOR' | 'SUELDO' | 'ALQUILER' | 'VARIABLE';
+
+export interface ExpenseRecord {
+  id: string;
+  category: ExpenseCategory;
+  description: string;
+  amount: number;
+  date: string; // ISO string
+  timestamp: number;
+  monthKey: string; // YYYY-MM format (ej: "2026-08")
+  storeId?: string;
+  receiptUrl?: string;
+}
+
 export interface SalesRecord {
   id: string;
   productName: string;
@@ -38,4 +52,5 @@ export interface SalesRecord {
   totalAmount: number;
   date: string;
   timestamp: number; // Unix ms for sorting and persistence
+  channel?: 'POS' | 'ONLINE'; // Físico (Isla) u Online (Web)
 }

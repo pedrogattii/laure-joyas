@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 import { compressAndConvertToWebP } from './imageOptimizer';
-import type { ProductItem, SalesRecord, Category, Material } from './types';
+import type { ProductItem, SalesRecord, Category, Material, ExpenseRecord, ExpenseCategory } from './types';
 import type { CashClosureRecord } from './cashClosureManager';
 
 // Store ID for Salsipuedes (Isla 1) - Hardcoded for prototype purposes based on Prisma Seed
@@ -687,5 +687,190 @@ export async function deleteSupabaseProduct(productId: string): Promise<boolean>
     console.error('Unexpected error deleting product in Supabase:', e);
     return false;
   }
+}
+
+// --- EXPENSES & MONTHLY BALANCE HELPERS ---
+
+export function useSupabaseExpenses() {
+  const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchExpenses = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('expenses')
+        .select('*')
+        .order('createdAt', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching expenses from Supabase:', error);
+        return;
+      }
+
+      if (data) {
+        const records: ExpenseRecord[] = (data as unknown as Record<string, unknown>[]).map((row) => {
+          const rawDate = row.date || row.createdAt;
+          const dateStr = typeof rawDate === 'string' ? rawDate : new Date(Number(rawDate) || Date.now()).toISOString();
+          const timestamp = new Date(dateStr).getTime() || Date.now();
+          const monthKey = (row.monthKey as string) || dateStr.substring(0, 7);
+
+          return {
+            id: String(row.id),
+            category: (row.category || 'VARIABLE') as ExpenseCategory,
+            description: String(row.description || 'Gasto registrado'),
+            amount: Number(row.amount || 0),
+            date: dateStr,
+            timestamp,
+            monthKey,
+            storeId: String(row.storeId || STORE_ID),
+            receiptUrl: (row.receiptUrl as string) || undefined,
+          };
+        });
+        setExpenses(records);
+      }
+    } catch (e) {
+      console.error('Unexpected error fetching expenses:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchExpenses();
+    }, 0);
+
+    const expenseChannelId = `expenses_sub_${generateUUID()}`;
+    const expenseSub = supabase
+      .channel(expenseChannelId)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
+        void fetchExpenses();
+      })
+      .subscribe();
+
+    return () => {
+      clearTimeout(timer);
+      supabase.removeChannel(expenseSub);
+    };
+  }, [fetchExpenses]);
+
+  return { expenses, loading, fetchExpenses };
+}
+
+export async function registerSupabaseExpense(expenseData: {
+  category: ExpenseCategory;
+  description: string;
+  amount: number;
+  date?: string;
+  monthKey?: string;
+  receiptUrl?: string;
+}): Promise<boolean> {
+  try {
+    const now = new Date();
+    const dateStr = expenseData.date || now.toISOString();
+    const monthKey = expenseData.monthKey || dateStr.substring(0, 7);
+    const expenseId = generateUUID();
+
+    const { error } = await supabase
+      .from('expenses')
+      .insert({
+        id: expenseId,
+        category: expenseData.category,
+        description: expenseData.description,
+        amount: expenseData.amount,
+        date: dateStr,
+        monthKey,
+        storeId: STORE_ID,
+        receiptUrl: expenseData.receiptUrl || null,
+        createdAt: now.toISOString(),
+      });
+
+    if (error) {
+      console.error('Error inserting expense in Supabase:', error);
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    console.error('Unexpected error registering expense:', e);
+    return false;
+  }
+}
+
+export async function deleteSupabaseExpense(expenseId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', expenseId);
+
+    if (error) {
+      console.error('Error deleting expense in Supabase:', error);
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    console.error('Unexpected error deleting expense:', e);
+    return false;
+  }
+}
+
+/**
+ * Helper function prepared for WhatsApp bot or external API integrations.
+ * Formats a ready-to-send summary message for WhatsApp.
+ */
+export async function getMonthlySummaryForBot(targetMonthKey?: string) {
+  const monthKey = targetMonthKey || new Date().toISOString().substring(0, 7);
+
+  // Fetch sales for target month
+  const { data: salesData } = await supabase
+    .from('sales')
+    .select('totalAmount, paymentMethod, createdAt')
+    .gte('createdAt', `${monthKey}-01T00:00:00.000Z`)
+    .lte('createdAt', `${monthKey}-31T23:59:59.999Z`);
+
+  // Fetch expenses for target month
+  const { data: expensesData } = await supabase
+    .from('expenses')
+    .select('amount, category')
+    .eq('monthKey', monthKey);
+
+  const totalSales = (salesData || []).reduce((sum, s) => sum + (Number(s.totalAmount) || 0), 0);
+  const totalExpenses = (expensesData || []).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const netBalance = totalSales - totalExpenses;
+
+  const expensesByCategory = {
+    PROVEEDOR: 0,
+    SUELDO: 0,
+    ALQUILER: 0,
+    VARIABLE: 0,
+  };
+
+  (expensesData || []).forEach((e) => {
+    const cat = (e.category || 'VARIABLE') as keyof typeof expensesByCategory;
+    if (expensesByCategory[cat] !== undefined) {
+      expensesByCategory[cat] += Number(e.amount) || 0;
+    }
+  });
+
+  const formattedWhatsAppText = `*REPORTE DE NEGOCIO - LAURE JOYAS* 💎\n` +
+    `📅 *Mes:* ${monthKey}\n\n` +
+    `💵 *Ingresos Totales:* $${totalSales.toLocaleString('es-AR')}\n` +
+    `💸 *Egresos Totales:* $${totalExpenses.toLocaleString('es-AR')}\n` +
+    `   • Proveedores: $${expensesByCategory.PROVEEDOR.toLocaleString('es-AR')}\n` +
+    `   • Sueldos: $${expensesByCategory.SUELDO.toLocaleString('es-AR')}\n` +
+    `   • Alquiler: $${expensesByCategory.ALQUILER.toLocaleString('es-AR')}\n` +
+    `   • Variables: $${expensesByCategory.VARIABLE.toLocaleString('es-AR')}\n\n` +
+    `📈 *BALANCE NETO:* $${netBalance.toLocaleString('es-AR')}`;
+
+  return {
+    monthKey,
+    totalSales,
+    totalExpenses,
+    expensesByCategory,
+    netBalance,
+    formattedWhatsAppText,
+  };
 }
 
