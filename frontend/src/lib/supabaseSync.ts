@@ -139,8 +139,11 @@ export function useSupabaseProducts() {
   useEffect(() => {
     fetchProducts();
 
+    const invChannelId = `inventories_sub_${generateUUID()}`;
+    const prodChannelId = `products_sub_${generateUUID()}`;
+
     const inventorySubscription = supabase
-      .channel('public:inventories')
+      .channel(invChannelId)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'inventories' },
@@ -149,9 +152,9 @@ export function useSupabaseProducts() {
         }
       )
       .subscribe();
-      
+
     const productSubscription = supabase
-      .channel('public:products')
+      .channel(prodChannelId)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'products' },
@@ -246,8 +249,9 @@ export function useSupabaseSales() {
   useEffect(() => {
     fetchSales();
 
+    const salesChannelId = `sales_sub_${generateUUID()}`;
     const salesSubscription = supabase
-      .channel('public:sales')
+      .channel(salesChannelId)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'sales' },
@@ -517,8 +521,9 @@ export function useSupabaseCashClosures() {
   useEffect(() => {
     fetchClosures();
 
+    const closureChannelId = `cash_closures_sub_${generateUUID()}`;
     const closureSub = supabase
-      .channel('public:cash_closures')
+      .channel(closureChannelId)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_closures' }, () => {
         fetchClosures();
       })
