@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { CATEGORIES as MOCK_CATEGORIES, MATERIALS as MOCK_MATERIALS, ProductItem } from '@/lib/mockData';
 import { useSupabaseCategories, useSupabaseMaterials, uploadProductImage } from '@/lib/supabaseSync';
 
@@ -39,14 +39,12 @@ export default function ProductFormModal({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!categoryId && categoriesList.length > 0) {
-      setCategoryId(categoriesList[0].id);
-    }
-    if (!materialId && materialsList.length > 0) {
-      setMaterialId(materialsList[0].id);
-    }
-  }, [categoriesList, materialsList, categoryId, materialId]);
+  if (!categoryId && categoriesList.length > 0) {
+    setCategoryId(categoriesList[0].id);
+  }
+  if (!materialId && materialsList.length > 0) {
+    setMaterialId(materialsList[0].id);
+  }
 
   if (!isOpen) return null;
 
@@ -372,6 +370,7 @@ export default function ProductFormModal({
 
                   {imagePreview && (
                     <div className="flex items-center justify-center p-2 bg-gray-100 rounded-lg border border-gray-200">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imagePreview}
                         alt="Preview"

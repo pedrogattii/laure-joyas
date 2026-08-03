@@ -5,12 +5,11 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { CATEGORIES as MOCK_CATEGORIES, MATERIALS as MOCK_MATERIALS } from '@/lib/mockData';
-import type { ProductItem } from '@/lib/types';
 import { SearchIcon } from '@/components/icons/SvgIcons';
 import { useSupabaseProducts, useSupabaseCategories, useSupabaseMaterials } from '@/lib/supabaseSync';
 
 export default function CatalogPage() {
-  const { products, loading } = useSupabaseProducts();
+  const { products } = useSupabaseProducts();
   const { categories: dbCategories } = useSupabaseCategories();
   const { materials: dbMaterials } = useSupabaseMaterials();
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import type { ProductItem } from '@/lib/types';
 
 interface WishlistContextType {
@@ -17,24 +17,18 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 const STORAGE_KEY = 'lj_wishlist';
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
-  const [wishlist, setWishlist] = useState<ProductItem[]>([]);
-
-  // Load from localStorage on mount
-  useEffect(() => {
+  const [wishlist, setWishlist] = useState<ProductItem[]>(() => {
+    if (typeof window === 'undefined') return [];
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        setWishlist(JSON.parse(saved));
+        return JSON.parse(saved);
       } catch (e) {
         console.error('Error loading wishlist:', e);
       }
     }
-  }, []);
-
-  const saveWishlist = (updated: ProductItem[]) => {
-    setWishlist(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  };
+    return [];
+  });
 
   const addToWishlist = useCallback((product: ProductItem) => {
     setWishlist((prev) => {

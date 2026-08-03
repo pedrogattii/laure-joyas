@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { ProductItem } from '@/lib/types';
 
 interface StockAdjustModalProps {
@@ -17,13 +17,13 @@ export default function StockAdjustModal({
   onSaveStock,
 }: StockAdjustModalProps) {
   const [stockInput, setStockInput] = useState<string>('0');
+  const [prevProductId, setPrevProductId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    if (product) {
-      setStockInput(String(product.stock));
-    }
-  }, [product]);
+  if (product && product.id !== prevProductId) {
+    setPrevProductId(product.id);
+    setStockInput(String(product.stock));
+  }
 
   if (!isOpen || !product) return null;
 

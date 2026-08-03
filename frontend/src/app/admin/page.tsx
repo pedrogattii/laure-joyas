@@ -9,8 +9,7 @@ import ProductFormModal from '@/components/admin/ProductFormModal';
 import POSRegisterModal from '@/components/admin/POSRegisterModal';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import DailyCashClosureModal from '@/components/admin/DailyCashClosureModal';
-import { INITIAL_PRODUCTS } from '@/lib/mockData';
-import type { ProductItem, SalesRecord } from '@/lib/types';
+import type { ProductItem } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { PlusIcon, CreditCardIcon, ClockIcon, WifiOffIcon } from '@/components/icons/SvgIcons';
@@ -33,8 +32,8 @@ export default function AdminPage() {
   const { user, loginAs, logout } = useAuth();
   const { showToast } = useToast();
 
-  const { products, loading: productsLoading, fetchProducts } = useSupabaseProducts();
-  const { sales: salesHistory, loading: salesLoading, fetchSales } = useSupabaseSales();
+  const { products, fetchProducts } = useSupabaseProducts();
+  const { sales: salesHistory, fetchSales } = useSupabaseSales();
   const { closures, fetchClosures } = useSupabaseCashClosures();
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'pos' | 'inventory'>('dashboard');
@@ -85,18 +84,14 @@ export default function AdminPage() {
     }
   };
 
-  const [online, setOnline] = useState(true);
-  const [offlinePending, setOfflinePending] = useState(0);
+  const [online, setOnline] = useState(() => (typeof window !== 'undefined' ? isOnline() : true));
+  const [offlinePending] = useState(() => (typeof window !== 'undefined' ? getOfflineQueueCount() : 0));
 
   // Auto-set initial active tab according to role
   const currentUserRole = user?.role || 'ADMIN';
 
   // Load connection status
   useEffect(() => {
-
-    setOnline(isOnline());
-    setOfflinePending(getOfflineQueueCount());
-
     const handleOnline = () => {
       setOnline(true);
       showToast('Conexión restablecida', 'success');
@@ -112,7 +107,7 @@ export default function AdminPage() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [showToast]);
 
   // Handle adding new product
   const handleAddProduct = async (newProduct: ProductItem) => {

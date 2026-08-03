@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 import { compressAndConvertToWebP } from './imageOptimizer';
 import type { ProductItem, SalesRecord, Category, Material } from './types';
@@ -28,7 +28,7 @@ export function useSupabaseCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const { data, error } = await supabase.from('categories').select('*').order('name');
       if (error) {
@@ -43,11 +43,14 @@ export function useSupabaseCategories() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    const timer = setTimeout(() => {
+      void fetchCategories();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchCategories]);
 
   return { categories, loading, fetchCategories };
 }
@@ -56,7 +59,7 @@ export function useSupabaseMaterials() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMaterials = async () => {
+  const fetchMaterials = useCallback(async () => {
     try {
       const { data, error } = await supabase.from('materials').select('*').order('name');
       if (error) {
@@ -71,11 +74,14 @@ export function useSupabaseMaterials() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchMaterials();
-  }, []);
+    const timer = setTimeout(() => {
+      void fetchMaterials();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchMaterials]);
 
   return { materials, loading, fetchMaterials };
 }
@@ -84,7 +90,7 @@ export function useSupabaseProducts() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       // Fetch products, categories, materials, inventory stock, and product images
       const { data, error } = await supabase
@@ -109,16 +115,18 @@ export function useSupabaseProducts() {
           'CD-PL-000002': '/images/chain_silver.png',
         };
 
-        const formatted: ProductItem[] = data.map((p: any) => {
-          const inv = p.inventory?.find((i: any) => i.storeId === STORE_ID);
-          const stock = inv ? inv.quantity : 0;
-          const imageUrl = p.images?.find((img: any) => img.isPrimary)?.url || p.images?.[0]?.url || defaultImageMap[p.code];
+        const formatted: ProductItem[] = (data as unknown as Record<string, unknown>[]).map((p) => {
+          const invList = (p.inventory as Record<string, unknown>[]) || [];
+          const inv = invList.find((i) => i.storeId === STORE_ID);
+          const stock = inv && typeof inv.quantity === 'number' ? inv.quantity : 0;
+          const imgList = (p.images as Record<string, unknown>[]) || [];
+          const imageUrl = (imgList.find((img) => img.isPrimary)?.url as string) || (imgList[0]?.url as string) || defaultImageMap[String(p.code)];
 
           return {
-            id: p.id,
-            code: p.code,
-            name: p.name,
-            description: p.description || '',
+            id: String(p.id),
+            code: String(p.code),
+            name: String(p.name),
+            description: String(p.description || ''),
             priceList: Number(p.priceList),
             priceCash: Number(p.priceCash),
             category: p.category as Category,
@@ -135,10 +143,12 @@ export function useSupabaseProducts() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchProducts();
+    const timer = setTimeout(() => {
+      void fetchProducts();
+    }, 0);
 
     const invChannelId = `inventories_sub_${generateUUID()}`;
     const prodChannelId = `products_sub_${generateUUID()}`;
@@ -149,7 +159,7 @@ export function useSupabaseProducts() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'inventories' },
         () => {
-          fetchProducts();
+          void fetchProducts();
         }
       )
       .subscribe();
@@ -160,16 +170,17 @@ export function useSupabaseProducts() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'products' },
         () => {
-          fetchProducts();
+          void fetchProducts();
         }
       )
       .subscribe();
 
     return () => {
+      clearTimeout(timer);
       supabase.removeChannel(inventorySubscription);
       supabase.removeChannel(productSubscription);
     };
-  }, []);
+  }, [fetchProducts]);
 
   return { products, loading, fetchProducts };
 }
@@ -199,7 +210,7 @@ export function useSupabaseSales() {
   const [sales, setSales] = useState<SalesRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchSales = async () => {
+  const fetchSales = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('sales')
@@ -222,17 +233,19 @@ export function useSupabaseSales() {
 
       if (data) {
         const flatSales: SalesRecord[] = [];
-        data.forEach((sale: any) => {
-          sale.items?.forEach((item: any) => {
+        (data as unknown as Record<string, unknown>[]).forEach((sale) => {
+          const itemsList = (sale.items as Record<string, unknown>[]) || [];
+          itemsList.forEach((item) => {
+            const productObj = item.product as Record<string, unknown> | undefined;
             flatSales.push({
-              id: sale.id,
-              productName: item.product?.name || 'Producto Desconocido',
-              productCode: item.product?.code || 'SKU-???',
-              quantity: item.quantity,
-              paymentMethod: PAYMENT_METHOD_FROM_DB[sale.paymentMethod] || sale.paymentMethod,
-              totalAmount: Number(sale.totalAmount),
-              date: `Hoy ${new Date(sale.createdAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs`,
-              timestamp: new Date(sale.createdAt).getTime(),
+              id: String(sale.id),
+              productName: String(productObj?.name || 'Producto Desconocido'),
+              productCode: String(productObj?.code || 'SKU-???'),
+              quantity: Number(item.quantity || 0),
+              paymentMethod: PAYMENT_METHOD_FROM_DB[String(sale.paymentMethod)] || String(sale.paymentMethod),
+              totalAmount: Number(sale.totalAmount || 0),
+              date: `Hoy ${new Date(String(sale.createdAt)).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs`,
+              timestamp: new Date(String(sale.createdAt)).getTime(),
             });
           });
         });
@@ -245,10 +258,12 @@ export function useSupabaseSales() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchSales();
+    const timer = setTimeout(() => {
+      void fetchSales();
+    }, 0);
 
     const salesChannelId = `sales_sub_${generateUUID()}`;
     const salesSubscription = supabase
@@ -257,15 +272,16 @@ export function useSupabaseSales() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'sales' },
         () => {
-          fetchSales();
+          void fetchSales();
         }
       )
       .subscribe();
 
     return () => {
+      clearTimeout(timer);
       supabase.removeChannel(salesSubscription);
     };
-  }, []);
+  }, [fetchSales]);
 
   return { sales, loading, fetchSales };
 }
@@ -452,8 +468,8 @@ export async function registerSupabaseProduct(productData: {
   return true;
 }
 
-export async function registerSupabaseCashClosure(record: any) {
-  const closureId = isValidUUID(record.id) ? record.id : generateUUID();
+export async function registerSupabaseCashClosure(record: CashClosureRecord | Record<string, unknown>) {
+  const closureId = isValidUUID(String(record.id)) ? String(record.id) : generateUUID();
   const { error } = await supabase
     .from('cash_closures')
     .insert({
@@ -490,7 +506,7 @@ export function useSupabaseCashClosures() {
   const [closures, setClosures] = useState<CashClosureRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchClosures = async () => {
+  const fetchClosures = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('cash_closures')
@@ -503,21 +519,22 @@ export function useSupabaseCashClosures() {
       }
 
       if (data) {
-        const records: CashClosureRecord[] = data.map((row: any) => {
-          const rawClosedAt = row.closedAt || row.metadata?.closedAt;
+        const records: CashClosureRecord[] = (data as unknown as Record<string, unknown>[]).map((row) => {
+          const rowMetadata = (row.metadata as Record<string, unknown>) || {};
+          const rawClosedAt = row.closedAt || rowMetadata.closedAt;
           const closedAtNum = typeof rawClosedAt === 'number'
             ? rawClosedAt
-            : (rawClosedAt ? new Date(rawClosedAt).getTime() : Date.now());
+            : (rawClosedAt ? new Date(String(rawClosedAt)).getTime() : Date.now());
 
           const numTotalAmount = row.totalAmount !== undefined && row.totalAmount !== null
             ? Number(row.totalAmount)
-            : Number(row.metadata?.totalAmount || 0);
+            : Number(rowMetadata.totalAmount || 0);
 
           const totalTrans = row.totalTransactions !== undefined && row.totalTransactions !== null
             ? Number(row.totalTransactions)
-            : Number(row.metadata?.totalTransactions || 0);
+            : Number(rowMetadata.totalTransactions || 0);
 
-          const formattedDateStr = row.metadata?.formattedDate || new Date(closedAtNum).toLocaleDateString('es-AR', {
+          const formattedDateStr = (rowMetadata.formattedDate as string) || new Date(closedAtNum).toLocaleDateString('es-AR', {
             weekday: 'long',
             day: 'numeric',
             month: 'long',
@@ -529,16 +546,16 @@ export function useSupabaseCashClosures() {
           return {
             sales: [],
             byMethod: {},
-            ...row.metadata,
-            id: row.id,
-            closureNumber: row.closureNumber || row.metadata?.closureNumber || `CIERRE-${row.id.substring(0, 8)}`,
-            closedBy: row.closedBy || row.metadata?.closedBy || 'Operador',
+            ...rowMetadata,
+            id: String(row.id),
+            closureNumber: String(row.closureNumber || rowMetadata.closureNumber || `CIERRE-${String(row.id).substring(0, 8)}`),
+            closedBy: String(row.closedBy || rowMetadata.closedBy || 'Operador'),
             closedAt: closedAtNum,
             formattedDate: formattedDateStr,
             totalAmount: isNaN(numTotalAmount) ? 0 : numTotalAmount,
             totalTransactions: isNaN(totalTrans) ? 0 : totalTrans,
-            status: row.status || row.metadata?.status || 'CLOSED',
-            reopenCount: row.reopenCount || row.metadata?.reopenCount || 0
+            status: (row.status || rowMetadata.status || 'CLOSED') as 'CLOSED' | 'REOPENED',
+            reopenCount: Number(row.reopenCount || rowMetadata.reopenCount || 0)
           };
         });
         setClosures(records);
@@ -548,23 +565,26 @@ export function useSupabaseCashClosures() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchClosures();
+    const timer = setTimeout(() => {
+      void fetchClosures();
+    }, 0);
 
     const closureChannelId = `cash_closures_sub_${generateUUID()}`;
     const closureSub = supabase
       .channel(closureChannelId)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_closures' }, () => {
-        fetchClosures();
+        void fetchClosures();
       })
       .subscribe();
 
     return () => {
+      clearTimeout(timer);
       supabase.removeChannel(closureSub);
     };
-  }, []);
+  }, [fetchClosures]);
 
   return { closures, loading, fetchClosures };
 }

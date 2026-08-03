@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 export type UserRole = 'ADMIN' | 'EMPLOYEE' | 'CUSTOMER';
 
@@ -47,18 +47,18 @@ const DEFAULT_USERS: Record<UserRole, UserSession> = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserSession | null>(null);
-
-  useEffect(() => {
+  const [user, setUser] = useState<UserSession | null>(() => {
+    if (typeof window === 'undefined') return null;
     const saved = localStorage.getItem('lj_auth_session');
     if (saved) {
       try {
-        setUser(JSON.parse(saved));
+        return JSON.parse(saved);
       } catch (e) {
         console.error(e);
       }
     }
-  }, []);
+    return null;
+  });
 
   const loginAs = (role: UserRole) => {
     const session = DEFAULT_USERS[role];
