@@ -2,6 +2,7 @@
 
 import type { SalesRecord, ExpenseRecord } from '@/lib/types';
 import { useToast } from '@/context/ToastContext';
+import { shareTextOrWhatsApp } from '@/lib/shareUtils';
 
 interface MovementReportModalProps {
   isOpen: boolean;
@@ -78,8 +79,8 @@ export default function MovementReportModal({
 
   const netBalance = totalSalesIncome - totalExpensesAmount;
 
-  // WhatsApp text copy
-  const handleCopyWhatsAppReport = () => {
+  // WhatsApp text copy & native share
+  const handleCopyWhatsAppReport = async () => {
     const text = `*INFORME CONSOLIDADO - LAURE JOYAS* 💎\n` +
       `📅 *Período:* ${monthNameLabel} (${selectedMonthKey})\n` +
       `----------------------------------------\n` +
@@ -94,8 +95,14 @@ export default function MovementReportModal({
       `----------------------------------------\n` +
       `📈 *BALANCE NETO:* $${netBalance.toLocaleString('es-AR')}`;
 
-    navigator.clipboard.writeText(text);
-    showToast('Informe copiado para WhatsApp', 'success');
+    await shareTextOrWhatsApp(text, 'Informe Consolidado - Laure Joyas', async () => {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Informe copiado para WhatsApp', 'success');
+      } catch {
+        showToast('Informe copiado', 'success');
+      }
+    });
   };
 
   // CSV Export

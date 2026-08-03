@@ -9,6 +9,7 @@ import { useToast } from '@/context/ToastContext';
 import { ShareIcon, WhatsAppIcon, ClockIcon } from '@/components/icons/SvgIcons';
 import { BUSINESS_CONFIG } from '@/lib/constants';
 import { useSupabaseCashClosures } from '@/lib/supabaseSync';
+import { shareTextOrWhatsApp } from '@/lib/shareUtils';
 
 interface CashClosureHistoryModalProps {
   isOpen: boolean;
@@ -36,10 +37,10 @@ export default function CashClosureHistoryModal({
     }
   };
 
-  const handleShareRecordWhatsApp = (record: CashClosureRecord) => {
+  const handleShareRecordWhatsApp = async (record: CashClosureRecord) => {
     const reportText = generateDailyCashReport(record.sales);
     if (BUSINESS_CONFIG.whatsappEnabled) {
-      window.open(`https://wa.me/?text=${encodeURIComponent(reportText)}`, '_blank');
+      await shareTextOrWhatsApp(reportText, `Cierre ${record.closureNumber} - Laure Joyas`, () => handleCopyRecordReport(record));
     } else {
       handleCopyRecordReport(record);
     }

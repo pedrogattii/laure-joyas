@@ -12,6 +12,7 @@ import {
   getCashSessionState,
   getReopensCountInLast24h,
 } from '@/lib/cashClosureManager';
+import { shareTextOrWhatsApp } from '@/lib/shareUtils';
 import CashClosureHistoryModal from '@/components/admin/CashClosureHistoryModal';
 
 interface DailyCashClosureModalProps {
@@ -76,10 +77,9 @@ export default function DailyCashClosureModal({
     }
   };
 
-  const handleShareWhatsApp = () => {
+  const handleShareWhatsApp = async () => {
     if (BUSINESS_CONFIG.whatsappEnabled) {
-      const encoded = encodeURIComponent(report);
-      window.open(`https://wa.me/?text=${encoded}`, '_blank');
+      await shareTextOrWhatsApp(report, 'Cierre de Caja - Laure Joyas', handleCopyReport);
     } else {
       handleCopyReport();
     }
