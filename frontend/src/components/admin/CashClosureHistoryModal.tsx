@@ -102,7 +102,7 @@ export default function CashClosureHistoryModal({
                 <div className="flex justify-between items-baseline pt-2 border-t border-[#2a2a2a]">
                   <span className="text-xs text-gray-400">Total Facturado:</span>
                   <span className="text-xl font-mono font-bold text-emerald-400">
-                    ${selectedRecord.totalAmount.toLocaleString('es-AR')}
+                    ${Number(selectedRecord.totalAmount || 0).toLocaleString('es-AR')}
                   </span>
                 </div>
               </div>
@@ -189,7 +189,7 @@ export default function CashClosureHistoryModal({
 
                   <div className="text-right shrink-0">
                     <span className="text-base font-mono font-bold text-emerald-800 block">
-                      ${record.totalAmount.toLocaleString('es-AR')}
+                      ${Number(record.totalAmount || 0).toLocaleString('es-AR')}
                     </span>
                     <span className="text-[10px] font-bold text-[#c5a059] group-hover:underline">
                       Ver detalle →

@@ -499,14 +499,36 @@ export function useSupabaseCashClosures() {
             ? rawClosedAt
             : (rawClosedAt ? new Date(rawClosedAt).getTime() : Date.now());
 
+          const numTotalAmount = row.totalAmount !== undefined && row.totalAmount !== null
+            ? Number(row.totalAmount)
+            : Number(row.metadata?.totalAmount || 0);
+
+          const totalTrans = row.totalTransactions !== undefined && row.totalTransactions !== null
+            ? Number(row.totalTransactions)
+            : Number(row.metadata?.totalTransactions || 0);
+
+          const formattedDateStr = row.metadata?.formattedDate || new Date(closedAtNum).toLocaleDateString('es-AR', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+
           return {
+            sales: [],
+            byMethod: {},
             ...row.metadata,
             id: row.id,
-            closureNumber: row.closureNumber || row.metadata?.closureNumber || `CIERRE-${row.id}`,
+            closureNumber: row.closureNumber || row.metadata?.closureNumber || `CIERRE-${row.id.substring(0, 8)}`,
             closedBy: row.closedBy || row.metadata?.closedBy || 'Operador',
             closedAt: closedAtNum,
+            formattedDate: formattedDateStr,
+            totalAmount: isNaN(numTotalAmount) ? 0 : numTotalAmount,
+            totalTransactions: isNaN(totalTrans) ? 0 : totalTrans,
             status: row.status || row.metadata?.status || 'CLOSED',
-            reopenCount: row.reopenCount || 0
+            reopenCount: row.reopenCount || row.metadata?.reopenCount || 0
           };
         });
         setClosures(records);
