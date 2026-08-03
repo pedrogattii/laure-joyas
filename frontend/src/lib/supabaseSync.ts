@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
+import { compressAndConvertToWebP } from './imageOptimizer';
 import type { ProductItem, SalesRecord, Category, Material } from './types';
 import type { CashClosureRecord } from './cashClosureManager';
 
@@ -341,15 +342,24 @@ export async function registerSupabaseSale(saleData: {
 
 export async function uploadProductImage(file: File, productCode: string): Promise<string | null> {
   try {
-    const fileExt = file.name.split('.').pop() || 'jpg';
+    // Compress and convert image to WebP format
+    const compressedFile = await compressAndConvertToWebP(file, {
+      maxWidth: 1200,
+      maxHeight: 1200,
+      quality: 0.82,
+    });
+
+    const isWebP = compressedFile.type === 'image/webp';
+    const fileExt = isWebP ? 'webp' : (compressedFile.name.split('.').pop() || 'jpg');
     const fileName = `${productCode.toLowerCase()}-${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('product-images')
-      .upload(filePath, file, {
-        cacheControl: '3600',
+      .upload(filePath, compressedFile, {
+        cacheControl: '31536000',
         upsert: true,
+        contentType: compressedFile.type,
       });
 
     if (uploadError) {

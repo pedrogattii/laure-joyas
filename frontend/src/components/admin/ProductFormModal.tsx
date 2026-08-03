@@ -435,7 +435,7 @@ export default function ProductFormModal({
                 >
                   {isUploading ? (
                     <>
-                      <span className="animate-spin">⏳</span> Subiendo imagen a Supabase...
+                      <span className="animate-spin">⏳</span> Optimizando y subiendo imagen...
                     </>
                   ) : (
                     <>
