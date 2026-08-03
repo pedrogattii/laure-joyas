@@ -641,19 +641,50 @@ export async function deleteSupabaseProduct(productId: string): Promise<boolean>
   try {
     const now = new Date().toISOString();
 
-    const { error } = await supabase
+    // 1. Physically delete inventory rows for this product
+    const { error: invError } = await supabase
+      .from('inventories')
+      .delete()
+      .eq('productId', productId);
+
+    if (invError) {
+      console.warn('Warning deleting inventory row for product:', invError);
+    }
+
+    // 2. Physically delete product_images rows for this product
+    const { error: imgError } = await supabase
+      .from('product_images')
+      .delete()
+      .eq('productId', productId);
+
+    if (imgError) {
+      console.warn('Warning deleting product_images rows for product:', imgError);
+    }
+
+    // 3. Physically delete product row from products table
+    const { error: prodError } = await supabase
       .from('products')
-      .update({ active: false, updatedAt: now })
+      .delete()
       .eq('id', productId);
 
-    if (error) {
-      console.error('Error soft deleting product in Supabase:', error);
-      return false;
+    if (prodError) {
+      console.warn('Physical hard delete failed (likely due to past sale_items history), falling back to soft delete:', prodError);
+      
+      // Fallback: Soft delete by setting active = false if hard delete is constrained by foreign keys
+      const { error: softError } = await supabase
+        .from('products')
+        .update({ active: false, updatedAt: now })
+        .eq('id', productId);
+
+      if (softError) {
+        console.error('Error soft deleting product in Supabase:', softError);
+        return false;
+      }
     }
 
     return true;
   } catch (e) {
-    console.error('Unexpected error deleting product:', e);
+    console.error('Unexpected error deleting product in Supabase:', e);
     return false;
   }
 }
