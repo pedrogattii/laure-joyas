@@ -44,7 +44,7 @@ export default function ProductDetailPage() {
   }
 
   const savings = product.priceList - product.priceCash;
-  const isRing = product.category.id === 'CAT_RINGS' || product.category.name === 'Anillos';
+  const isRing = product.category?.id === 'CAT_RINGS' || product.category?.name === 'Anillos';
   const isFav = isInWishlist(product.id);
   const isOutOfStock = product.stock <= 0;
 

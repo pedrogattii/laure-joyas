@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { CATEGORIES as MOCK_CATEGORIES, MATERIALS as MOCK_MATERIALS, ProductItem } from '@/lib/mockData';
-import { useSupabaseCategories, useSupabaseMaterials } from '@/lib/supabaseSync';
+import { useSupabaseCategories, useSupabaseMaterials, uploadProductImage } from '@/lib/supabaseSync';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -17,8 +17,8 @@ export default function ProductFormModal({
   onAddProduct,
   existingCount,
 }: ProductFormModalProps) {
-  const { categories: dbCategories, loading: catLoading } = useSupabaseCategories();
-  const { materials: dbMaterials, loading: matLoading } = useSupabaseMaterials();
+  const { categories: dbCategories } = useSupabaseCategories();
+  const { materials: dbMaterials } = useSupabaseMaterials();
 
   const categoriesList = dbCategories.length > 0 ? dbCategories : MOCK_CATEGORIES;
   const materialsList = dbMaterials.length > 0 ? dbMaterials : MOCK_MATERIALS;
@@ -34,7 +34,10 @@ export default function ProductFormModal({
   const [priceCash, setPriceCash] = useState<string>('');
   const [stock, setStock] = useState<string>('5');
   const [imageUrl, setImageUrl] = useState<string>('');
-  const [noPhotoForNow, setNoPhotoForNow] = useState<boolean>(true);
+  const [noPhotoForNow, setNoPhotoForNow] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!categoryId && categoriesList.length > 0) {
@@ -50,7 +53,6 @@ export default function ProductFormModal({
   const selectedCategory = categoriesList.find((c) => c.id === categoryId) || categoriesList[0];
   const selectedMaterial = materialsList.find((m) => m.id === materialId) || materialsList[0];
 
-
   // Auto Code calculation
   const generatedCode = `${selectedCategory.codePrefix}-${selectedMaterial.codePrefix}-${(existingCount + 1).toString().padStart(6, '0')}`;
 
@@ -58,7 +60,6 @@ export default function ProductFormModal({
     setPriceList(val);
     if (val && !isNaN(parseFloat(val))) {
       const numList = parseFloat(val);
-      // Auto-calculate 20% OFF for cash/transfer
       const autoCash = Math.round(numList * 0.8);
       setPriceCash(autoCash.toString());
     } else {
@@ -66,7 +67,20 @@ export default function ProductFormModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setNoPhotoForNow(false);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
@@ -76,6 +90,23 @@ export default function ProductFormModal({
 
     const numPriceList = parseFloat(priceList) || 0;
     const numPriceCash = parseFloat(priceCash) || Math.round(numPriceList * 0.8);
+
+    let finalImageUrl: string | undefined = undefined;
+
+    if (!noPhotoForNow) {
+      if (selectedFile) {
+        setIsUploading(true);
+        const uploadedUrl = await uploadProductImage(selectedFile, generatedCode);
+        setIsUploading(false);
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        } else {
+          alert('Error al subir la imagen al servidor. Se guardará sin foto.');
+        }
+      } else if (imageUrl.trim()) {
+        finalImageUrl = imageUrl.trim();
+      }
+    }
 
     const newProduct: ProductItem = {
       id: `prod-${Date.now()}`,
@@ -88,17 +119,21 @@ export default function ProductFormModal({
       material: selectedMaterial,
       stock: parseInt(stock, 10) || 0,
       inStock: true,
-      image: !noPhotoForNow && imageUrl.trim() ? imageUrl.trim() : undefined,
+      image: finalImageUrl,
     };
 
     onAddProduct(newProduct);
     onClose();
-    // Reset
+    // Reset form
     setStep(1);
     setName('');
     setDescription('');
     setPriceList('');
     setPriceCash('');
+    setImageUrl('');
+    setSelectedFile(null);
+    setImagePreview(null);
+    setNoPhotoForNow(false);
   };
 
   return (
@@ -304,56 +339,75 @@ export default function ProductFormModal({
             </div>
           )}
 
-          {/* STEP 3: PHOTO OPTION */}
+          {/* STEP 3: PHOTO UPLOAD OPTION */}
           {step === 3 && (
             <div className="space-y-5">
               <div className="bg-[#faf8f3] p-4 rounded-lg border border-[#e5dfd5]">
                 <h4 className="font-serif text-sm font-bold text-gray-900 mb-2">
-                  📸 Gestión de Fotografía
+                  📸 Fotografía del Producto (Supabase Storage)
                 </h4>
                 <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                  Podés cargar la foto del producto ahora o guardarlo sin foto. El producto figurará disponible en el catálogo de todas formas con una portada sobria y elegante.
+                  Podés tomar una foto con la cámara de tu celular, seleccionar una imagen de tu dispositivo o ingresar una URL. La imagen se almacenará en Supabase Storage.
                 </p>
 
+                {/* File Upload Box */}
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-gray-800 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="photoOption"
-                      checked={noPhotoForNow}
-                      onChange={() => setNoPhotoForNow(true)}
-                      className="text-[#c5a059] focus:ring-[#c5a059]"
-                    />
-                    <span>Guardar sin foto por ahora (se podrá agregar luego)</span>
-                  </label>
+                  <div className="border-2 border-dashed border-[#c5a059]/60 hover:border-[#c5a059] rounded-xl p-4 text-center bg-white cursor-pointer transition-colors">
+                    <label className="cursor-pointer flex flex-col items-center justify-center gap-2">
+                      <span className="text-3xl">📷</span>
+                      <span className="text-xs font-bold text-gray-800">
+                        {selectedFile ? selectedFile.name : 'Seleccionar foto o usar cámara'}
+                      </span>
+                      <span className="text-[10px] text-gray-500">
+                        Formatos soportados: JPG, PNG, WEBP (Máx. 5MB)
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
 
-                  <label className="flex items-center gap-2 text-xs font-semibold text-gray-800 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="photoOption"
-                      checked={!noPhotoForNow}
-                      onChange={() => setNoPhotoForNow(false)}
-                      className="text-[#c5a059] focus:ring-[#c5a059]"
-                    />
-                    <span>Subir URL de imagen del producto</span>
-                  </label>
+                  {imagePreview && (
+                    <div className="flex items-center justify-center p-2 bg-gray-100 rounded-lg border border-gray-200">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="h-32 object-contain rounded"
+                      />
+                    </div>
+                  )}
+
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer mb-2">
+                      <input
+                        type="checkbox"
+                        checked={noPhotoForNow}
+                        onChange={(e) => setNoPhotoForNow(e.target.checked)}
+                        className="text-[#c5a059] focus:ring-[#c5a059] rounded"
+                      />
+                      <span>Guardar sin foto por ahora</span>
+                    </label>
+
+                    {!noPhotoForNow && !selectedFile && (
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                          O bien ingresá una URL pública de imagen:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="https://... o /images/mi_foto.png"
+                          value={imageUrl}
+                          onChange={(e) => setImageUrl(e.target.value)}
+                          className="w-full px-3 py-2 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-[#c5a059] focus:outline-none"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {!noPhotoForNow && (
-                <div>
-                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                    URL de la Imagen o Archivo
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="https://... o /images/mi_foto.jpg"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none"
-                  />
-                </div>
-              )}
 
               {/* Summary Card */}
               <div className="bg-[#121212] text-white p-4 rounded-lg text-xs space-y-1">
@@ -362,21 +416,32 @@ export default function ProductFormModal({
                 <div>Producto: <span className="font-semibold">{name}</span></div>
                 <div>Precio Contado (20% OFF): <span className="text-emerald-400 font-bold">${parseFloat(priceCash || '0').toLocaleString('es-AR')}</span></div>
                 <div>Precio Lista: <span className="font-mono">${parseFloat(priceList || '0').toLocaleString('es-AR')} (Hasta 3 cuotas sin interés)</span></div>
+                <div>Foto: <span className="text-gray-300 font-semibold">{noPhotoForNow ? 'Sin foto' : selectedFile ? `Archivo: ${selectedFile.name}` : imageUrl ? 'URL externa' : 'Sin foto'}</span></div>
               </div>
 
               <div className="flex justify-between pt-4 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={() => setStep(2)}
+                  disabled={isUploading}
                   className="border border-gray-300 text-gray-700 font-semibold text-xs uppercase px-4 py-2.5 rounded"
                 >
                   ⬅ Volver
                 </button>
                 <button
                   type="submit"
+                  disabled={isUploading}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider px-6 py-2.5 rounded shadow flex items-center gap-2"
                 >
-                  <span>✨</span> Confirmar y Guardar Producto
+                  {isUploading ? (
+                    <>
+                      <span className="animate-spin">⏳</span> Subiendo imagen a Supabase...
+                    </>
+                  ) : (
+                    <>
+                      <span>✨</span> Confirmar y Guardar Producto
+                    </>
+                  )}
                 </button>
               </div>
             </div>

@@ -335,6 +335,35 @@ export async function registerSupabaseSale(saleData: {
   return true;
 }
 
+export async function uploadProductImage(file: File, productCode: string): Promise<string | null> {
+  try {
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const fileName = `${productCode.toLowerCase()}-${Date.now()}.${fileExt}`;
+    const filePath = `products/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error('Error uploading image to Supabase Storage:', uploadError);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  } catch (e) {
+    console.error('Unexpected error during image upload:', e);
+    return null;
+  }
+}
+
 export async function registerSupabaseProduct(productData: {
   code: string;
   name: string;
@@ -398,6 +427,7 @@ export async function registerSupabaseProduct(productData: {
         url: productData.image.trim(),
         isPrimary: true,
         productId: prod.id,
+        createdAt: now,
       });
 
     if (imgError) {

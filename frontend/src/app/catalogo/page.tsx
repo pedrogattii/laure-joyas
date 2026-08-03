@@ -4,13 +4,19 @@ import { useState, useMemo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { CATEGORIES, MATERIALS } from '@/lib/mockData';
+import { CATEGORIES as MOCK_CATEGORIES, MATERIALS as MOCK_MATERIALS } from '@/lib/mockData';
 import type { ProductItem } from '@/lib/types';
 import { SearchIcon } from '@/components/icons/SvgIcons';
-import { useSupabaseProducts } from '@/lib/supabaseSync';
+import { useSupabaseProducts, useSupabaseCategories, useSupabaseMaterials } from '@/lib/supabaseSync';
 
 export default function CatalogPage() {
   const { products, loading } = useSupabaseProducts();
+  const { categories: dbCategories } = useSupabaseCategories();
+  const { materials: dbMaterials } = useSupabaseMaterials();
+
+  const categoriesList = dbCategories.length > 0 ? dbCategories : MOCK_CATEGORIES;
+  const materialsList = dbMaterials.length > 0 ? dbMaterials : MOCK_MATERIALS;
+
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedMaterial, setSelectedMaterial] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -114,7 +120,7 @@ export default function CatalogPage() {
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none bg-white"
               >
                 <option value="ALL">Todas las Categorías</option>
-                {CATEGORIES.map((cat) => (
+                {categoriesList.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
                   </option>
@@ -133,7 +139,7 @@ export default function CatalogPage() {
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none bg-white"
               >
                 <option value="ALL">Todos los Materiales</option>
-                {MATERIALS.map((mat) => (
+                {materialsList.map((mat) => (
                   <option key={mat.id} value={mat.id}>
                     {mat.name}
                   </option>
