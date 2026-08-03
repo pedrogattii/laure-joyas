@@ -568,3 +568,73 @@ export function useSupabaseCashClosures() {
 
   return { closures, loading, fetchClosures };
 }
+
+export async function updateSupabaseProductStock(productId: string, newQuantity: number): Promise<boolean> {
+  try {
+    const now = new Date().toISOString();
+    const qty = Math.max(0, Math.round(newQuantity));
+
+    const { data: inv } = await supabase
+      .from('inventories')
+      .select('id')
+      .eq('productId', productId)
+      .eq('storeId', STORE_ID)
+      .maybeSingle();
+
+    if (inv) {
+      const { error } = await supabase
+        .from('inventories')
+        .update({ quantity: qty, updatedAt: now })
+        .eq('id', inv.id);
+
+      if (error) {
+        console.error('Error updating product stock in Supabase:', error);
+        return false;
+      }
+    } else {
+      const invId = generateUUID();
+      const { error } = await supabase
+        .from('inventories')
+        .insert({
+          id: invId,
+          productId,
+          storeId: STORE_ID,
+          quantity: qty,
+          minStock: 1,
+          updatedAt: now,
+        });
+
+      if (error) {
+        console.error('Error inserting product stock in Supabase:', error);
+        return false;
+      }
+    }
+
+    return true;
+  } catch (e) {
+    console.error('Unexpected error updating product stock:', e);
+    return false;
+  }
+}
+
+export async function deleteSupabaseProduct(productId: string): Promise<boolean> {
+  try {
+    const now = new Date().toISOString();
+
+    const { error } = await supabase
+      .from('products')
+      .update({ active: false, updatedAt: now })
+      .eq('id', productId);
+
+    if (error) {
+      console.error('Error soft deleting product in Supabase:', error);
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    console.error('Unexpected error deleting product:', e);
+    return false;
+  }
+}
+
