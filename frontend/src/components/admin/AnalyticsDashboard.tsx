@@ -45,15 +45,29 @@ export default function AnalyticsDashboard({
 
   const selectedMonthObj = availableMonths.find((m) => m.key === selectedMonthKey) || availableMonths[0];
 
+  // Helper to extract YYYY-MM safely
+  const getMonthKeyFromRecord = (timestamp?: number, rawDate?: string, displayDate?: string): string => {
+    if (rawDate && rawDate.length >= 7 && rawDate.includes('-')) {
+      return rawDate.substring(0, 7);
+    }
+    if (timestamp && typeof timestamp === 'number' && !isNaN(timestamp) && timestamp > 0) {
+      const d = new Date(timestamp);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      return `${year}-${month}`;
+    }
+    if (displayDate && displayDate.length >= 7 && displayDate.includes('-')) {
+      return displayDate.substring(0, 7);
+    }
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  };
+
   // 1. Filter Sales by Selected Month (First to last day of month)
   const monthSales = useMemo(() => {
     const list = Array.isArray(salesHistory) ? salesHistory : [];
     return list.filter((s) => {
-      const dateStr = s.date || '';
-      let monthStr = dateStr.substring(0, 7);
-      if (!monthStr || monthStr.length < 7) {
-        monthStr = new Date(s.timestamp || 0).toISOString().substring(0, 7);
-      }
+      const monthStr = getMonthKeyFromRecord(s.timestamp, s.rawDate, s.date);
       return monthStr === selectedMonthKey;
     });
   }, [salesHistory, selectedMonthKey]);
@@ -61,7 +75,7 @@ export default function AnalyticsDashboard({
   // 2. Filter Expenses by Selected Month
   const monthExpenses = useMemo(() => {
     return expenses.filter((e) => {
-      const eMonth = e.monthKey || e.date?.substring(0, 7) || new Date(e.timestamp || 0).toISOString().substring(0, 7);
+      const eMonth = e.monthKey || getMonthKeyFromRecord(e.timestamp, e.date);
       return eMonth === selectedMonthKey;
     });
   }, [expenses, selectedMonthKey]);

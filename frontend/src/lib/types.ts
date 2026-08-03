@@ -53,4 +53,5 @@ export interface SalesRecord {
   date: string;
   timestamp: number; // Unix ms for sorting and persistence
   channel?: 'POS' | 'ONLINE'; // Físico (Isla) u Online (Web)
+  rawDate?: string; // ISO date string e.g. "2026-08-03T12:00:00.000Z"
 }

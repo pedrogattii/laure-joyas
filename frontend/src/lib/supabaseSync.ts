@@ -246,6 +246,7 @@ export function useSupabaseSales() {
               totalAmount: Number(sale.totalAmount || 0),
               date: `Hoy ${new Date(String(sale.createdAt)).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs`,
               timestamp: new Date(String(sale.createdAt)).getTime(),
+              rawDate: String(sale.createdAt),
             });
           });
         });

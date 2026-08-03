@@ -24,15 +24,31 @@ export default function MovementReportModal({
 
   if (!isOpen) return null;
 
+  const getMonthKeyFromRecord = (timestamp?: number, rawDate?: string, displayDate?: string): string => {
+    if (rawDate && rawDate.length >= 7 && rawDate.includes('-')) {
+      return rawDate.substring(0, 7);
+    }
+    if (timestamp && typeof timestamp === 'number' && !isNaN(timestamp) && timestamp > 0) {
+      const d = new Date(timestamp);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      return `${year}-${month}`;
+    }
+    if (displayDate && displayDate.length >= 7 && displayDate.includes('-')) {
+      return displayDate.substring(0, 7);
+    }
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  };
+
   // Filter sales and expenses by month
   const monthSales = sales.filter((s) => {
-    const sDate = s.date || '';
-    const sMonth = sDate.substring(0, 7) || new Date(s.timestamp || 0).toISOString().substring(0, 7);
+    const sMonth = getMonthKeyFromRecord(s.timestamp, s.rawDate, s.date);
     return sMonth === selectedMonthKey;
   });
 
   const monthExpenses = expenses.filter((e) => {
-    const eMonth = e.monthKey || e.date?.substring(0, 7) || new Date(e.timestamp || 0).toISOString().substring(0, 7);
+    const eMonth = e.monthKey || getMonthKeyFromRecord(e.timestamp, e.date);
     return eMonth === selectedMonthKey;
   });
 
