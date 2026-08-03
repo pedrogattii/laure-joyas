@@ -7,8 +7,9 @@ import Header from '@/components/Header';
 import { WhatsAppIcon } from '@/components/icons/SvgIcons';
 import { BUSINESS_CONFIG } from '@/lib/constants';
 import Image from 'next/image';
-
 import { useToast } from '@/context/ToastContext';
+import PaymentSimulatorModal from '@/components/PaymentSimulatorModal';
+import { registerSupabaseSale, updateSupabaseProductStock } from '@/lib/supabaseSync';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function CheckoutPage() {
     paymentMethod: 'cash',
   });
 
+  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -33,9 +36,42 @@ export default function CheckoutPage() {
 
   const handleFinishPurchase = (e: React.FormEvent) => {
     e.preventDefault();
-    showToast(`¡Gracias ${formData.firstName}! Tu pedido ha sido registrado con éxito.`, 'success');
+
+    if (formData.paymentMethod === 'mercadopago' || formData.paymentMethod === 'fiserv') {
+      setIsSimulatorOpen(true);
+      return;
+    }
+
+    // Cash / Transfer payment
+    completeOrder('EFECTIVO', 'CASH-DIRECT');
+  };
+
+  const completeOrder = async (method: string, paymentId: string) => {
+    const customerFullName = `${formData.firstName} ${formData.lastName}`.trim();
+    
+    // Register items in Supabase
+    for (const item of cart) {
+      const itemPrice = formData.paymentMethod === 'cash' ? item.product.priceCash : item.product.priceList;
+      await registerSupabaseSale({
+        productId: item.product.id,
+        quantity: item.quantity,
+        totalAmount: itemPrice * item.quantity,
+        paymentMethod: method,
+      });
+
+      // Update inventory stock
+      const newStock = Math.max(0, item.product.stock - item.quantity);
+      await updateSupabaseProductStock(item.product.id, newStock);
+    }
+
+    showToast(`¡Gracias ${customerFullName}! Tu pedido #${paymentId} ha sido procesado con éxito.`, 'success');
     clearCart();
     router.push('/');
+  };
+
+  const handleSimulatedPaymentSuccess = async (paymentDetails: { paymentId: string; method: string; installments: number }) => {
+    setIsSimulatorOpen(false);
+    await completeOrder(paymentDetails.method, paymentDetails.paymentId);
   };
 
   const handleWhatsAppModification = async () => {
@@ -43,14 +79,12 @@ export default function CheckoutPage() {
       .map((item) => `• ${item.quantity}x ${item.product.name} (SKU: ${item.product.code}) - $${(formData.paymentMethod === 'cash' ? item.product.priceCash : item.product.priceList).toLocaleString('es-AR')}`)
       .join('\n');
 
-    const message = `Hola Laure Joyas! Quiero realizar la siguiente compra pero necesito hacer unas modificaciones (ej. talle de anillo):\n\n${itemsList}\n\nTotal: $${currentTotal.toLocaleString('es-AR')}\nForma de pago elegida: ${formData.paymentMethod === 'cash' ? 'Efectivo/Transferencia' : 'Tarjetas (Precio Lista)'}\n\nMis datos:\n- Nombre: ${formData.firstName} ${formData.lastName}\n- Teléfono: ${formData.phone}`;
+    const message = `Hola Laure Joyas! Quiero realizar la siguiente compra pero necesito hacer unas modificaciones (ej. talle de anillo):\n\n${itemsList}\n\nTotal: $${currentTotal.toLocaleString('es-AR')}\nForma de pago elegida: ${formData.paymentMethod === 'cash' ? 'Efectivo/Transferencia' : 'Tarjetas'}\n\nMis datos:\n- Nombre: ${formData.firstName} ${formData.lastName}\n- Teléfono: ${formData.phone}`;
 
     if (BUSINESS_CONFIG.whatsappEnabled) {
-      // Direct WhatsApp link (ready for when official business number is configured)
       const encodedMsg = encodeURIComponent(message);
       window.open(`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodedMsg}`, '_blank');
     } else {
-      // Fallback: Copy to clipboard and inform customer
       try {
         await navigator.clipboard.writeText(message);
         showToast('✓ Datos de pedido copiados al portapapeles.', 'success');
@@ -134,9 +168,10 @@ export default function CheckoutPage() {
               <h2 className="font-serif text-xl font-bold mb-4 border-b pb-2">3. Pago</h2>
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1">Método de pago</label>
-                <select name="paymentMethod" value={formData.paymentMethod} onChange={handleInputChange} className="w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c5a059]">
-                  <option value="cash">Efectivo / Transferencia (20% OFF)</option>
-                  <option value="card">Tarjetas / Hasta 3 cuotas sin interés (Precio Lista)</option>
+                <select name="paymentMethod" value={formData.paymentMethod} onChange={handleInputChange} className="w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c5a059] font-bold">
+                  <option value="cash">💵 Efectivo / Transferencia (20% OFF)</option>
+                  <option value="mercadopago">🔷 Mercado Pago (Pasarela de Prueba / Sandbox)</option>
+                  <option value="fiserv">💳 Fiserv / Posnet / Tarjetas (Hasta 3 cuotas sin interés)</option>
                 </select>
               </div>
             </section>
@@ -188,7 +223,7 @@ export default function CheckoutPage() {
                 form="checkout-form"
                 className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-bold text-xs uppercase py-3.5 rounded shadow btn-animate cursor-pointer"
               >
-                Finalizar Compra
+                {formData.paymentMethod === 'cash' ? 'Finalizar Compra' : 'Probar Pasarela de Pago'}
               </button>
               
               <div className="relative flex items-center py-2">
@@ -210,6 +245,17 @@ export default function CheckoutPage() {
           </div>
         </div>
       </main>
+
+      {/* Payment Gateway Sandbox Modal */}
+      <PaymentSimulatorModal
+        isOpen={isSimulatorOpen}
+        onClose={() => setIsSimulatorOpen(false)}
+        provider={formData.paymentMethod === 'mercadopago' ? 'MERCADO_PAGO' : 'FISERV'}
+        totalAmount={currentTotal}
+        customerName={`${formData.firstName} ${formData.lastName}`}
+        customerEmail={formData.email}
+        onPaymentSuccess={handleSimulatedPaymentSuccess}
+      />
     </div>
   );
 }
