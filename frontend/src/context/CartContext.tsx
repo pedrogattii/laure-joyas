@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { ProductItem } from '@/lib/mockData';
 
 export interface CartItem {
@@ -25,19 +25,19 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
-
-  useEffect(() => {
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === 'undefined') return [];
     const saved = localStorage.getItem('lj_cart_items');
     if (saved) {
       try {
-        setCart(JSON.parse(saved));
+        return JSON.parse(saved);
       } catch (e) {
         console.error(e);
       }
     }
-  }, []);
+    return [];
+  });
+  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
 
   const saveCart = (newCart: CartItem[]) => {
     setCart(newCart);

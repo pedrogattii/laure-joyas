@@ -1,16 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import type { ProductItem } from '@/lib/types';
 import { MapPinIcon } from '@/components/icons/SvgIcons';
 import { useSupabaseProducts } from '@/lib/supabaseSync';
 
 export default function HomePage() {
-  const { products, loading } = useSupabaseProducts();
+  const { products } = useSupabaseProducts();
 
   const featuredProducts = products.filter((p) => p.isFeatured || true);
   const offerProducts = products.filter((p) => p.isOffer || true);

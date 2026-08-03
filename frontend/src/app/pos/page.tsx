@@ -4,12 +4,12 @@ import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import StockAdjustModal from '@/components/admin/StockAdjustModal';
 import POSRegisterModal from '@/components/admin/POSRegisterModal';
 import DailyCashClosureModal from '@/components/admin/DailyCashClosureModal';
 import ProductFormModal from '@/components/admin/ProductFormModal';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
-import { INITIAL_PRODUCTS } from '@/lib/mockData';
-import type { ProductItem, SalesRecord } from '@/lib/types';
+import type { ProductItem } from '@/lib/types';
 import {
   CashIcon,
   CreditCardIcon,
@@ -24,41 +24,88 @@ import {
   isOnline,
 } from '@/lib/offlineQueue';
 import { getActiveSessionSales } from '@/lib/cashClosureManager';
-import { useSupabaseProducts, useSupabaseSales, useSupabaseCashClosures, registerSupabaseSale, registerSupabaseProduct } from '@/lib/supabaseSync';
+import {
+  useSupabaseProducts,
+  useSupabaseSales,
+  useSupabaseCashClosures,
+  registerSupabaseSale,
+  registerSupabaseProduct,
+  updateSupabaseProductStock,
+  deleteSupabaseProduct,
+} from '@/lib/supabaseSync';
 
 export default function MobilePosAppPage() {
   const { user, loginAs } = useAuth();
   const { showToast } = useToast();
 
-  const { products, loading: productsLoading, fetchProducts } = useSupabaseProducts();
-  const { sales: salesHistory, loading: salesLoading, fetchSales } = useSupabaseSales();
+  const { products, fetchProducts } = useSupabaseProducts();
+  const { sales: salesHistory, fetchSales } = useSupabaseSales();
   const { closures, fetchClosures } = useSupabaseCashClosures();
 
   const [isPOSModalOpen, setIsPOSModalOpen] = useState(false);
   const [isCashClosureOpen, setIsCashClosureOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [selectedProductForStock, setSelectedProductForStock] = useState<ProductItem | null>(null);
+  const [isStockModalOpen, setIsStockModalOpen] = useState<boolean>(false);
+
+  const handleOpenStockModal = (product: ProductItem) => {
+    setSelectedProductForStock(product);
+    setIsStockModalOpen(true);
+  };
+
+  const handleQuickStockChange = async (product: ProductItem, delta: number) => {
+    const newStock = Math.max(0, product.stock + delta);
+    const ok = await updateSupabaseProductStock(product.id, newStock);
+    if (ok) {
+      showToast(`Stock de ${product.code} actualizado a ${newStock} un.`, 'success');
+      fetchProducts();
+    } else {
+      showToast('Error al actualizar el stock', 'error');
+    }
+  };
+
+  const handleSaveStock = async (productId: string, newStock: number) => {
+    const ok = await updateSupabaseProductStock(productId, newStock);
+    if (ok) {
+      showToast('Stock actualizado correctamente', 'success');
+      fetchProducts();
+    } else {
+      showToast('Error al actualizar el stock', 'error');
+    }
+  };
+
+  const handleDeleteProduct = async (product: ProductItem) => {
+    const confirmed = window.confirm(
+      `¿Estás seguro de que querés eliminar el producto "${product.name}" (${product.code}) del stock?\n\nEsta acción quitará el producto del inventario y del catálogo.`
+    );
+    if (!confirmed) return;
+
+    const ok = await deleteSupabaseProduct(product.id);
+    if (ok) {
+      showToast(`Producto ${product.code} eliminado correctamente`, 'success');
+      fetchProducts();
+    } else {
+      showToast('Error al eliminar el producto', 'error');
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<'cobrar' | 'stock' | 'cierre' | 'dashboard'>('cobrar');
   const [searchQuery, setSearchQuery] = useState('');
-  const [online, setOnline] = useState(true);
-  const [offlinePending, setOfflinePending] = useState(0);
+  const [online, setOnline] = useState(() => (typeof window !== 'undefined' ? isOnline() : true));
+  const [offlinePending] = useState(() => (typeof window !== 'undefined' ? getOfflineQueueCount() : 0));
   const [showInstallGuide, setShowInstallGuide] = useState(true);
-  const [isStandalone, setIsStandalone] = useState(false);
+  const [isStandalone] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (navigator as Navigator & { standalone?: boolean }).standalone === true
+      );
+    }
+    return false;
+  });
 
   // Load sales history & connection state & inventory stock & detect PWA standalone mode
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const standalone =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (navigator as any).standalone === true;
-      setIsStandalone(!!standalone);
-    }
-
-    // Connection state polling
-
-    setOnline(isOnline());
-    setOfflinePending(getOfflineQueueCount());
-
     const handleOnline = () => {
       setOnline(true);
       showToast('Conexión restablecida', 'success');
@@ -74,7 +121,7 @@ export default function MobilePosAppPage() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [showToast]);
 
   // Handle registering a new sale
   const handlePOSSaleSuccess = async (saleData: {
@@ -376,18 +423,45 @@ export default function MobilePosAppPage() {
                     </div>
                   </div>
 
-                  <div className="text-right shrink-0">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                        item.stock > 3
-                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                          : item.stock > 0
-                          ? 'bg-amber-950 text-amber-300 border border-amber-800'
-                          : 'bg-rose-950 text-rose-300 border border-rose-800'
-                      }`}
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleQuickStockChange(item, -1)}
+                        title="Restar 1 unidad"
+                        className="w-6.5 h-6.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-300 font-bold text-xs rounded flex items-center justify-center"
+                      >
+                        -
+                      </button>
+                      <button
+                        onClick={() => handleOpenStockModal(item)}
+                        title="Hacé clic para cambiar la cantidad exacta"
+                        className={`px-2 py-0.5 rounded-full text-xs font-bold border transition-all ${
+                          item.stock > 3
+                            ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                            : item.stock > 0
+                            ? 'bg-amber-950 text-amber-300 border-amber-800'
+                            : 'bg-rose-950 text-rose-300 border-rose-800'
+                        }`}
+                      >
+                        {item.stock} un. ✏️
+                      </button>
+                      <button
+                        onClick={() => handleQuickStockChange(item, 1)}
+                        title="Sumar 1 unidad"
+                        className="w-6.5 h-6.5 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 font-bold text-xs rounded flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={() => handleDeleteProduct(item)}
+                      title="Eliminar producto"
+                      className="text-[10px] text-rose-400 hover:text-rose-300 flex items-center gap-1 bg-rose-950/50 px-2 py-0.5 rounded border border-rose-900/60"
                     >
-                      {item.stock} un.
-                    </span>
+                      <span>🗑️</span>
+                      <span>Eliminar</span>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -510,6 +584,13 @@ export default function MobilePosAppPage() {
         onClose={() => setIsProductModalOpen(false)}
         onAddProduct={handleAddProduct}
         existingCount={products.length}
+      />
+
+      <StockAdjustModal
+        isOpen={isStockModalOpen}
+        onClose={() => setIsStockModalOpen(false)}
+        product={selectedProductForStock}
+        onSaveStock={handleSaveStock}
       />
     </div>
   );

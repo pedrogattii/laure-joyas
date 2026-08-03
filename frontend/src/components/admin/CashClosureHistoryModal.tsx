@@ -22,7 +22,7 @@ export default function CashClosureHistoryModal({
   const { showToast } = useToast();
   const [selectedRecord, setSelectedRecord] = useState<CashClosureRecord | null>(null);
   
-  const { closures: history, loading } = useSupabaseCashClosures();
+  const { closures: history } = useSupabaseCashClosures();
 
   if (!isOpen) return null;
 

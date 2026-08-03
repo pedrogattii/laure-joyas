@@ -2,7 +2,6 @@
 // Handles active cash session, closure history (last 30 days), and 24h reopening limits (max 3 reopens).
 
 import type { SalesRecord } from '@/lib/types';
-import { generateDailyCashReport } from '@/lib/offlineQueue';
 
 export interface CashClosureRecord {
   id: string;

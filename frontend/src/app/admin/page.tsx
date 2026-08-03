@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/Header';
+import StockAdjustModal from '@/components/admin/StockAdjustModal';
 import ProductFormModal from '@/components/admin/ProductFormModal';
 import POSRegisterModal from '@/components/admin/POSRegisterModal';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import DailyCashClosureModal from '@/components/admin/DailyCashClosureModal';
-import { INITIAL_PRODUCTS } from '@/lib/mockData';
-import type { ProductItem, SalesRecord } from '@/lib/types';
+import type { ProductItem } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { PlusIcon, CreditCardIcon, ClockIcon, WifiOffIcon } from '@/components/icons/SvgIcons';
@@ -18,33 +18,80 @@ import {
   isOnline,
 } from '@/lib/offlineQueue';
 import { getActiveSessionSales } from '@/lib/cashClosureManager';
-import { useSupabaseProducts, useSupabaseSales, useSupabaseCashClosures, registerSupabaseSale, registerSupabaseProduct } from '@/lib/supabaseSync';
+import {
+  useSupabaseProducts,
+  useSupabaseSales,
+  useSupabaseCashClosures,
+  registerSupabaseSale,
+  registerSupabaseProduct,
+  updateSupabaseProductStock,
+  deleteSupabaseProduct,
+} from '@/lib/supabaseSync';
 
 export default function AdminPage() {
   const { user, loginAs, logout } = useAuth();
   const { showToast } = useToast();
 
-  const { products, loading: productsLoading, fetchProducts } = useSupabaseProducts();
-  const { sales: salesHistory, loading: salesLoading, fetchSales } = useSupabaseSales();
+  const { products, fetchProducts } = useSupabaseProducts();
+  const { sales: salesHistory, fetchSales } = useSupabaseSales();
   const { closures, fetchClosures } = useSupabaseCashClosures();
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'pos' | 'inventory'>('dashboard');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
   const [isPOSModalOpen, setIsPOSModalOpen] = useState<boolean>(false);
   const [isCashClosureOpen, setIsCashClosureOpen] = useState<boolean>(false);
+  const [selectedProductForStock, setSelectedProductForStock] = useState<ProductItem | null>(null);
+  const [isStockModalOpen, setIsStockModalOpen] = useState<boolean>(false);
 
-  const [online, setOnline] = useState(true);
-  const [offlinePending, setOfflinePending] = useState(0);
+  const handleOpenStockModal = (product: ProductItem) => {
+    setSelectedProductForStock(product);
+    setIsStockModalOpen(true);
+  };
+
+  const handleQuickStockChange = async (product: ProductItem, delta: number) => {
+    const newStock = Math.max(0, product.stock + delta);
+    const ok = await updateSupabaseProductStock(product.id, newStock);
+    if (ok) {
+      showToast(`Stock de ${product.code} actualizado a ${newStock} un.`, 'success');
+      fetchProducts();
+    } else {
+      showToast('Error al actualizar el stock en Supabase', 'error');
+    }
+  };
+
+  const handleSaveStock = async (productId: string, newStock: number) => {
+    const ok = await updateSupabaseProductStock(productId, newStock);
+    if (ok) {
+      showToast('Stock actualizado correctamente', 'success');
+      fetchProducts();
+    } else {
+      showToast('Error al actualizar el stock en Supabase', 'error');
+    }
+  };
+
+  const handleDeleteProduct = async (product: ProductItem) => {
+    const confirmed = window.confirm(
+      `¿Estás seguro de que querés eliminar el producto "${product.name}" (${product.code}) del stock?\n\nEsta acción quitará el producto del inventario y del catálogo.`
+    );
+    if (!confirmed) return;
+
+    const ok = await deleteSupabaseProduct(product.id);
+    if (ok) {
+      showToast(`Producto ${product.code} eliminado correctamente`, 'success');
+      fetchProducts();
+    } else {
+      showToast('Error al eliminar el producto en Supabase', 'error');
+    }
+  };
+
+  const [online, setOnline] = useState(() => (typeof window !== 'undefined' ? isOnline() : true));
+  const [offlinePending] = useState(() => (typeof window !== 'undefined' ? getOfflineQueueCount() : 0));
 
   // Auto-set initial active tab according to role
   const currentUserRole = user?.role || 'ADMIN';
 
   // Load connection status
   useEffect(() => {
-
-    setOnline(isOnline());
-    setOfflinePending(getOfflineQueueCount());
-
     const handleOnline = () => {
       setOnline(true);
       showToast('Conexión restablecida', 'success');
@@ -60,7 +107,7 @@ export default function AdminPage() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [showToast]);
 
   // Handle adding new product
   const handleAddProduct = async (newProduct: ProductItem) => {
@@ -365,7 +412,7 @@ export default function AdminPage() {
                     <th className="py-3 px-4">Material</th>
                     <th className="py-3 px-4 text-right">Precio Contado (20% OFF)</th>
                     <th className="py-3 px-4 text-right">Precio Lista (3 Cuotas)</th>
-                    <th className="py-3 px-4 text-center">Stock Isla</th>
+                    <th className="py-3 px-4 text-center">Acciones / Modificar Stock</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -409,18 +456,51 @@ export default function AdminPage() {
                       <td className="py-3.5 px-4 text-right font-mono text-gray-600">
                         ${item.priceList.toLocaleString('es-AR')}
                       </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                            item.stock > 3
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : item.stock > 0
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-rose-100 text-rose-800'
-                          }`}
-                        >
-                          {item.stock} un.
-                        </span>
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center justify-center gap-1.5">
+                          {/* Quick decrement -1 */}
+                          <button
+                            onClick={() => handleQuickStockChange(item, -1)}
+                            title="Restar 1 unidad"
+                            className="w-7 h-7 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold rounded flex items-center justify-center transition-all"
+                          >
+                            -
+                          </button>
+
+                          {/* Editable Stock Badge */}
+                          <button
+                            onClick={() => handleOpenStockModal(item)}
+                            title="Hacé clic para cambiar la cantidad exacta"
+                            className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all hover:scale-105 ${
+                              item.stock > 3
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                : item.stock > 0
+                                ? 'bg-amber-100 text-amber-800 border-amber-300'
+                                : 'bg-rose-100 text-rose-800 border-rose-300'
+                            }`}
+                          >
+                            {item.stock} un. ✏️
+                          </button>
+
+                          {/* Quick increment +1 */}
+                          <button
+                            onClick={() => handleQuickStockChange(item, 1)}
+                            title="Sumar 1 unidad"
+                            className="w-7 h-7 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold rounded flex items-center justify-center transition-all"
+                          >
+                            +
+                          </button>
+
+                          {/* Delete Product Button */}
+                          <button
+                            onClick={() => handleDeleteProduct(item)}
+                            title="Eliminar producto del stock"
+                            className="ml-2 px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-800 text-[11px] font-semibold rounded border border-red-200 flex items-center gap-1 transition-all"
+                          >
+                            <span>🗑️</span>
+                            <span className="hidden sm:inline">Eliminar</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -457,6 +537,14 @@ export default function AdminPage() {
           fetchClosures();
           fetchSales();
         }}
+      />
+
+      {/* Stock Adjust Modal */}
+      <StockAdjustModal
+        isOpen={isStockModalOpen}
+        onClose={() => setIsStockModalOpen(false)}
+        product={selectedProductForStock}
+        onSaveStock={handleSaveStock}
       />
     </div>
   );

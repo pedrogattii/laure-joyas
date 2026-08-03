@@ -16,7 +16,7 @@ import Link from 'next/link';
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { products, loading } = useSupabaseProducts();
+  const { products } = useSupabaseProducts();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { showToast } = useToast();
