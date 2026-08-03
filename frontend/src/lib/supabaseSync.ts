@@ -219,6 +219,7 @@ export function useSupabaseSales() {
           createdAt,
           totalAmount,
           paymentMethod,
+          channel,
           items:sale_items(
             quantity,
             product:products(name, code)
@@ -247,6 +248,7 @@ export function useSupabaseSales() {
               date: `Hoy ${new Date(String(sale.createdAt)).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs`,
               timestamp: new Date(String(sale.createdAt)).getTime(),
               rawDate: String(sale.createdAt),
+              channel: (sale.channel as 'POS' | 'ONLINE') || 'POS',
             });
           });
         });
@@ -295,11 +297,14 @@ export async function registerSupabaseSale(saleData: {
   totalAmount: number;
   paymentMethod: string;
   userId?: string;
+  channel?: 'POS' | 'ONLINE';
+  transactionId?: string;
 }) {
   const dbPaymentMethod = PAYMENT_METHOD_TO_DB[saleData.paymentMethod] || 'CASH';
   const now = new Date().toISOString();
   const saleId = generateUUID();
   const validUserId = saleData.userId && isValidUUID(saleData.userId) ? saleData.userId : null;
+  const saleChannel = saleData.channel || 'POS';
 
   const { data: sale, error: saleError } = await supabase
     .from('sales')
@@ -310,6 +315,7 @@ export async function registerSupabaseSale(saleData: {
       userId: validUserId,
       totalAmount: saleData.totalAmount,
       paymentMethod: dbPaymentMethod,
+      channel: saleChannel,
       status: 'COMPLETED',
       updatedAt: now,
     })
@@ -319,6 +325,26 @@ export async function registerSupabaseSale(saleData: {
   if (saleError || !sale) {
     console.error('Error creating sale in Supabase:', saleError);
     return false;
+  }
+
+  // Create transaction record in payments table
+  const paymentId = generateUUID();
+  const { error: payError } = await supabase
+    .from('payments')
+    .insert({
+      id: paymentId,
+      saleId: sale.id,
+      paymentNumber: `PAY-${Date.now()}`,
+      provider: saleData.paymentMethod,
+      amount: saleData.totalAmount,
+      status: 'APPROVED',
+      installments: 1,
+      transactionId: saleData.transactionId || null,
+      createdAt: now,
+    });
+
+  if (payError) {
+    console.warn('Notice inserting into payments table (running in compatibility mode):', payError);
   }
 
   const itemId = generateUUID();

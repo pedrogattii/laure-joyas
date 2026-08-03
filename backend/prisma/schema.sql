@@ -89,6 +89,7 @@ CREATE TABLE "sales" (
     "userId" TEXT REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE,
     "totalAmount" DECIMAL(65,30) NOT NULL,
     "paymentMethod" "PaymentMethod" NOT NULL,
+    "channel" TEXT NOT NULL DEFAULT 'POS', -- 'POS' | 'ONLINE'
     "status" "SaleStatus" NOT NULL DEFAULT 'COMPLETED',
     "notes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -115,6 +116,20 @@ CREATE TABLE "sale_items" (
     "quantity" INTEGER NOT NULL,
     "unitPrice" DECIMAL(65,30) NOT NULL,
     "subtotal" DECIMAL(65,30) NOT NULL
+);
+
+-- Tabla Payments (Transacciones y Pasarelas de Pago Web / POS)
+CREATE TABLE IF NOT EXISTS "payments" (
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    "saleId" TEXT REFERENCES "sales"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    "paymentNumber" TEXT NOT NULL UNIQUE,
+    "provider" TEXT NOT NULL, -- 'MERCADO_PAGO' | 'FISERV' | 'TRANSFER' | 'CASH'
+    "amount" DECIMAL(65,30) NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'APPROVED', -- 'APPROVED' | 'PENDING' | 'REJECTED' | 'REFUNDED'
+    "installments" INTEGER NOT NULL DEFAULT 1,
+    "transactionId" TEXT,
+    "metadata" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabla Cash Closures

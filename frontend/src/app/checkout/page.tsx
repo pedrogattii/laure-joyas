@@ -57,6 +57,8 @@ export default function CheckoutPage() {
         quantity: item.quantity,
         totalAmount: itemPrice * item.quantity,
         paymentMethod: method,
+        channel: 'ONLINE',
+        transactionId: paymentId,
       });
 
       // Update inventory stock
