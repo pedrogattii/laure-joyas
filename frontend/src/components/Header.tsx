@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
@@ -12,6 +13,11 @@ export default function Header() {
   const { itemCount, setIsCartOpen } = useCart();
   const { user } = useAuth();
   const { wishlistCount } = useWishlist();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navLinks = [
     { name: 'Inicio', href: '/' },
@@ -105,7 +111,7 @@ export default function Header() {
               title="Iniciar Sesión"
             >
               <UserIcon className="w-4 h-4 text-[#c5a059] group-hover:scale-110 transition-transform" />
-              <span className="hidden md:inline transition-colors">{user ? user.name.split(' ')[0] : 'Ingresar'}</span>
+              <span className="hidden md:inline transition-colors">{mounted && user ? user.name.split(' ')[0] : 'Ingresar'}</span>
             </Link>
 
             {/* Admin Button */}

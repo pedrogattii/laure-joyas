@@ -129,3 +129,16 @@ CREATE TABLE IF NOT EXISTS "cash_closures" (
     "metadata" JSONB,
     "closedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Tabla Expenses
+CREATE TABLE IF NOT EXISTS "expenses" (
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    "category" TEXT NOT NULL DEFAULT 'VARIABLE',
+    "description" TEXT NOT NULL,
+    "amount" DECIMAL(65,30) NOT NULL,
+    "date" TEXT,
+    "monthKey" TEXT,
+    "storeId" TEXT NOT NULL DEFAULT 'store-salsipuedes-isla',
+    "receiptUrl" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
