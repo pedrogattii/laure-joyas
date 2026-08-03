@@ -112,6 +112,7 @@ export default function MobilePosAppPage() {
       categoryId: newProduct.category.id,
       materialId: newProduct.material.id,
       stock: newProduct.stock,
+      image: newProduct.image,
     });
     if (success) {
       showToast(`✓ Producto "${newProduct.name}" guardado exitosamente en Supabase.`, 'success');

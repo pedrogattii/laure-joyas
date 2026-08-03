@@ -85,14 +85,15 @@ export function useSupabaseProducts() {
 
   const fetchProducts = async () => {
     try {
-      // Fetch products, categories, materials, and inventory stock
+      // Fetch products, categories, materials, inventory stock, and product images
       const { data, error } = await supabase
         .from('products')
         .select(`
           *,
           category:categories(*),
           material:materials(*),
-          inventory:inventories(quantity, storeId)
+          inventory:inventories(quantity, storeId),
+          images:product_images(*)
         `)
         .eq('active', true);
 
@@ -102,9 +103,15 @@ export function useSupabaseProducts() {
       }
 
       if (data) {
+        const defaultImageMap: Record<string, string> = {
+          'AN-PO-000001': '/images/ring_silver_gold.png',
+          'CD-PL-000002': '/images/chain_silver.png',
+        };
+
         const formatted: ProductItem[] = data.map((p: any) => {
           const inv = p.inventory?.find((i: any) => i.storeId === STORE_ID);
           const stock = inv ? inv.quantity : 0;
+          const imageUrl = p.images?.find((img: any) => img.isPrimary)?.url || p.images?.[0]?.url || defaultImageMap[p.code];
 
           return {
             id: p.id,
@@ -115,6 +122,7 @@ export function useSupabaseProducts() {
             priceCash: Number(p.priceCash),
             category: p.category as Category,
             material: p.material as Material,
+            image: imageUrl,
             stock: stock,
             inStock: stock > 0,
           };
@@ -336,6 +344,7 @@ export async function registerSupabaseProduct(productData: {
   categoryId: string;
   materialId: string;
   stock: number;
+  image?: string;
 }) {
   const now = new Date().toISOString();
   const prodId = generateUUID();
@@ -378,6 +387,22 @@ export async function registerSupabaseProduct(productData: {
   if (invError) {
     console.error('Error creating inventory in Supabase:', invError);
     return false;
+  }
+
+  if (productData.image && productData.image.trim()) {
+    const imgId = generateUUID();
+    const { error: imgError } = await supabase
+      .from('product_images')
+      .insert({
+        id: imgId,
+        url: productData.image.trim(),
+        isPrimary: true,
+        productId: prod.id,
+      });
+
+    if (imgError) {
+      console.error('Error creating product image in Supabase:', imgError);
+    }
   }
 
   return true;

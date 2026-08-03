@@ -9,12 +9,14 @@ interface AnalyticsDashboardProps {
 }
 
 export default function AnalyticsDashboard({
-  products,
-  salesHistory,
+  products = [],
+  salesHistory = [],
 }: AnalyticsDashboardProps) {
+  const safeProducts = Array.isArray(products) ? products : [];
+  const safeSalesHistory = Array.isArray(salesHistory) ? salesHistory : [];
 
   // 1. Calculations: Total Income & Expenses
-  const totalSalesIncome = salesHistory.reduce((acc, s) => acc + s.totalAmount, 0);
+  const totalSalesIncome = safeSalesHistory.reduce((acc, s) => acc + (s?.totalAmount || 0), 0);
   const totalExpenses = 420000; // Alquiler isla, servicios, insumos
   const netBalance = totalSalesIncome - totalExpenses;
 
@@ -27,24 +29,25 @@ export default function AnalyticsDashboard({
     MERCADOPAGO: 0,
   };
 
-  salesHistory.forEach((s) => {
-    let key = s.paymentMethod;
+  safeSalesHistory.forEach((s) => {
+    let key = s && s.paymentMethod ? s.paymentMethod : 'EFECTIVO';
     if (key === 'FISERV_TARJETA') key = 'FISERV_CREDITO';
+    const amount = s && typeof s.totalAmount === 'number' ? s.totalAmount : Number(s?.totalAmount || 0);
 
     if (paymentTotals[key as keyof typeof paymentTotals] !== undefined) {
-      paymentTotals[key as keyof typeof paymentTotals] += s.totalAmount;
+      paymentTotals[key as keyof typeof paymentTotals] += amount;
     } else {
-      paymentTotals.EFECTIVO += s.totalAmount;
+      paymentTotals.EFECTIVO += amount;
     }
   });
 
   const maxPaymentTotal = Math.max(...Object.values(paymentTotals), 1);
 
   // 3. Inventory Health Status
-  const normalStockCount = products.filter((p) => p.stock > 3).length;
-  const lowStockCount = products.filter((p) => p.stock > 0 && p.stock <= 3).length;
-  const outOfStockCount = products.filter((p) => p.stock <= 0).length;
-  const totalProducts = products.length || 1;
+  const normalStockCount = safeProducts.filter((p) => p && p.stock > 3).length;
+  const lowStockCount = safeProducts.filter((p) => p && p.stock > 0 && p.stock <= 3).length;
+  const outOfStockCount = safeProducts.filter((p) => p && p.stock <= 0).length;
+  const totalProducts = safeProducts.length || 1;
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -316,8 +319,8 @@ export default function AnalyticsDashboard({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {salesHistory.length > 0 ? (
-                salesHistory.map((s) => (
+              {safeSalesHistory.length > 0 ? (
+                safeSalesHistory.map((s) => (
                   <tr key={s.id} className="hover:bg-[#fcf8f2] transition-colors">
                     <td className="py-3.5 px-4 text-gray-500 font-mono">{s.date}</td>
                     <td className="py-3.5 px-4 font-bold text-gray-900">{s.productName}</td>
@@ -342,7 +345,7 @@ export default function AnalyticsDashboard({
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right font-bold font-mono text-gray-900">
-                      ${s.totalAmount.toLocaleString('es-AR')}
+                      ${Number(s.totalAmount || 0).toLocaleString('es-AR')}
                     </td>
                   </tr>
                 ))
