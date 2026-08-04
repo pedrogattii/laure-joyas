@@ -901,3 +901,67 @@ export async function getMonthlySummaryForBot(targetMonthKey?: string) {
   };
 }
 
+// --- User & Role Management Helpers ---
+
+export interface ManagedUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'ADMIN' | 'EMPLOYEE' | 'CUSTOMER';
+  createdAt: string;
+}
+
+export function useSupabaseUsers() {
+  const [users, setUsers] = useState<ManagedUser[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, email, role, createdAt')
+        .order('createdAt', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching users from Supabase:', error);
+        return;
+      }
+
+      if (data) {
+        setUsers(data as ManagedUser[]);
+      }
+    } catch (e) {
+      console.error('Unexpected error fetching users:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchUsers();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchUsers]);
+
+  return { users, loading, fetchUsers };
+}
+
+export async function updateSupabaseUserRole(userId: string, newRole: 'ADMIN' | 'EMPLOYEE' | 'CUSTOMER') {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({ role: newRole, updatedAt: new Date().toISOString() })
+      .eq('id', userId);
+
+    if (error) {
+      console.error('Error updating user role in Supabase:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Unexpected error updating user role:', e);
+    return false;
+  }
+}
+

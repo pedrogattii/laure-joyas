@@ -9,6 +9,7 @@ import ProductFormModal from '@/components/admin/ProductFormModal';
 import POSRegisterModal from '@/components/admin/POSRegisterModal';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import DailyCashClosureModal from '@/components/admin/DailyCashClosureModal';
+import UserManagementModal from '@/components/admin/UserManagementModal';
 import type { ProductItem } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -40,6 +41,7 @@ export default function AdminPage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
   const [isPOSModalOpen, setIsPOSModalOpen] = useState<boolean>(false);
   const [isCashClosureOpen, setIsCashClosureOpen] = useState<boolean>(false);
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState<boolean>(false);
   const [selectedProductForStock, setSelectedProductForStock] = useState<ProductItem | null>(null);
   const [isStockModalOpen, setIsStockModalOpen] = useState<boolean>(false);
 
@@ -246,10 +248,18 @@ export default function AdminPage() {
             >
               Empleado (Caja)
             </button>
+            {currentUserRole === 'ADMIN' && (
+              <button
+                onClick={() => setIsUserManagementOpen(true)}
+                className="px-3 py-1.5 rounded text-xs font-bold bg-[#c5a059] hover:bg-[#b08d48] text-black shadow transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <span>👥 Gestionar Roles de Usuarios</span>
+              </button>
+            )}
             {user && (
               <button
                 onClick={logout}
-                className="text-[11px] text-gray-400 hover:text-rose-400 underline px-2"
+                className="text-[11px] text-gray-400 hover:text-rose-400 underline px-2 cursor-pointer"
               >
                 Salir
               </button>
@@ -572,6 +582,12 @@ export default function AdminPage() {
         onClose={() => setIsStockModalOpen(false)}
         product={selectedProductForStock}
         onSaveStock={handleSaveStock}
+      />
+
+      {/* User Management Modal */}
+      <UserManagementModal
+        isOpen={isUserManagementOpen}
+        onClose={() => setIsUserManagementOpen(false)}
       />
     </div>
   );
