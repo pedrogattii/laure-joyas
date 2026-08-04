@@ -49,20 +49,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // CRITICAL REQUIREMENT: No default active session on page load (starts as null)
   const [user, setUser] = useState<UserSession | null>(null);
 
-  // Listen to Supabase Auth state changes
+  // Listen to Supabase Auth state changes & sync public.users role
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         const sbUser = session.user;
         const name = sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email?.split('@')[0] || 'Cliente Laure';
-        const userSession: UserSession = {
-          id: sbUser.id,
-          name,
-          email: sbUser.email || '',
-          role: (sbUser.user_metadata?.role as UserRole) || 'CUSTOMER',
-          isVerified: Boolean(sbUser.email_confirmed_at || sbUser.confirmed_at),
-        };
-        setUser(userSession);
+
+        // Fetch DB role from public.users asynchronously
+        void (async () => {
+          let dbRole: UserRole = (sbUser.user_metadata?.role as UserRole) || 'CUSTOMER';
+          try {
+            const { data } = await supabase.from('users').select('role').eq('id', sbUser.id).single();
+            if (data?.role) {
+              dbRole = data.role as UserRole;
+            }
+          } catch {
+            // Keep default
+          }
+
+          const userSession: UserSession = {
+            id: sbUser.id,
+            name,
+            email: sbUser.email || '',
+            role: dbRole,
+            isVerified: Boolean(sbUser.email_confirmed_at || sbUser.confirmed_at),
+          };
+          setUser(userSession);
+        })();
       }
     });
 

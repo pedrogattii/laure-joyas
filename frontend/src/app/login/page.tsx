@@ -7,6 +7,7 @@ import { useAuth, OFFICIAL_DEMO_ACCOUNTS } from '@/context/AuthContext';
 import { GearIcon, CreditCardIcon, GoogleIcon, UserIcon, CartIcon } from '@/components/icons/SvgIcons';
 import { useToast } from '@/context/ToastContext';
 import { useSupabaseSales } from '@/lib/supabaseSync';
+import { getCustomerLoyaltyTier } from '@/lib/loyaltyTiers';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -142,8 +143,9 @@ export default function LoginPage() {
     router.push('/');
   };
 
-  // Filter sales for the logged-in customer
+  // Filter sales for the logged-in customer and calculate loyalty tier
   const customerSales = sales.filter((s) => s.channel === 'ONLINE');
+  const loyaltyTier = getCustomerLoyaltyTier(customerSales.length);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
@@ -163,7 +165,7 @@ export default function LoginPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="font-serif text-2xl font-bold text-white">{user.name}</h1>
                     <span className="bg-[#c5a059] text-black text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
-                      {user.role === 'ADMIN' ? '👑 Dueña' : user.role === 'EMPLOYEE' ? '💳 Empleado' : '👤 Cliente VIP'}
+                      {user.role === 'ADMIN' ? '👑 Dueña' : user.role === 'EMPLOYEE' ? '💳 Empleado' : `${loyaltyTier.icon} ${loyaltyTier.name}`}
                     </span>
                   </div>
                   <p className="text-xs text-gray-400 mt-1 font-mono">{user.email}</p>
@@ -250,9 +252,57 @@ export default function LoginPage() {
 
                     <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                       <span className="text-[10px] font-extrabold uppercase text-gray-400 tracking-wider block mb-1">Nivel de Cliente</span>
-                      <p className="text-xs font-bold text-[#c5a059] flex items-center gap-1">
-                        <span>💎 Cliente Preferencial Laure Joyas</span>
+                      <p className={`text-xs font-bold ${loyaltyTier.colorClass} flex items-center gap-1.5`}>
+                        <span>{loyaltyTier.icon} {loyaltyTier.name} ({loyaltyTier.badge})</span>
                       </p>
+                    </div>
+                  </div>
+
+                  {/* Loyalty Tier Progress Card */}
+                  <div className={`p-5 rounded-2xl border ${loyaltyTier.borderClass} ${loyaltyTier.bgClass} space-y-3 shadow-sm`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{loyaltyTier.icon}</span>
+                        <div>
+                          <h4 className={`font-serif font-bold text-base ${loyaltyTier.colorClass}`}>
+                            Nivel {loyaltyTier.name}
+                          </h4>
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500">
+                            {loyaltyTier.badge} • {customerSales.length} {customerSales.length === 1 ? 'compra realizada' : 'compras realizadas'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar to Next Tier */}
+                    {loyaltyTier.nextTierName && (
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex justify-between text-[11px] font-bold text-gray-700">
+                          <span>Progreso al Nivel {loyaltyTier.nextTierName}</span>
+                          <span>{loyaltyTier.nextTierProgress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden border border-gray-300/60">
+                          <div
+                            className="bg-[#c5a059] h-full rounded-full transition-all duration-500 shadow-sm"
+                            style={{ width: `${loyaltyTier.nextTierProgress}%` }}
+                          />
+                        </div>
+                        <p className="text-[11px] text-gray-600 font-medium">
+                          Te faltan <strong className="text-gray-900">{loyaltyTier.nextTierRemaining} {loyaltyTier.nextTierRemaining === 1 ? 'compra' : 'compras'}</strong> para alcanzar el nivel <strong>{loyaltyTier.nextTierName}</strong>.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Perks List */}
+                    <div className="pt-3 border-t border-gray-200/80 space-y-1.5">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 block mb-1">
+                        Tus Beneficios Exclusivos de Nivel {loyaltyTier.name}:
+                      </span>
+                      {loyaltyTier.perks.map((perk, idx) => (
+                        <p key={idx} className="text-xs text-gray-800 font-semibold flex items-center gap-2">
+                          <span className="text-emerald-600 font-bold">✓</span> {perk}
+                        </p>
+                      ))}
                     </div>
                   </div>
 
