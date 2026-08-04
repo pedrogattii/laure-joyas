@@ -115,14 +115,16 @@ export default function Header() {
               <span className="hidden md:inline transition-colors">{mounted && user ? user.name.split(' ')[0] : 'Ingresar'}</span>
             </Link>
 
-            {/* Admin Button */}
-            <Link
-              href="/admin"
-              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-3.5 py-2 rounded transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap cursor-pointer active:scale-95 hover:shadow-md"
-            >
-              <GearIcon className="w-4 h-4 text-black" />
-              <span className="hidden sm:inline">Admin / Stock</span>
-            </Link>
+            {/* Admin / Stock Button - Visible strictly for authorized ADMIN or EMPLOYEE */}
+            {mounted && user && (user.role === 'ADMIN' || user.role === 'EMPLOYEE') && (
+              <Link
+                href="/admin"
+                className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-3.5 py-2 rounded transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap cursor-pointer active:scale-95 hover:shadow-md"
+              >
+                <GearIcon className="w-4 h-4 text-black" />
+                <span className="hidden sm:inline">Admin / Stock</span>
+              </Link>
+            )}
           </div>
         </div>
 
