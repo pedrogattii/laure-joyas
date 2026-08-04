@@ -22,6 +22,7 @@ interface AuthContextType {
   verifyEmailOtp: (email: string, code: string) => Promise<{ error: Error | null }>;
   loginWithEmail: (email: string, pass: string) => Promise<{ error: Error | null }>;
   logout: () => void;
+  deleteAccount: () => Promise<{ error: Error | null }>;
   isAdmin: boolean;
   isEmployee: boolean;
   isCustomer: boolean;
@@ -257,6 +258,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const deleteAccount = async () => {
+    try {
+      if (user?.id) {
+        await supabase.from('users').delete().eq('id', user.id);
+      }
+      setUser(null);
+      await supabase.auth.signOut();
+      return { error: null };
+    } catch (err) {
+      setUser(null);
+      return { error: err as Error };
+    }
+  };
+
   const isAdmin = user?.role === 'ADMIN';
   const isEmployee = user?.role === 'EMPLOYEE' || user?.role === 'ADMIN';
   const isCustomer = user?.role === 'CUSTOMER';
@@ -271,6 +286,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         verifyEmailOtp,
         loginWithEmail,
         logout,
+        deleteAccount,
         isAdmin,
         isEmployee,
         isCustomer,
