@@ -160,6 +160,33 @@ export default function AdminPage() {
   const activeSessionSales = getActiveSessionSales(salesHistory, closures);
   const todayTotal = activeSessionSales.reduce((acc, s) => acc + s.totalAmount, 0);
 
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE')) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#faf8f5]">
+        <Header />
+        <main className="max-w-md mx-auto w-full px-4 py-16 flex-grow flex flex-col justify-center">
+          <div className="bg-white p-8 rounded-2xl border border-[#e5e0d8] shadow-xl text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto text-2xl">
+              🔒
+            </div>
+            <h2 className="font-serif text-2xl font-bold text-gray-900">Acceso Restringido al Módulo Administrador / POS</h2>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Este panel está reservado exclusivamente para la dueña (Administrador) y empleados autorizados. Por favor iniciá sesión con tus credenciales.
+            </p>
+            <div className="pt-4 space-y-2">
+              <Link
+                href="/login"
+                className="w-full block bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-extrabold text-xs uppercase py-3.5 rounded-xl shadow btn-animate"
+              >
+                Ingresar Credenciales
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
       <Header />

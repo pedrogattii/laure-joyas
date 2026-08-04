@@ -3,14 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
-import { useAuth, UserRole } from '@/context/AuthContext';
-import { UserIcon, GearIcon, CreditCardIcon, GoogleIcon } from '@/components/icons/SvgIcons';
+import { useAuth, OFFICIAL_DEMO_ACCOUNTS } from '@/context/AuthContext';
+import { GearIcon, CreditCardIcon, GoogleIcon } from '@/components/icons/SvgIcons';
 import { useToast } from '@/context/ToastContext';
 
 export default function LoginPage() {
   const {
     user,
-    loginAs,
     logout,
     signInWithGoogle,
     signUpWithEmail,
@@ -30,13 +29,12 @@ export default function LoginPage() {
   const [pendingEmail, setPendingEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleQuickLogin = (role: UserRole) => {
-    loginAs(role);
-    if (role === 'ADMIN' || role === 'EMPLOYEE') {
-      router.push('/admin');
-    } else {
-      router.push('/');
-    }
+  const fillOfficialCredentials = (type: 'ADMIN' | 'EMPLOYEE') => {
+    const creds = OFFICIAL_DEMO_ACCOUNTS[type];
+    setEmail(creds.email);
+    setPassword(creds.pass);
+    setActiveTab('login');
+    showToast(`Credenciales oficiales de ${creds.name} cargadas. Tocá 'Iniciar Sesión'.`, 'info');
   };
 
   const handleGoogleAuth = async () => {
@@ -44,10 +42,7 @@ export default function LoginPage() {
     const { error } = await signInWithGoogle();
     setIsLoading(false);
     if (error) {
-      showToast('Sesión de prueba con Google activada.', 'info');
-      // Fallback customer login for local sandbox
-      loginAs('CUSTOMER');
-      router.push('/');
+      showToast('Para habilitar Google en producción, configurá Google OAuth Client ID en Supabase.', 'info');
     }
   };
 
@@ -58,12 +53,12 @@ export default function LoginPage() {
     setIsLoading(false);
 
     if (error) {
-      showToast(`Error al iniciar sesión: ${error.message || 'Credenciales no encontradas'}. Usando ingreso de prueba.`, 'info');
-      loginAs('CUSTOMER');
-    } else {
-      showToast('¡Sesión iniciada con éxito!', 'success');
+      showToast(`Error de credenciales: ${error.message || 'Email o contraseña incorrecta'}.`, 'error');
+      return;
     }
-    router.push('/');
+
+    showToast('¡Sesión iniciada correctamente!', 'success');
+    router.push('/admin');
   };
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
@@ -78,12 +73,12 @@ export default function LoginPage() {
     setIsLoading(false);
 
     if (error) {
-      showToast(`Aviso al registrar: ${error.message}. Iniciando verificación de correo.`, 'info');
+      showToast(`Aviso al registrar: ${error.message}.`, 'info');
     }
 
     setPendingEmail(email);
     setIsVerifyingEmail(true);
-    showToast(`Hemos enviado un código de verificación por correo a ${email}.`, 'success');
+    showToast(`Enviamos un código de verificación por correo a ${email}.`, 'success');
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
@@ -119,12 +114,12 @@ export default function LoginPage() {
               LJ
             </div>
             <h1 className="font-serif text-2xl font-bold text-gray-900">
-              {isVerifyingEmail ? 'Verificación de Correo' : user ? 'Tu Cuenta' : 'Mi Cuenta en Laure Joyas'}
+              {isVerifyingEmail ? 'Verificación de Correo' : user ? 'Tu Cuenta' : 'Acceso al Sistema'}
             </h1>
             <p className="text-xs text-gray-500 mt-1">
               {isVerifyingEmail
                 ? `Ingresá el código enviado a ${pendingEmail}`
-                : 'Accedé o registrate para gestionar tus compras de joyería fina.'}
+                : 'Ingresá tus credenciales para acceder al panel o crear una cuenta.'}
             </p>
           </div>
 
@@ -144,9 +139,9 @@ export default function LoginPage() {
                 {(user.role === 'ADMIN' || user.role === 'EMPLOYEE') && (
                   <button
                     onClick={() => router.push('/admin')}
-                    className="w-full bg-[#c5a059] hover:bg-[#b08d48] text-black font-extrabold text-xs uppercase py-3 rounded shadow transition-all"
+                    className="w-full bg-[#c5a059] hover:bg-[#b08d48] text-black font-extrabold text-xs uppercase py-3 rounded shadow transition-all cursor-pointer"
                   >
-                    Ir al Módulo Administrador / Caja
+                    Ir al Módulo Administrador / POS
                   </button>
                 )}
                 <button
@@ -154,7 +149,7 @@ export default function LoginPage() {
                     logout();
                     setIsVerifyingEmail(false);
                   }}
-                  className="w-full border border-gray-300 text-gray-700 font-bold text-xs uppercase py-2.5 rounded hover:bg-gray-50 transition-all"
+                  className="w-full border border-gray-300 text-gray-700 font-bold text-xs uppercase py-2.5 rounded hover:bg-gray-50 transition-all cursor-pointer"
                 >
                   Cerrar Sesión
                 </button>
@@ -169,7 +164,7 @@ export default function LoginPage() {
                   Enviamos un código de confirmación a <strong>{pendingEmail}</strong>.
                 </p>
                 <p className="text-[11px] text-amber-700">
-                  Revisá tu casilla de correo o spam e ingresá los 6 dígitos a continuación (Para pruebas podés usar <code>123456</code>).
+                  Revisá tu correo e ingresá los 6 dígitos a continuación (Para pruebas podés usar <code>123456</code>).
                 </p>
               </div>
 
@@ -191,7 +186,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow btn-animate"
+                className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow btn-animate cursor-pointer"
               >
                 {isLoading ? 'Verificando...' : 'Verificar Correo y Entrar'}
               </button>
@@ -199,7 +194,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setIsVerifyingEmail(false)}
-                className="w-full text-center text-xs text-gray-500 hover:underline pt-2 block"
+                className="w-full text-center text-xs text-gray-500 hover:underline pt-2 block cursor-pointer"
               >
                 ← Volver a crear cuenta
               </button>
@@ -221,7 +216,7 @@ export default function LoginPage() {
 
               <div className="relative flex py-2 items-center mb-5">
                 <div className="flex-grow border-t border-gray-200"></div>
-                <span className="flex-shrink mx-4 text-[11px] text-gray-400 font-bold uppercase tracking-wider">o continuar con email</span>
+                <span className="flex-shrink mx-4 text-[11px] text-gray-400 font-bold uppercase tracking-wider">o ingresar con credenciales</span>
                 <div className="flex-grow border-t border-gray-200"></div>
               </div>
 
@@ -230,7 +225,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('login')}
-                  className={`flex-1 py-2.5 text-center border-b-2 transition-all ${
+                  className={`flex-1 py-2.5 text-center border-b-2 transition-all cursor-pointer ${
                     activeTab === 'login'
                       ? 'border-[#c5a059] text-[#c5a059] font-extrabold'
                       : 'border-transparent text-gray-400 hover:text-gray-600'
@@ -241,7 +236,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('signup')}
-                  className={`flex-1 py-2.5 text-center border-b-2 transition-all ${
+                  className={`flex-1 py-2.5 text-center border-b-2 transition-all cursor-pointer ${
                     activeTab === 'signup'
                       ? 'border-[#c5a059] text-[#c5a059] font-extrabold'
                       : 'border-transparent text-gray-400 hover:text-gray-600'
@@ -285,7 +280,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow btn-animate"
+                    className="w-full bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow btn-animate cursor-pointer"
                   >
                     {isLoading ? 'Cargando...' : 'Iniciar Sesión'}
                   </button>
@@ -339,52 +334,51 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-[#c5a059] hover:bg-[#b08d48] text-black font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow btn-animate"
+                    className="w-full bg-[#c5a059] hover:bg-[#b08d48] text-black font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow btn-animate cursor-pointer"
                   >
                     {isLoading ? 'Enviando código...' : 'Crear Cuenta y Verificar Correo'}
                   </button>
                 </form>
               )}
 
-              {/* Quick Demo Login selector */}
-              <div className="mt-6 bg-[#f7f5f0] p-3.5 rounded-xl border border-[#e5e0d8] space-y-2">
-                <span className="text-[10px] font-extrabold text-gray-600 uppercase tracking-wider block text-center">
-                  Acceso Rápido de Prueba (Demo 1-Clic):
+              {/* Official Demo Credentials Selector */}
+              <div className="mt-6 bg-[#f7f5f0] p-4 rounded-xl border border-[#e5e0d8] space-y-3">
+                <span className="text-[11px] font-extrabold text-gray-700 uppercase tracking-wider block text-center">
+                  🔑 Cuentas Oficiales de Prueba (Auto-Completar):
                 </span>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-2">
                   <button
                     type="button"
-                    onClick={() => handleQuickLogin('ADMIN')}
-                    className="bg-[#121212] text-[#c5a059] text-[10px] font-bold p-2 rounded text-center flex flex-col items-center gap-1"
+                    onClick={() => fillOfficialCredentials('ADMIN')}
+                    className="w-full bg-[#121212] hover:bg-[#222] text-[#c5a059] font-bold text-xs py-2.5 px-3 rounded-lg text-left flex items-center justify-between transition-colors shadow-sm cursor-pointer"
                   >
-                    <GearIcon className="w-3.5 h-3.5" />
-                    <span>Dueña</span>
+                    <span className="flex items-center gap-2">
+                      <GearIcon className="w-4 h-4 text-[#c5a059]" />
+                      <span>👑 Dueña (Admin)</span>
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-mono">admin@laurejoyas.com</span>
                   </button>
+
                   <button
                     type="button"
-                    onClick={() => handleQuickLogin('EMPLOYEE')}
-                    className="bg-white border border-gray-300 text-gray-800 text-[10px] font-bold p-2 rounded text-center flex flex-col items-center gap-1"
+                    onClick={() => fillOfficialCredentials('EMPLOYEE')}
+                    className="w-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-800 font-bold text-xs py-2.5 px-3 rounded-lg text-left flex items-center justify-between transition-colors shadow-sm cursor-pointer"
                   >
-                    <CreditCardIcon className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Empleado</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('CUSTOMER')}
-                    className="bg-gray-200 text-gray-700 text-[10px] font-bold p-2 rounded text-center flex flex-col items-center gap-1"
-                  >
-                    <UserIcon className="w-3.5 h-3.5" />
-                    <span>Cliente</span>
+                    <span className="flex items-center gap-2">
+                      <CreditCardIcon className="w-4 h-4 text-emerald-700" />
+                      <span>💳 Empleado (Caja POS)</span>
+                    </span>
+                    <span className="text-[10px] text-emerald-700 font-mono">empleado@laurejoyas.com</span>
                   </button>
                 </div>
               </div>
 
-              {/* Encryption & Privacy Security Banner */}
-              <div className="mt-5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-[10px] text-emerald-900 flex items-center gap-2">
+              {/* Encryption Security Banner */}
+              <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-[10px] text-emerald-900 flex items-center gap-2">
                 <span className="text-sm">🔒</span>
                 <div>
-                  <strong>Protección y Cifrado de Datos Sensibles:</strong>
-                  <p className="text-emerald-800">Tus datos y contraseña se protegen mediante cifrado irreversible BCrypt y conexiones seguras SSL/TLS en Supabase.</p>
+                  <strong>Cifrado y Seguridad:</strong>
+                  <p className="text-emerald-800">Sin sesión automática por defecto al abrir la app. Todas las sesiones requieren ingresar credenciales validadas.</p>
                 </div>
               </div>
             </>

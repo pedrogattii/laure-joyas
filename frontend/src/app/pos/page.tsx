@@ -188,12 +188,31 @@ export default function MobilePosAppPage() {
     );
   }, [products, searchQuery]);
 
-  const currentUser = user || {
-    id: 'usr-employee',
-    name: 'Martina (Caja Salsipuedes)',
-    email: 'martina@laurejoyas.com.ar',
-    role: 'EMPLOYEE' as const,
-  };
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE')) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#121212] text-white font-sans justify-center items-center p-4">
+        <div className="bg-[#1e1e1e] p-8 rounded-2xl border border-[#333] shadow-2xl max-w-md w-full text-center space-y-4">
+          <div className="w-14 h-14 rounded-full bg-[#c5a059]/20 text-[#c5a059] flex items-center justify-center mx-auto text-2xl">
+            🔒
+          </div>
+          <h2 className="font-serif text-2xl font-bold text-white">Acceso Restringido POS</h2>
+          <p className="text-xs text-gray-400 leading-relaxed">
+            La caja registradora requiere inicio de sesión con una cuenta autorizada de Empleado o Administrador.
+          </p>
+          <div className="pt-4">
+            <a
+              href="/login"
+              className="w-full block bg-[#c5a059] text-black font-extrabold text-xs uppercase py-3.5 rounded-xl shadow cursor-pointer text-center"
+            >
+              Ingresar Credenciales
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentUser = user;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#121212] text-white font-sans pb-24 select-none">

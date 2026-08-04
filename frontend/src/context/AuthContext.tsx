@@ -27,47 +27,26 @@ interface AuthContextType {
   isCustomer: boolean;
 }
 
-const DEFAULT_USERS: Record<UserRole, UserSession> = {
+export const OFFICIAL_DEMO_ACCOUNTS = {
   ADMIN: {
-    id: 'usr-admin',
+    email: 'admin@laurejoyas.com',
+    pass: 'LaureAdmin2026!',
     name: 'Adriana (Dueña)',
-    email: 'adriana@laurejoyas.com.ar',
-    role: 'ADMIN',
-    storeName: 'Salsipuedes (Shopping)',
-    isVerified: true,
+    role: 'ADMIN' as UserRole,
   },
   EMPLOYEE: {
-    id: 'usr-employee',
+    email: 'empleado@laurejoyas.com',
+    pass: 'LaurePos2026!',
     name: 'Martina (Caja Salsipuedes)',
-    email: 'martina@laurejoyas.com.ar',
-    role: 'EMPLOYEE',
-    storeName: 'Salsipuedes (Isla 1)',
-    isVerified: true,
-  },
-  CUSTOMER: {
-    id: 'usr-customer',
-    name: 'María González',
-    email: 'maria@gmail.com',
-    role: 'CUSTOMER',
-    isVerified: true,
+    role: 'EMPLOYEE' as UserRole,
   },
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserSession | null>(() => {
-    if (typeof window === 'undefined') return null;
-    const saved = localStorage.getItem('lj_auth_session');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Error parsing stored session:', e);
-      }
-    }
-    return null;
-  });
+  // CRITICAL REQUIREMENT: No default active session on page load (starts as null)
+  const [user, setUser] = useState<UserSession | null>(null);
 
   // Listen to Supabase Auth state changes
   useEffect(() => {
@@ -83,7 +62,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isVerified: Boolean(sbUser.email_confirmed_at || sbUser.confirmed_at),
         };
         setUser(userSession);
-        localStorage.setItem('lj_auth_session', JSON.stringify(userSession));
       }
     });
 
@@ -93,9 +71,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loginAs = (role: UserRole) => {
-    const session = DEFAULT_USERS[role];
-    setUser(session);
-    localStorage.setItem('lj_auth_session', JSON.stringify(session));
+    if (role === 'ADMIN') {
+      setUser({
+        id: 'usr-admin',
+        name: OFFICIAL_DEMO_ACCOUNTS.ADMIN.name,
+        email: OFFICIAL_DEMO_ACCOUNTS.ADMIN.email,
+        role: 'ADMIN',
+        storeName: 'Salsipuedes (Shopping)',
+        isVerified: true,
+      });
+    } else if (role === 'EMPLOYEE') {
+      setUser({
+        id: 'usr-employee',
+        name: OFFICIAL_DEMO_ACCOUNTS.EMPLOYEE.name,
+        email: OFFICIAL_DEMO_ACCOUNTS.EMPLOYEE.email,
+        role: 'EMPLOYEE',
+        storeName: 'Salsipuedes (Isla 1)',
+        isVerified: true,
+      });
+    } else {
+      setUser({
+        id: 'usr-customer',
+        name: 'Cliente Laure',
+        email: 'cliente@laurejoyas.com',
+        role: 'CUSTOMER',
+        isVerified: true,
+      });
+    }
   };
 
   const signInWithGoogle = async () => {
@@ -128,7 +130,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) return { error, requiresVerification: false };
 
-      // If user was created, email verification is required
       if (data.user && !data.session) {
         return { error: null, requiresVerification: true };
       }
@@ -142,7 +143,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isVerified: true,
         };
         setUser(userSession);
-        localStorage.setItem('lj_auth_session', JSON.stringify(userSession));
       }
 
       return { error: null, requiresVerification: false };
@@ -153,7 +153,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const verifyEmailOtp = async (email: string, code: string) => {
     try {
-      // 1. Try real Supabase OTP verification
       const { data, error } = await supabase.auth.verifyOtp({
         email,
         token: code,
@@ -161,7 +160,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
-        // Fallback for Sandbox / Demo local environment (e.g. entering 123456 code)
         if (code === '123456' || code.trim().length === 6) {
           const mockVerifiedUser: UserSession = {
             id: `usr-${Date.now()}`,
@@ -171,7 +169,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             isVerified: true,
           };
           setUser(mockVerifiedUser);
-          localStorage.setItem('lj_auth_session', JSON.stringify(mockVerifiedUser));
           return { error: null };
         }
         return { error };
@@ -187,7 +184,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isVerified: true,
         };
         setUser(userSession);
-        localStorage.setItem('lj_auth_session', JSON.stringify(userSession));
       }
 
       return { error: null };
@@ -197,25 +193,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loginWithEmail = async (email: string, pass: string) => {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = pass.trim();
+
+    // Check Official Demo Credentials for Admin / Employee
+    if (cleanEmail === OFFICIAL_DEMO_ACCOUNTS.ADMIN.email && cleanPass === OFFICIAL_DEMO_ACCOUNTS.ADMIN.pass) {
+      setUser({
+        id: 'usr-admin-official',
+        name: OFFICIAL_DEMO_ACCOUNTS.ADMIN.name,
+        email: OFFICIAL_DEMO_ACCOUNTS.ADMIN.email,
+        role: 'ADMIN',
+        storeName: 'Salsipuedes (Shopping)',
+        isVerified: true,
+      });
+      return { error: null };
+    }
+
+    if (cleanEmail === OFFICIAL_DEMO_ACCOUNTS.EMPLOYEE.email && cleanPass === OFFICIAL_DEMO_ACCOUNTS.EMPLOYEE.pass) {
+      setUser({
+        id: 'usr-employee-official',
+        name: OFFICIAL_DEMO_ACCOUNTS.EMPLOYEE.name,
+        email: OFFICIAL_DEMO_ACCOUNTS.EMPLOYEE.email,
+        role: 'EMPLOYEE',
+        storeName: 'Salsipuedes (Isla 1)',
+        isVerified: true,
+      });
+      return { error: null };
+    }
+
+    // Try Supabase Auth login
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password: pass,
+        email: cleanEmail,
+        password: cleanPass,
       });
 
       if (error) return { error };
 
       if (data.user) {
-        const name = data.user.user_metadata?.name || email.split('@')[0];
+        const name = data.user.user_metadata?.name || cleanEmail.split('@')[0];
         const userSession: UserSession = {
           id: data.user.id,
           name,
-          email,
+          email: cleanEmail,
           role: (data.user.user_metadata?.role as UserRole) || 'CUSTOMER',
           isVerified: Boolean(data.user.email_confirmed_at || data.user.confirmed_at),
         };
         setUser(userSession);
-        localStorage.setItem('lj_auth_session', JSON.stringify(userSession));
       }
 
       return { error: null };
@@ -226,7 +250,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     setUser(null);
-    localStorage.removeItem('lj_auth_session');
     await supabase.auth.signOut();
   };
 
