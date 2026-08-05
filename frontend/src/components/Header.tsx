@@ -80,11 +80,11 @@ export default function Header() {
               href="/favoritos"
               className="relative bg-white hover:bg-[#fcfbf9] text-gray-700 hover:text-rose-500 border border-[#e8e3da] hover:border-rose-300 px-3.5 py-2.5 min-h-[44px] rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer group active:scale-95"
               title="Mis Favoritos"
-              aria-label={`Mis Favoritos (${wishlistCount} ítems)`}
+              aria-label={`Mis Favoritos (${mounted ? wishlistCount : 0} ítems)`}
             >
               <HeartIcon className="w-4 h-4 text-rose-500 group-hover:scale-110 transition-transform" aria-hidden="true" />
               <span className="hidden sm:inline transition-colors font-sans">Favoritos</span>
-              {wishlistCount > 0 && (
+              {mounted && wishlistCount > 0 && (
                 <span className="bg-rose-500 text-white font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow">
                   {wishlistCount}
                 </span>
@@ -96,11 +96,11 @@ export default function Header() {
               onClick={() => setIsCartOpen(true)}
               className="bg-white hover:bg-[#fcfbf9] text-gray-800 hover:text-gold border border-[#e8e3da] hover:border-[#c5a059]/50 px-4 py-2.5 min-h-[44px] rounded-full text-xs font-semibold flex items-center gap-2 transition-all shadow-sm cursor-pointer group active:scale-95"
               title="Ver Carrito de Compras"
-              aria-label={`Ver Carrito de Compras (${itemCount} productos)`}
+              aria-label={`Ver Carrito de Compras (${mounted ? itemCount : 0} productos)`}
             >
               <CartIcon className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" aria-hidden="true" />
               <span className="hidden sm:inline transition-colors font-sans">Carrito</span>
-              {itemCount > 0 && (
+              {mounted && itemCount > 0 && (
                 <span className="bg-gold-gradient text-white font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center ml-0.5 shadow">
                   {itemCount}
                 </span>
