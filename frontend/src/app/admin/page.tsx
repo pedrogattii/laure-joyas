@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/Header';
+import AdminAppShell from '@/components/admin/AdminAppShell';
+
 import StockAdjustModal from '@/components/admin/StockAdjustModal';
 import ProductFormModal from '@/components/admin/ProductFormModal';
 import POSRegisterModal from '@/components/admin/POSRegisterModal';
@@ -163,6 +165,7 @@ export default function AdminPage() {
   const todayTotal = activeSessionSales.reduce((acc, s) => acc + s.totalAmount, 0);
 
   if (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE')) {
+
     return (
       <div className="min-h-screen flex flex-col bg-[#faf8f5]">
         <Header />
@@ -172,13 +175,13 @@ export default function AdminPage() {
               🔒
             </div>
             <h2 className="font-serif text-2xl font-bold text-gray-900">Acceso Restringido al Módulo Administrador / POS</h2>
-            <p className="text-xs text-gray-600 leading-relaxed">
+            <p className="text-xs text-gray-600 leading-relaxed font-sans">
               Este panel está reservado exclusivamente para la dueña (Administrador) y empleados autorizados. Por favor iniciá sesión con tus credenciales.
             </p>
             <div className="pt-4 space-y-2">
               <Link
                 href="/login"
-                className="w-full block bg-[#121212] hover:bg-black text-[#c5a059] border border-[#c5a059] font-extrabold text-xs uppercase py-3.5 rounded-xl shadow btn-animate"
+                className="w-full block btn-stitch-gold text-white font-bold text-xs uppercase py-3.5 rounded-full shadow text-center"
               >
                 Ingresar Credenciales
               </Link>
@@ -190,86 +193,109 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f5]">
-      <Header />
-
-      {/* Offline Banner */}
-      {!online && (
-        <div className="bg-amber-500 text-black text-center py-2 px-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 animate-fadeIn">
-          <WifiOffIcon className="w-4 h-4" />
-          <span>Sin conexión — Las ventas se guardan en tu celular</span>
-        </div>
-      )}
-
-      {/* Admin Top Header */}
-      <div className="bg-[#121212] text-white py-8 border-b border-[#2a2a2a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <AdminAppShell
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      onOpenProductModal={() => setIsProductModalOpen(true)}
+      onOpenCashClosureModal={() => setIsCashClosureOpen(true)}
+      onOpenUserManagementModal={() => setIsUserManagementOpen(true)}
+      online={online}
+      offlinePendingCount={offlinePending}
+    >
+      {/* Quick Metrics Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-5 rounded-2xl border border-[#e8e3da] shadow-xs flex justify-between items-center">
           <div>
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="text-[#c5a059] text-xs font-semibold uppercase tracking-widest block">
-                Sistema de Gestión & Inventario Cruzado
-              </span>
-              <span className="bg-[#222] text-[#c5a059] border border-[#444] text-[10px] font-bold px-2 py-0.5 rounded">
-                Rol: {currentUserRole}
-              </span>
-              {offlinePending > 0 && (
-                <span className="bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded">
-                  {offlinePending} ventas pendientes de sincronizar
-                </span>
-              )}
-            </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-              {user ? user.name : 'Panel de Administración'} — Salsipuedes
-            </h1>
-          </div>
-
-          {/* Quick Role Switcher Bar */}
-          <div className="flex flex-wrap items-center gap-2 bg-[#1e1e1e] p-2 rounded-lg border border-[#333]">
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">
-              Simular Rol:
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+              Ventas del Día (Caja Activa)
             </span>
-            <button
-              onClick={() => loginAs('ADMIN')}
-              className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
-                currentUserRole === 'ADMIN'
-                  ? 'bg-[#c5a059] text-black shadow'
-                  : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Dueña (Admin)
-            </button>
-            <button
-              onClick={() => loginAs('EMPLOYEE')}
-              className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
-                currentUserRole === 'EMPLOYEE'
-                  ? 'bg-emerald-600 text-white shadow'
-                  : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Empleado (Caja)
-            </button>
-            {currentUserRole === 'ADMIN' && (
-              <button
-                onClick={() => setIsUserManagementOpen(true)}
-                className="px-3 py-1.5 rounded text-xs font-bold bg-[#c5a059] hover:bg-[#b08d48] text-black shadow transition-all flex items-center gap-1 cursor-pointer"
-              >
-                <span>👥 Gestionar Roles de Usuarios</span>
-              </button>
-            )}
-            {user && (
-              <button
-                onClick={logout}
-                className="text-[11px] text-gray-400 hover:text-rose-400 underline px-2 cursor-pointer"
-              >
-                Salir
-              </button>
-            )}
+            <span className="text-2xl font-bold font-numeric text-emerald-700">
+              ${todayTotal.toLocaleString('es-AR')}
+            </span>
           </div>
+          <span className="text-2xl">💵</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-[#e8e3da] shadow-xs flex justify-between items-center">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+              Transacciones Registradas
+            </span>
+            <span className="text-2xl font-bold font-numeric text-[#1a1918]">
+              {activeSessionSales.length} operaciones
+            </span>
+          </div>
+          <span className="text-2xl">🧾</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-[#e8e3da] shadow-xs flex justify-between items-center">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+              Productos en Inventario
+            </span>
+            <span className="text-2xl font-bold font-numeric text-gold">
+              {products.length} ítems
+            </span>
+          </div>
+          <span className="text-2xl">📦</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-[#e8e3da] shadow-xs flex justify-between items-center">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+              Operador Actual
+            </span>
+            <span className="text-sm font-bold text-[#1a1918] block truncate">
+              {user ? user.name : 'Dueña (Adriana)'}
+            </span>
+            <span className="text-[10px] text-gold font-bold uppercase block mt-0.5">
+              {currentUserRole}
+            </span>
+          </div>
+          <span className="text-2xl">👤</span>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+      {/* Quick Role Switcher Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-[#e8e3da] shadow-xs mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Modo / Rol Activo:
+          </span>
+          <span className="bg-gold/15 text-gold border border-gold/30 text-xs font-bold px-3 py-1 rounded-full">
+            {currentUserRole}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+            Simular Rol:
+          </span>
+          <button
+            onClick={() => loginAs('ADMIN')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              currentUserRole === 'ADMIN'
+                ? 'bg-gold text-white shadow'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Dueña (Admin)
+          </button>
+          <button
+            onClick={() => loginAs('EMPLOYEE')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              currentUserRole === 'EMPLOYEE'
+                ? 'bg-emerald-600 text-white shadow'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Empleado (Caja)
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content Workspace */}
+      <div className="w-full space-y-6">
+
         {/* PWA App Install Banner */}
         <div className="mb-6 bg-[#121212] text-white p-4 rounded-xl border border-[#c5a059]/40 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -546,9 +572,10 @@ export default function AdminPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Product Form Modal */}
+
       <ProductFormModal
         isOpen={isProductModalOpen}
         onClose={() => setIsProductModalOpen(false)}
@@ -589,6 +616,7 @@ export default function AdminPage() {
         isOpen={isUserManagementOpen}
         onClose={() => setIsUserManagementOpen(false)}
       />
-    </div>
+    </AdminAppShell>
   );
 }
+

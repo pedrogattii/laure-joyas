@@ -8,7 +8,9 @@ import { GearIcon, CreditCardIcon, GoogleIcon, UserIcon, CartIcon } from '@/comp
 import { useToast } from '@/context/ToastContext';
 import { useSupabaseSales } from '@/lib/supabaseSync';
 import { getCustomerLoyaltyTier } from '@/lib/loyaltyTiers';
+import { sanitizeEmail, sanitizeText, validatePassword } from '@/lib/sanitizer';
 import Link from 'next/link';
+
 
 export default function LoginPage() {
   const {
@@ -54,12 +56,12 @@ export default function LoginPage() {
     try {
       const { error } = await signInWithGoogle();
       if (error) {
-        showToast('✓ Sesión iniciada con Google. ¡Bienvenido/a!', 'success');
+        showToast('Sesión iniciada con Google. ¡Bienvenido/a!', 'success');
         loginAs('CUSTOMER');
         router.push('/');
       }
     } catch {
-      showToast('✓ Sesión iniciada con Google. ¡Bienvenido/a!', 'success');
+      showToast('Sesión iniciada con Google. ¡Bienvenido/a!', 'success');
       loginAs('CUSTOMER');
       router.push('/');
     } finally {
@@ -67,10 +69,23 @@ export default function LoginPage() {
     }
   };
 
+
   const handleLoginSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
+    const cleanEmail = sanitizeEmail(email);
+    if (!cleanEmail) {
+      showToast('Por favor ingresá un formato de correo electrónico válido.', 'error');
+      return;
+    }
+    const passCheck = validatePassword(password);
+    if (!passCheck.valid) {
+      showToast(passCheck.error || 'Contraseña inválida.', 'error');
+      return;
+    }
+
     setIsLoading(true);
-    const { error } = await loginWithEmail(email, password);
+    const { error } = await loginWithEmail(cleanEmail, password);
     setIsLoading(false);
 
     if (error) {
@@ -81,7 +96,7 @@ export default function LoginPage() {
     showToast('¡Sesión iniciada con éxito! Redirigiendo...', 'success');
     
     // REDIRECTION RULE: If customer, redirect to Home ('/'). If Admin/Employee, redirect to '/admin'
-    if (email.trim().toLowerCase() === OFFICIAL_DEMO_ACCOUNTS.ADMIN.email || email.trim().toLowerCase() === OFFICIAL_DEMO_ACCOUNTS.EMPLOYEE.email) {
+    if (cleanEmail === OFFICIAL_DEMO_ACCOUNTS.ADMIN.email || cleanEmail === OFFICIAL_DEMO_ACCOUNTS.EMPLOYEE.email) {
       router.push('/admin');
     } else {
       router.push('/');
@@ -90,30 +105,41 @@ export default function LoginPage() {
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !password) {
-      showToast('Por favor completá todos los campos.', 'error');
+    const cleanName = sanitizeText(name);
+    const cleanEmail = sanitizeEmail(email);
+
+    if (!cleanName || !cleanEmail || !password) {
+      showToast('Por favor completá un nombre y correo válidos.', 'error');
+      return;
+    }
+
+    const passCheck = validatePassword(password);
+    if (!passCheck.valid) {
+      showToast(passCheck.error || 'Contraseña inválida.', 'error');
       return;
     }
 
     setIsLoading(true);
-    const { error } = await signUpWithEmail(name, email, password);
+    const { error } = await signUpWithEmail(cleanName, cleanEmail, password);
     setIsLoading(false);
 
     if (error) {
       showToast(`Aviso al registrar: ${error.message}.`, 'info');
     }
 
-    setPendingEmail(email);
+    setPendingEmail(cleanEmail);
     setIsVerifyingEmail(true);
-    showToast(`Enviamos un código de verificación por correo a ${email}.`, 'success');
+    showToast(`Enviamos un código de verificación por correo a ${cleanEmail}.`, 'success');
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otpCode || otpCode.length < 6) {
+    const cleanOtp = sanitizeText(otpCode);
+    if (!cleanOtp || cleanOtp.length < 6) {
       showToast('Ingresá el código de 6 dígitos enviado a tu correo.', 'error');
       return;
     }
+
 
     setIsLoading(true);
     const { error } = await verifyEmailOtp(pendingEmail, otpCode);

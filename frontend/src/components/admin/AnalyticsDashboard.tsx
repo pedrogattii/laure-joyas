@@ -180,11 +180,11 @@ export default function AnalyticsDashboard({
           <select
             value={selectedMonthKey}
             onChange={(e) => setSelectedMonthKey(e.target.value)}
-            className="bg-[#1a1a1a] border border-[#c5a059]/60 text-white font-bold text-xs px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+            className="bg-[#1a1918] border border-gold/60 text-white font-bold text-xs px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold cursor-pointer"
           >
             {availableMonths.map((m) => (
               <option key={m.key} value={m.key}>
-                📅 {m.label} ({m.key})
+                {m.label} ({m.key})
               </option>
             ))}
           </select>
@@ -192,7 +192,7 @@ export default function AnalyticsDashboard({
           {/* Registrar Gasto button */}
           <button
             onClick={() => setIsExpenseModalOpen(true)}
-            className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase px-4 py-2 rounded-xl shadow flex items-center gap-1.5 transition-all"
+            className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <PlusIcon className="w-4 h-4 text-white" />
             <span>Cargar Egreso</span>
@@ -201,9 +201,9 @@ export default function AnalyticsDashboard({
           {/* Descargar Informe button */}
           <button
             onClick={() => setIsReportModalOpen(true)}
-            className="bg-[#c5a059] hover:bg-[#b08d48] text-black font-bold text-xs uppercase px-4 py-2 rounded-xl shadow flex items-center gap-1.5 transition-all"
+            className="btn-stitch-gold text-white font-bold text-xs uppercase px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <span>📄 Informe / Exportar</span>
+            <span>Informe / Exportar</span>
           </button>
         </div>
       </div>
@@ -211,64 +211,92 @@ export default function AnalyticsDashboard({
       {/* Top Financial KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Ingresos Totales */}
-        <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+        <div className="bg-white p-6 rounded-2xl border border-[#e8e3da] shadow-xs hover:shadow-md transition-all">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
             Ingresos Totales (Ventas)
           </span>
-          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-emerald-800 font-mono block">
+          <span className="font-numeric text-3xl font-extrabold text-emerald-800 block">
             ${totalSalesIncome.toLocaleString('es-AR')}
           </span>
-          <div className="text-[10px] text-gray-500 mt-2 space-y-0.5 border-t border-gray-100 pt-1">
-            <div>• Isla Salsipuedes (POS): <span className="font-bold text-emerald-700">${posSalesIncome.toLocaleString('es-AR')}</span></div>
-            <div>• Tienda Web (Online): <span className="font-bold text-blue-700">${onlineSalesIncome.toLocaleString('es-AR')}</span></div>
+          {/* Progress Bar for Channel Split */}
+          <div className="mt-3 space-y-1.5 border-t border-gray-100 pt-2">
+            <div className="flex justify-between text-[11px] font-sans font-medium text-gray-600">
+              <span>Isla (POS): ${posSalesIncome.toLocaleString('es-AR')}</span>
+              <span>Web: ${onlineSalesIncome.toLocaleString('es-AR')}</span>
+            </div>
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden flex">
+              <div
+                className="bg-emerald-600 h-full transition-all duration-500"
+                style={{
+                  width: `${
+                    totalSalesIncome > 0 ? Math.round((posSalesIncome / totalSalesIncome) * 100) : 0
+                  }%`,
+                }}
+                title="Ventas POS"
+              />
+              <div
+                className="bg-blue-500 h-full transition-all duration-500"
+                style={{
+                  width: `${
+                    totalSalesIncome > 0 ? Math.round((onlineSalesIncome / totalSalesIncome) * 100) : 0
+                  }%`,
+                }}
+                title="Ventas Web"
+              />
+            </div>
           </div>
         </div>
 
         {/* Egresos Totales */}
-        <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+        <div className="bg-white p-6 rounded-2xl border border-[#e8e3da] shadow-xs hover:shadow-md transition-all">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
             Egresos / Gastos del Mes
           </span>
-          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-rose-700 font-mono block">
+          <span className="font-numeric text-3xl font-extrabold text-rose-700 block">
             ${totalExpensesAmount.toLocaleString('es-AR')}
           </span>
-          <span className="text-[10px] text-gray-400 block mt-2 border-t border-gray-100 pt-1">
+          <span className="text-[10px] font-bold text-gray-500 block mt-3 border-t border-gray-100 pt-2 uppercase tracking-wider">
             {monthExpenses.length} gastos registrados en {selectedMonthObj.label}
           </span>
         </div>
 
         {/* Balance Neto */}
-        <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+        <div className="bg-white p-6 rounded-2xl border border-[#e8e3da] shadow-xs hover:shadow-md transition-all">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
             Balance Neto del Mes
           </span>
           <span
-            className={`font-serif text-2xl sm:text-3xl font-extrabold font-mono block ${
-              netBalance >= 0 ? 'text-gray-900' : 'text-rose-600'
+            className={`font-numeric text-3xl font-extrabold block ${
+              netBalance >= 0 ? 'text-[#1a1918]' : 'text-rose-600'
             }`}
           >
             ${netBalance.toLocaleString('es-AR')}
           </span>
-          <span className="text-[10px] text-emerald-600 block mt-2 border-t border-gray-100 pt-1 font-semibold">
-            {netBalance >= 0 ? '✓ Utilidad positiva' : '⚠️ Balance en déficit'}
+          <span className="text-[11px] font-bold text-emerald-700 block mt-3 border-t border-gray-100 pt-2">
+            {netBalance >= 0 ? 'Utilidad operativa positiva' : 'Balance en déficit'}
           </span>
         </div>
 
         {/* Transacciones Totales */}
-        <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+        <div className="bg-white p-6 rounded-2xl border border-[#e8e3da] shadow-xs hover:shadow-md transition-all">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
             Transacciones Registradas
           </span>
-          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-[#c5a059] block">
-            {monthSales.length} ventas
+          <span className="font-numeric text-3xl font-extrabold text-gold block">
+            {monthSales.length} operaciones
           </span>
-          <span className="text-[10px] text-gray-400 block mt-2 border-t border-gray-100 pt-1">
-            En {selectedMonthObj.label}
+          <span className="text-[10px] font-bold text-gray-500 block mt-3 border-t border-gray-100 pt-2 uppercase tracking-wider">
+            Promedio: $
+            {monthSales.length > 0
+              ? Math.round(totalSalesIncome / monthSales.length).toLocaleString('es-AR')
+              : 0}{' '}
+            / ticket
           </span>
         </div>
       </div>
 
       {/* Expenses Breakdown Cards */}
+
       <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
         <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
           <div>
@@ -281,7 +309,7 @@ export default function AnalyticsDashboard({
           </div>
           <button
             onClick={() => setIsExpenseModalOpen(true)}
-            className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 font-bold px-3 py-1.5 rounded-lg flex items-center gap-1"
+            className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer"
           >
             <PlusIcon className="w-3.5 h-3.5" />
             <span>Nuevo Egreso</span>
@@ -290,28 +318,28 @@ export default function AnalyticsDashboard({
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           <div className="bg-[#fbf9f5] p-4 rounded-xl border border-[#ede7dc]">
-            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">🏬 Proveedores</span>
+            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">Proveedores</span>
             <span className="font-mono font-extrabold text-lg text-gray-900 block">
               ${expensesByCategory.PROVEEDOR.toLocaleString('es-AR')}
             </span>
           </div>
 
           <div className="bg-[#fbf9f5] p-4 rounded-xl border border-[#ede7dc]">
-            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">👥 Sueldos</span>
+            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">Sueldos</span>
             <span className="font-mono font-extrabold text-lg text-gray-900 block">
               ${expensesByCategory.SUELDO.toLocaleString('es-AR')}
             </span>
           </div>
 
           <div className="bg-[#fbf9f5] p-4 rounded-xl border border-[#ede7dc]">
-            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">🏠 Alquiler</span>
+            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">Alquiler</span>
             <span className="font-mono font-extrabold text-lg text-gray-900 block">
               ${expensesByCategory.ALQUILER.toLocaleString('es-AR')}
             </span>
           </div>
 
           <div className="bg-[#fbf9f5] p-4 rounded-xl border border-[#ede7dc]">
-            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">⚡ Gastos Variables</span>
+            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">Gastos Variables</span>
             <span className="font-mono font-extrabold text-lg text-gray-900 block">
               ${expensesByCategory.VARIABLE.toLocaleString('es-AR')}
             </span>
@@ -352,9 +380,11 @@ export default function AnalyticsDashboard({
                         <button
                           onClick={() => handleDeleteExpense(e.id, e.description)}
                           title="Eliminar gasto"
-                          className="text-rose-600 hover:text-rose-800 p-1"
+                          className="text-rose-600 hover:text-rose-800 p-1 cursor-pointer"
                         >
-                          🗑️
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
                       </td>
                     </tr>
@@ -365,6 +395,7 @@ export default function AnalyticsDashboard({
           </div>
         )}
       </div>
+
 
       {/* Charts Grid Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

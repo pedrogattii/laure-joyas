@@ -87,7 +87,7 @@ export default function ProductDetailPage() {
   const handleToggleWishlist = () => {
     toggleWishlist(product);
     showToast(
-      isFav ? 'Eliminado de favoritos' : '❤️ Guardado en favoritos',
+      isFav ? 'Eliminado de favoritos' : 'Guardado en favoritos',
       isFav ? 'info' : 'success'
     );
   };
@@ -98,7 +98,7 @@ export default function ProductDetailPage() {
 
       <main className="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-gray-500 mb-6 flex items-center gap-2">
+        <div className="text-xs text-gray-500 mb-6 flex items-center gap-2 font-sans">
           <Link href="/" className="hover:text-gray-900 transition-colors">Inicio</Link>
           <span>/</span>
           <Link href="/catalogo" className="hover:text-gray-900 transition-colors">Catálogo</Link>
@@ -108,7 +108,7 @@ export default function ProductDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {/* Columna Izquierda: Imagen */}
-          <div className={`bg-white rounded-lg border border-[#e5e0d8] p-8 flex items-center justify-center aspect-square relative shadow-sm ${isOutOfStock ? 'opacity-75' : ''}`}>
+          <div className={`bg-white rounded-2xl border border-[#e8e3da] p-8 flex items-center justify-center aspect-square relative shadow-xs ${isOutOfStock ? 'opacity-75' : ''}`}>
             {product.image ? (
               <Image
                 src={product.image}
@@ -117,15 +117,15 @@ export default function ProductDetailPage() {
                 className={`object-contain p-4 ${isOutOfStock ? 'grayscale' : ''}`}
               />
             ) : (
-              <div className="text-center p-6 bg-[#efece6] rounded border border-dashed border-gray-300 w-full h-full flex flex-col items-center justify-center">
+              <div className="text-center p-6 bg-[#fcfbf9] rounded-xl border border-dashed border-[#e8e3da] w-full h-full flex flex-col items-center justify-center">
                 <span className="text-sm text-gray-500 font-medium tracking-wider">Foto próximamente</span>
               </div>
             )}
             
             {/* Out of Stock Overlay */}
             {isOutOfStock && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10 rounded-lg">
-                <span className="bg-[#121212] text-white font-bold text-lg uppercase tracking-widest px-6 py-3 rounded shadow-lg border border-gray-600">
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10 rounded-2xl">
+                <span className="bg-[#1a1918] text-white font-bold text-lg uppercase tracking-widest px-6 py-3 rounded-full shadow-lg border border-gray-700">
                   Sin Stock
                 </span>
               </div>
@@ -134,7 +134,7 @@ export default function ProductDetailPage() {
             {/* Top Right 20% OFF Hook Badge */}
             {!isOutOfStock && (
               <div className="absolute top-4 right-4 flex flex-col items-end gap-1 z-20">
-                <span className="bg-rose-600 text-white text-xs font-extrabold uppercase px-3 py-1.5 rounded shadow-md border border-rose-700">
+                <span className="bg-rose-600 text-white text-xs font-extrabold uppercase px-3 py-1.5 rounded-full shadow-md">
                   20% OFF Contado
                 </span>
               </div>
@@ -144,22 +144,22 @@ export default function ProductDetailPage() {
           {/* Columna Derecha: Info */}
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <span className="bg-[#121212] text-[#c5a059] text-xs font-mono font-semibold px-2 py-1 rounded shadow">
+              <span className="bg-[#1a1918] text-gold text-xs font-mono font-semibold px-2.5 py-1 rounded-full border border-gold/30 shadow-xs">
                 {product.code}
               </span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#c5a059] bg-[#fcf8f0] px-2 py-1 rounded">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gold bg-[#f5ecda] px-2.5 py-1 rounded-full border border-gold/20">
                 {product.category.name}
               </span>
-              <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded">
+              <span className="text-xs text-gray-600 font-medium bg-[#f5f2eb] px-2.5 py-1 rounded-full border border-[#e8e3da]">
                 {product.material.name}
               </span>
               {/* Wishlist Button */}
               <button
                 onClick={handleToggleWishlist}
-                className={`ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
+                className={`ml-auto flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer ${
                   isFav
-                    ? 'bg-rose-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-rose-50 hover:text-rose-500'
+                    ? 'bg-rose-500 text-white shadow-xs'
+                    : 'bg-white text-gray-600 hover:text-rose-500 border border-[#e8e3da]'
                 }`}
               >
                 {isFav ? <HeartFilledIcon className="w-4 h-4" /> : <HeartIcon className="w-4 h-4" />}
@@ -167,97 +167,98 @@ export default function ProductDetailPage() {
               </button>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1a1918] mb-4 leading-tight">
               {product.name}
             </h1>
 
-            <p className="text-gray-600 text-sm leading-relaxed mb-8">
+            <p className="text-gray-600 text-sm leading-relaxed mb-8 font-sans">
               {product.description}
             </p>
 
             {/* Stock Indicator */}
             {isOutOfStock ? (
-              <div className="bg-rose-50 border border-rose-200 p-4 rounded-lg mb-6 text-center">
+              <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl mb-6 text-center">
                 <p className="text-rose-800 font-bold text-sm">Producto sin stock actualmente</p>
-                <p className="text-rose-600 text-xs mt-1">Consultanos por WhatsApp para conocer disponibilidad</p>
+                <p className="text-rose-600 text-xs mt-1 font-sans">Consultanos por WhatsApp para conocer disponibilidad</p>
               </div>
             ) : (
               <div className="flex items-center gap-2 mb-6">
                 <span className={`text-xs font-bold px-3 py-1 rounded-full ${
                   product.stock > 3
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-amber-100 text-amber-800'
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                    : 'bg-amber-100 text-amber-800 border border-amber-200'
                 }`}>
                   {product.stock > 3 ? 'En Stock' : `¡Últimas ${product.stock} unidades!`}
                 </span>
               </div>
             )}
 
-            <div className="bg-[#faf8f3] p-5 rounded-lg border border-[#e5dfd5] mb-6 space-y-4 shadow-sm">
+            <div className="bg-[#fcfbf9] p-5 rounded-2xl border border-[#e8e3da] mb-6 space-y-4 shadow-xs">
               <div className="flex justify-between items-end">
                 <div>
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Precio Contado</p>
-                  <p className="text-xs text-emerald-700 font-bold mt-0.5">Efectivo / Transferencia</p>
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide font-sans">Precio Contado</p>
+                  <p className="text-xs text-emerald-700 font-bold mt-0.5 font-sans">Efectivo / Transferencia</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-3xl font-bold text-emerald-800 font-mono">
+                  <span className="text-3xl font-bold text-emerald-800 font-numeric">
                     ${product.priceCash.toLocaleString('es-AR')}
                   </span>
                   {savings > 0 && (
-                    <p className="text-xs font-bold text-emerald-700 mt-1 bg-emerald-100 inline-block px-2 py-0.5 rounded border border-emerald-200">
+                    <p className="text-xs font-bold text-emerald-700 mt-1 bg-emerald-100/80 inline-block px-2.5 py-0.5 rounded-full border border-emerald-200">
                       Ahorrás ${savings.toLocaleString('es-AR')}
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="flex justify-between items-center text-sm text-gray-600 border-t border-gray-200 pt-4">
+              <div className="flex justify-between items-center text-sm text-gray-600 border-t border-[#e8e3da] pt-4 font-sans">
                 <span className="font-medium">Precio Lista (Tarjetas / Cuotas):</span>
-                <span className="font-semibold text-gray-800 font-mono text-lg">
+                <span className="font-bold text-[#1a1918] font-numeric text-lg">
                   ${product.priceList.toLocaleString('es-AR')}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 text-right">O 3 cuotas sin interés de ${Math.round(product.priceList / 3).toLocaleString('es-AR')}</p>
+              <p className="text-xs text-gray-500 text-right font-sans">O 3 cuotas sin interés de ${Math.round(product.priceList / 3).toLocaleString('es-AR')}</p>
             </div>
 
             {/* Acciones */}
             <div className="flex gap-4 mt-auto">
               <button
                 onClick={() => router.push('/catalogo')}
-                className="flex-1 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-bold text-sm uppercase py-4 rounded btn-animate cursor-pointer"
+                className="flex-1 border border-[#e8e3da] hover:border-gray-400 text-gray-700 font-bold text-xs uppercase tracking-wider py-4 rounded-full transition-all cursor-pointer bg-white"
               >
                 Volver
               </button>
               <button
                 onClick={handleAddToCartAndBuy}
                 disabled={isOutOfStock}
-                className={`flex-1 font-bold text-sm uppercase tracking-wider py-4 rounded shadow-lg flex items-center justify-center gap-2 btn-animate ${
+                className={`flex-1 font-bold text-xs uppercase tracking-wider py-4 rounded-full shadow-md flex items-center justify-center gap-2 active:scale-95 ${
                   isOutOfStock
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-[#c5a059] hover:bg-[#a8843e] text-black cursor-pointer'
+                    : 'btn-stitch-gold text-white cursor-pointer'
                 }`}
               >
                 <CartIcon className="w-5 h-5" />
-                <span>Comprar</span>
+                <span>Comprar Ahora</span>
               </button>
             </div>
             
             <button
               onClick={handleAddToCartContinue}
               disabled={isOutOfStock}
-              className={`mt-4 w-full font-bold text-xs uppercase tracking-wider py-3 rounded shadow flex items-center justify-center gap-2 btn-animate ${
+              className={`mt-3 w-full font-bold text-xs uppercase tracking-wider py-3.5 rounded-full shadow-sm flex items-center justify-center gap-2 active:scale-95 ${
                 isOutOfStock
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-[#121212] hover:bg-black text-[#c5a059] cursor-pointer'
+                  : 'btn-stitch-primary cursor-pointer'
               }`}
             >
               <span>Agregar al carrito y seguir comprando</span>
             </button>
 
+
             {/* WhatsApp Consult Button */}
             <button
               onClick={handleWhatsAppConsult}
-              className="mt-3 w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded shadow-lg flex items-center justify-center gap-2 btn-whatsapp cursor-pointer"
+              className="mt-3 w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded-full shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
             >
               <WhatsAppIcon className="w-4 h-4" />
               <span>Consultar por WhatsApp</span>

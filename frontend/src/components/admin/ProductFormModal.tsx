@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { CATEGORIES as MOCK_CATEGORIES, MATERIALS as MOCK_MATERIALS, ProductItem } from '@/lib/mockData';
 import { useSupabaseCategories, useSupabaseMaterials, uploadProductImage } from '@/lib/supabaseSync';
+import { SparklesIcon } from '@/components/icons/SvgIcons';
+
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -294,7 +296,7 @@ export default function ProductFormModal({
                     className="w-full px-3 py-2 text-sm border border-emerald-400 bg-emerald-50 rounded focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono font-bold text-emerald-800"
                   />
                   <span className="text-[10px] text-emerald-700 font-semibold">
-                    🔥 20% OFF en Efectivo/Transferencia
+                    20% OFF en Efectivo / Transferencia
                   </span>
                 </div>
               </div>
@@ -308,7 +310,7 @@ export default function ProductFormModal({
                   min="0"
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-full focus:ring-2 focus:ring-gold focus:outline-none"
                 />
               </div>
 
@@ -316,9 +318,9 @@ export default function ProductFormModal({
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="border border-gray-300 text-gray-700 font-semibold text-xs uppercase px-4 py-2.5 rounded"
+                  className="border border-gray-300 text-gray-700 font-semibold text-xs uppercase px-5 py-2.5 rounded-full cursor-pointer hover:bg-gray-50 transition-colors"
                 >
-                  ⬅ Volver
+                  Volver
                 </button>
                 <button
                   type="button"
@@ -329,9 +331,9 @@ export default function ProductFormModal({
                     }
                     setStep(3);
                   }}
-                  className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-6 py-2.5 rounded shadow"
+                  className="btn-stitch-gold text-white font-bold text-xs uppercase tracking-wider px-6 py-2.5 rounded-full shadow-sm cursor-pointer"
                 >
-                  Siguiente: Fotografía ➔
+                  Siguiente: Fotografía
                 </button>
               </div>
             </div>
@@ -340,19 +342,22 @@ export default function ProductFormModal({
           {/* STEP 3: PHOTO UPLOAD OPTION */}
           {step === 3 && (
             <div className="space-y-5">
-              <div className="bg-[#faf8f3] p-4 rounded-lg border border-[#e5dfd5]">
-                <h4 className="font-serif text-sm font-bold text-gray-900 mb-2">
-                  📸 Fotografía del Producto (Supabase Storage)
+              <div className="bg-[#fcfbf9] p-4 rounded-xl border border-[#e8e3da]">
+                <h4 className="font-serif text-sm font-bold text-[#1a1918] mb-2 flex items-center gap-2">
+                  <SparklesIcon className="w-4 h-4 text-gold" />
+                  Fotografía del Producto (Supabase Storage)
                 </h4>
-                <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                  Podés tomar una foto con la cámara de tu celular, seleccionar una imagen de tu dispositivo o ingresar una URL. La imagen se almacenará en Supabase Storage.
+                <p className="text-xs text-gray-600 leading-relaxed mb-4 font-sans">
+                  Podés seleccionar una imagen de tu dispositivo o ingresar una URL. La imagen se almacenará en Supabase Storage.
                 </p>
 
                 {/* File Upload Box */}
                 <div className="space-y-3">
-                  <div className="border-2 border-dashed border-[#c5a059]/60 hover:border-[#c5a059] rounded-xl p-4 text-center bg-white cursor-pointer transition-colors">
+                  <div className="border-2 border-dashed border-[#c5a059]/60 hover:border-[#c5a059] rounded-xl p-5 text-center bg-white cursor-pointer transition-colors">
                     <label className="cursor-pointer flex flex-col items-center justify-center gap-2">
-                      <span className="text-3xl">📷</span>
+                      <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold">
+                        <SparklesIcon className="w-5 h-5" />
+                      </div>
                       <span className="text-xs font-bold text-gray-800">
                         {selectedFile ? selectedFile.name : 'Seleccionar foto o usar cámara'}
                       </span>
@@ -400,7 +405,7 @@ export default function ProductFormModal({
                           placeholder="https://... o /images/mi_foto.png"
                           value={imageUrl}
                           onChange={(e) => setImageUrl(e.target.value)}
-                          className="w-full px-3 py-2 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-[#c5a059] focus:outline-none"
+                          className="w-full px-3 py-2 text-xs border border-gray-300 rounded-full focus:ring-1 focus:ring-gold focus:outline-none"
                         />
                       </div>
                     )}
@@ -409,13 +414,12 @@ export default function ProductFormModal({
               </div>
 
               {/* Summary Card */}
-              <div className="bg-[#121212] text-white p-4 rounded-lg text-xs space-y-1">
-                <div className="text-[#c5a059] font-bold">Resumen del producto a guardar:</div>
-                <div>Código SKU: <span className="font-mono">{generatedCode}</span></div>
-                <div>Producto: <span className="font-semibold">{name}</span></div>
+              <div className="bg-[#1a1918] text-white p-4 rounded-xl text-xs space-y-1 border border-gold/30">
+                <div className="text-gold font-bold uppercase tracking-wider text-[10px]">Resumen del producto:</div>
+                <div>Código SKU: <span className="font-mono text-gold">{generatedCode}</span></div>
+                <div>Producto: <span className="font-semibold text-white">{name}</span></div>
                 <div>Precio Contado (20% OFF): <span className="text-emerald-400 font-bold">${parseFloat(priceCash || '0').toLocaleString('es-AR')}</span></div>
-                <div>Precio Lista: <span className="font-mono">${parseFloat(priceList || '0').toLocaleString('es-AR')} (Hasta 3 cuotas sin interés)</span></div>
-                <div>Foto: <span className="text-gray-300 font-semibold">{noPhotoForNow ? 'Sin foto' : selectedFile ? `Archivo: ${selectedFile.name}` : imageUrl ? 'URL externa' : 'Sin foto'}</span></div>
+                <div>Precio Lista: <span className="font-mono text-gray-300">${parseFloat(priceList || '0').toLocaleString('es-AR')} (3 cuotas sin interés)</span></div>
               </div>
 
               <div className="flex justify-between pt-4 border-t border-gray-200">
@@ -423,23 +427,21 @@ export default function ProductFormModal({
                   type="button"
                   onClick={() => setStep(2)}
                   disabled={isUploading}
-                  className="border border-gray-300 text-gray-700 font-semibold text-xs uppercase px-4 py-2.5 rounded"
+                  className="border border-gray-300 text-gray-700 font-semibold text-xs uppercase px-5 py-2.5 rounded-full cursor-pointer hover:bg-gray-50 transition-colors"
                 >
-                  ⬅ Volver
+                  Volver
                 </button>
                 <button
                   type="submit"
                   disabled={isUploading}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider px-6 py-2.5 rounded shadow flex items-center gap-2"
+                  className="btn-stitch-gold text-white font-bold text-xs uppercase tracking-wider px-6 py-2.5 rounded-full shadow-sm flex items-center gap-2 cursor-pointer active:scale-95"
                 >
                   {isUploading ? (
                     <>
-                      <span className="animate-spin">⏳</span> Optimizando y subiendo imagen...
+                      <span className="animate-spin">⏳</span> Subiendo imagen...
                     </>
                   ) : (
-                    <>
-                      <span>✨</span> Confirmar y Guardar Producto
-                    </>
+                    <span>Confirmar y Guardar Producto</span>
                   )}
                 </button>
               </div>
@@ -450,3 +452,4 @@ export default function ProductFormModal({
     </div>
   );
 }
+

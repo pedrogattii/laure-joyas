@@ -2,35 +2,122 @@
 
 :root {
   --background: #faf8f5;
-  --foreground: #1a1a1a;
+  --foreground: #1a1918;
   --accent-gold: #c5a059;
-  --accent-gold-dark: #a8843e;
+  --accent-gold-dark: #9e7d37;
+  --accent-gold-light: #f5ecda;
+  --accent-champagne: #d4af37;
+  --bg-obsidian: #0d0d0c;
+  --surface-obsidian: #151413;
   --card-bg: #ffffff;
-  --border-light: #e5e0d8;
+  --border-light: #e8e3da;
+  --border-dark: #2a2826;
+  --surface-warm: #fcfbf9;
 }
 
 @theme inline {
-  --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-  --font-sans: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-  --font-mono: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-serif: var(--font-playfair), var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-sans: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-bricolage), monospace;
   --font-numeric: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
 }
 
-/* Elegant Luxury Numeric & Universal Typography: Cormorant Garamond */
-.font-mono,
-.font-numeric,
-.font-serif,
-.font-sans {
-  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif !important;
-}
-
+/* Base Body Styling */
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif !important;
+  font-family: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Explicit input text visibility and contrast */
+h1, h2, h3, h4, h5, h6, .font-serif, .font-heading {
+  font-family: var(--font-playfair), var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: -0.015em;
+}
+
+.font-ui {
+  font-family: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+}
+
+/* High-Precision Numeric Display */
+.font-numeric, .font-price {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif !important;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.font-sku {
+  font-family: var(--font-bricolage), system-ui, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+/* Premium Glassmorphism */
+.glass-stitch, .glass-premium {
+  background: rgba(253, 251, 248, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(232, 227, 218, 0.85);
+}
+
+.glass-dark {
+  background: rgba(13, 13, 12, 0.90);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+}
+
+/* Modern Elevated Cards with Smooth Hover Effects */
+.stitch-card, .card-elevated {
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 20px -4px rgba(26, 25, 24, 0.03), 0 1px 2px rgba(26, 25, 24, 0.02);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.stitch-card:hover, .card-elevated:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 35px -8px rgba(197, 160, 89, 0.22), 0 4px 16px rgba(26, 25, 24, 0.04);
+  border-color: rgba(197, 160, 89, 0.5);
+}
+
+/* Luxury Gold & Color Classes */
+.text-gold {
+  color: var(--accent-gold);
+}
+
+.text-champagne {
+  color: var(--accent-champagne);
+}
+
+.bg-gold {
+  background-color: var(--accent-gold);
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 50%, #9e7d37 100%);
+}
+
+.bg-champagne-gradient {
+  background: linear-gradient(135deg, #f5e6ad 0%, #d4af37 50%, #aa820a 100%);
+}
+
+.border-gold {
+  border-color: var(--accent-gold);
+}
+
+.badge-gold {
+  background: linear-gradient(135deg, #fdf9f0 0%, #f5ecda 100%);
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  color: #8a6b29;
+  font-weight: 600;
+}
+
+/* Form Controls & Inputs */
 input[type="text"],
 input[type="number"],
 input[type="email"],
@@ -40,35 +127,47 @@ select,
 textarea {
   color: #111827 !important;
   background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 9999px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent-gold);
+  outline: none;
+  box-shadow: 0 0 0 3.5px rgba(197, 160, 89, 0.22);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #6b7280 !important;
+  color: #9ca3af !important;
   opacity: 1;
 }
 
-h1, h2, h3, h4, .font-serif {
-  font-family: var(--font-playfair), 'Georgia', serif;
+/* Accessibility & Focus Order (WCAG 2.1 AA) */
+*:focus-visible {
+  outline: 2px solid var(--accent-gold) !important;
+  outline-offset: 2px !important;
 }
 
-.text-gold {
-  color: var(--accent-gold);
+/* Touch Target Minimum Dimensions (WCAG 2.5.5 - 44x44 CSS px) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.bg-gold {
-  background-color: var(--accent-gold);
-}
-
-.border-gold {
-  border-color: var(--accent-gold);
-}
-
-.shadow-luxury {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-}
-
-/* Global Clickable Elements Cursor Pointer Rule */
+/* Cursor Pointer Standard */
 button,
 a,
 select,
@@ -83,61 +182,86 @@ label[for] {
   cursor: pointer !important;
 }
 
-/* Custom Cursor & Interactive Polish for Inputs/Selects */
-select, input[type="range"] {
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+/* Premium Buttons Micro-interactions */
+.btn-stitch-primary {
+  background: linear-gradient(135deg, #2d2b29 0%, #1a1918 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+  will-change: transform;
 }
 
-select:hover {
-  border-color: var(--accent-gold);
-}
-
-/* Luxury Card Hover Animation */
-.hover-luxury-lift {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
-}
-
-.hover-luxury-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px -12px rgba(197, 160, 89, 0.28);
-}
-
-/* Unified Button Micro-Interactions */
-.btn-animate {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  user-select: none;
-}
-
-.btn-animate:hover {
+.btn-stitch-primary:hover {
   transform: translateY(-2px);
-  filter: brightness(1.05);
+  box-shadow: 0 10px 24px -4px rgba(26, 25, 24, 0.35);
+  background: linear-gradient(135deg, #1a1918 0%, #000000 100%);
 }
 
-.btn-animate:active {
-  transform: translateY(0) scale(0.97);
-  filter: brightness(0.95);
+.btn-stitch-gold {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 50%, #9e7d37 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+  will-change: transform;
 }
 
-/* WhatsApp Pulse & Hover Glow */
-.btn-whatsapp {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+.btn-stitch-gold:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 24px -4px rgba(197, 160, 89, 0.45);
+  filter: brightness(1.06);
 }
 
-.btn-whatsapp:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(37, 211, 102, 0.4);
+.btn-stitch-gold:active, .btn-stitch-primary:active {
+  transform: translateY(0) scale(0.96);
 }
 
-.btn-whatsapp:active {
-  transform: translateY(0) scale(0.97);
+/* Modern Keyframe Animations for Iteration 4 */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
 }
 
-/* Toast slide-up animation */
+.animate-float {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 22px 6px rgba(197, 160, 89, 0.6);
+  }
+}
+
+.animate-pulseGlow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer-badge {
+  background: linear-gradient(90deg, #c5a059 0%, #fff 50%, #c5a059 100%);
+  background-size: 200% 100%;
+  animation: shimmer 4s infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -149,13 +273,47 @@ select:hover {
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Fade-in for modals */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.22); }
+  40% { transform: scale(1); }
+  60% { transform: scale(1.15); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeIn 0.25s ease-out;
 }
 
+/* Reduced Motion Respect (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

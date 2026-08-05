@@ -17,3 +17,6 @@ frontend/.env.local
 .DS_Store
 Thumbs.db
 ~$*.xlsx
+.playwright-mcp/
+stitch_assets/
+
