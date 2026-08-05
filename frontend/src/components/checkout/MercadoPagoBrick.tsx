@@ -1,15 +1,25 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 
 const publicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY || '';
+
+if (typeof window !== 'undefined' && publicKey) {
+  try {
+    initMercadoPago(publicKey, { locale: 'es-AR' });
+  } catch (e) {
+    console.error('Error inicializando Mercado Pago SDK:', e);
+  }
+}
+
+export type MPFormData = Record<string, unknown>;
 
 interface MercadoPagoBrickProps {
   amount: number;
   payerEmail: string;
   payerDni: string;
-  onSubmitPayment: (formData: any) => Promise<void>;
+  onSubmitPayment: (formData: MPFormData) => Promise<void>;
 }
 
 export default function MercadoPagoBrick({
@@ -18,32 +28,13 @@ export default function MercadoPagoBrick({
   payerDni,
   onSubmitPayment,
 }: MercadoPagoBrickProps) {
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    if (publicKey) {
-      try {
-        initMercadoPago(publicKey, { locale: 'es-AR' });
-        setIsReady(true);
-      } catch (err) {
-        console.error('Error al inicializar Mercado Pago SDK:', err);
-      }
-    }
-  }, []);
-
   if (!publicKey) {
     return (
       <div className="p-4 bg-amber-50 text-amber-800 text-xs rounded-xl border border-amber-200 font-sans">
         <p className="font-bold mb-1">Configuración pendiente</p>
-        <p>No se encontró <code className="bg-amber-100 px-1 py-0.5 rounded">NEXT_PUBLIC_MP_PUBLIC_KEY</code> en tu archivo <code className="bg-amber-100 px-1 py-0.5 rounded">.env.local</code>.</p>
-      </div>
-    );
-  }
-
-  if (!isReady) {
-    return (
-      <div className="p-6 text-center text-xs text-gray-500 font-sans">
-        Cargando pasarela de pago seguro...
+        <p>
+          No se encontró <code className="bg-amber-100 px-1 py-0.5 rounded">NEXT_PUBLIC_MP_PUBLIC_KEY</code> en tu archivo <code className="bg-amber-100 px-1 py-0.5 rounded">.env.local</code>.
+        </p>
       </div>
     );
   }
@@ -72,16 +63,18 @@ export default function MercadoPagoBrick({
     },
   };
 
-  const handleSubmit = async ({ formData }: any) => {
+  const handleSubmit = async (
+    param: Parameters<NonNullable<React.ComponentProps<typeof Payment>['onSubmit']>>[0]
+  ) => {
     try {
-      await onSubmitPayment(formData);
+      await onSubmitPayment(param.formData as unknown as MPFormData);
     } catch (error) {
       console.error('Error al enviar el pago:', error);
       throw error;
     }
   };
 
-  const handleError = async (error: any) => {
+  const handleError = async (error: unknown) => {
     console.error('Mercado Pago Brick error:', error);
   };
 

@@ -75,10 +75,10 @@ export function validatePassword(password: string, minLength = 6): { valid: bool
 /**
  * Sanitizes an object with string key-value pairs recursively.
  */
-export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
+export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
   if (!obj || typeof obj !== 'object') return obj;
   
-  const sanitized: Record<string, any> = {};
+  const sanitized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === 'string') {
       sanitized[key] = sanitizeText(value);
@@ -89,7 +89,7 @@ export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
         typeof item === 'string' ? sanitizeText(item) : item
       );
     } else if (typeof value === 'object' && value !== null) {
-      sanitized[key] = sanitizeObject(value);
+      sanitized[key] = sanitizeObject(value as Record<string, unknown>);
     } else {
       sanitized[key] = value;
     }

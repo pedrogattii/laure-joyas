@@ -35,7 +35,7 @@ export default function CheckoutPage() {
 
   const currentTotal = formData.paymentMethod === 'cash' ? totalCash : totalList;
 
-  const handleMercadoPagoSubmit = async (mpFormData: any) => {
+  const handleMercadoPagoSubmit = async (mpFormData: Record<string, unknown>) => {
     const cleanFirstName = sanitizeText(formData.firstName);
     const cleanLastName = sanitizeText(formData.lastName);
     const cleanEmail = sanitizeEmail(formData.email);
@@ -54,7 +54,7 @@ export default function CheckoutPage() {
           formData: {
             ...mpFormData,
             payer: {
-              ...mpFormData.payer,
+              ...(mpFormData.payer as Record<string, unknown> || {}),
               email: cleanEmail,
               identification: {
                 type: 'DNI',
@@ -80,9 +80,10 @@ export default function CheckoutPage() {
         showToast(`El pago fue ${data.status} (${data.status_detail || 'Intenta con otra tarjeta'}).`, 'error');
         throw new Error(`Estado de pago: ${data.status}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al procesar el pago.';
       console.error('Error procesando pago:', err);
-      showToast(err.message || 'Error al procesar el pago.', 'error');
+      showToast(errorMessage, 'error');
       throw err;
     }
   };
@@ -125,7 +126,8 @@ export default function CheckoutPage() {
       dni: sanitizeText(formData.dni),
     });
 
-    const paymentId = `${formData.paymentMethod.toUpperCase()}-${Math.floor(10000000 + Math.random() * 90000000)}`;
+    // eslint-disable-next-line react-hooks/purity
+    const paymentId = `${formData.paymentMethod.toUpperCase()}-${Date.now()}`;
     const methodTag = formData.paymentMethod === 'cash' ? 'EFECTIVO' : 'FISERV';
 
     completeOrder(methodTag, paymentId);

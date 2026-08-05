@@ -58,12 +58,13 @@ export async function POST(request: Request) {
       payment_method_id: response.payment_method_id,
       payment_type_id: response.payment_type_id,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error interno al procesar el pago con Mercado Pago';
     console.error('Error al procesar pago con Mercado Pago:', error);
     return NextResponse.json(
       {
-        error: error?.message || 'Error interno al procesar el pago con Mercado Pago',
-        details: error?.cause || error,
+        error: errorMessage,
+        details: error instanceof Error ? error.cause : error,
       },
       { status: 500 }
     );
