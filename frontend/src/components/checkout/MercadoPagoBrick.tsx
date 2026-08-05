@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
+import { initMercadoPago, CardPayment } from '@mercadopago/sdk-react';
 
 const publicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY || '';
 
@@ -62,8 +62,6 @@ export default function MercadoPagoBrick({
 
   const customization = {
     paymentMethods: {
-      creditCard: 'all' as const,
-      debitCard: 'all' as const,
       maxInstallments: 12,
     },
     visual: {
@@ -74,10 +72,10 @@ export default function MercadoPagoBrick({
   };
 
   const handleSubmit = async (
-    param: Parameters<NonNullable<React.ComponentProps<typeof Payment>['onSubmit']>>[0]
+    param: Parameters<NonNullable<React.ComponentProps<typeof CardPayment>['onSubmit']>>[0]
   ) => {
     try {
-      await onSubmitPayment(param.formData as unknown as MPFormData);
+      await onSubmitPayment(param as unknown as MPFormData);
     } catch (error) {
       console.warn('Error al procesar el envío del pago:', error);
       throw error;
@@ -85,17 +83,16 @@ export default function MercadoPagoBrick({
   };
 
   const handleError = async (error: unknown) => {
-    // Usamos console.warn para evitar que Next.js dev overlay capture objetos de error vacíos del SDK
-    console.warn('Mercado Pago Brick Callback Notice:', error);
+    console.warn('Mercado Pago CardPayment Brick Notice:', error);
   };
 
   return (
-    <div id="paymentBrick_container" className="w-full bg-white rounded-xl p-2 shadow-sm border border-[#e8e3da]">
-      <Payment
+    <div id="cardPaymentBrick_container" className="w-full bg-white rounded-xl p-2 shadow-sm border border-[#e8e3da]">
+      <CardPayment
         initialization={initialization}
         customization={customization}
         onSubmit={handleSubmit}
-        onReady={() => console.log('Mercado Pago Brick listo')}
+        onReady={() => console.log('Mercado Pago CardPayment Brick listo')}
         onError={handleError}
       />
     </div>

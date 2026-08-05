@@ -47,14 +47,16 @@ export default function CheckoutPage() {
     }
 
     try {
+      const extractedFormData = (mpFormData.formData || mpFormData) as Record<string, unknown>;
+
       const response = await fetch('/api/mercadopago/process-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           formData: {
-            ...mpFormData,
+            ...extractedFormData,
             payer: {
-              ...(mpFormData.payer as Record<string, unknown> || {}),
+              ...(extractedFormData.payer as Record<string, unknown> || {}),
               email: cleanEmail,
               identification: {
                 type: 'DNI',
