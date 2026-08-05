@@ -6,8 +6,12 @@
   --accent-gold: #c5a059;
   --accent-gold-dark: #9e7d37;
   --accent-gold-light: #f5ecda;
+  --accent-champagne: #d4af37;
+  --bg-obsidian: #0d0d0c;
+  --surface-obsidian: #151413;
   --card-bg: #ffffff;
   --border-light: #e8e3da;
+  --border-dark: #2a2826;
   --surface-warm: #fcfbf9;
 }
 
@@ -18,24 +22,25 @@
   --font-numeric: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
 }
 
-/* Elegant Google Stitch Typography & Numeric Styling */
+/* Base Body Styling */
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6, .font-serif, .font-heading {
   font-family: var(--font-playfair), var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 .font-ui {
   font-family: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
 }
 
-/* Premium High-Precision Numeric Display (Google Stitch Style) */
+/* High-Precision Numeric Display */
 .font-numeric, .font-price {
   font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif !important;
   font-variant-numeric: tabular-nums lining-nums;
@@ -49,39 +54,43 @@ h1, h2, h3, h4, h5, h6, .font-serif, .font-heading {
   letter-spacing: 0.08em;
 }
 
-/* Glassmorphic Header & Floating Controls */
-.glass-stitch {
-  background: rgba(253, 251, 248, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(232, 227, 218, 0.8);
+/* Premium Glassmorphism */
+.glass-stitch, .glass-premium {
+  background: rgba(253, 251, 248, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(232, 227, 218, 0.85);
 }
 
 .glass-dark {
-  background: rgba(26, 25, 24, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(197, 160, 89, 0.25);
+  background: rgba(13, 13, 12, 0.90);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(197, 160, 89, 0.3);
 }
 
-/* Stitch Card Elevation & Lift */
-.stitch-card {
+/* Modern Elevated Cards (Stripe / Vercel / Linear inspired) */
+.stitch-card, .card-elevated {
   background-color: #ffffff;
   border: 1px solid var(--border-light);
   border-radius: 1.25rem;
-  box-shadow: 0 4px 20px -4px rgba(26, 25, 24, 0.03);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px -4px rgba(26, 25, 24, 0.03), 0 1px 2px rgba(26, 25, 24, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.stitch-card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 20px 40px -10px rgba(197, 160, 89, 0.22), 0 4px 16px rgba(26, 25, 24, 0.04);
-  border-color: rgba(197, 160, 89, 0.5);
+.stitch-card:hover, .card-elevated:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 35px -8px rgba(197, 160, 89, 0.20), 0 4px 16px rgba(26, 25, 24, 0.04);
+  border-color: rgba(197, 160, 89, 0.45);
 }
 
-/* Luxury Gold Palette Classes */
+/* Luxury Gold & Color Classes */
 .text-gold {
   color: var(--accent-gold);
+}
+
+.text-champagne {
+  color: var(--accent-champagne);
 }
 
 .bg-gold {
@@ -90,6 +99,10 @@ h1, h2, h3, h4, h5, h6, .font-serif, .font-heading {
 
 .bg-gold-gradient {
   background: linear-gradient(135deg, #dfba73 0%, #c5a059 50%, #9e7d37 100%);
+}
+
+.bg-champagne-gradient {
+  background: linear-gradient(135deg, #f5e6ad 0%, #d4af37 50%, #aa820a 100%);
 }
 
 .border-gold {
@@ -103,51 +116,7 @@ h1, h2, h3, h4, h5, h6, .font-serif, .font-heading {
   font-weight: 600;
 }
 
-/* Modern Dynamic Animations */
-@keyframes floatSlow {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(0.5deg);
-  }
-}
-
-.animate-float {
-  animation: floatSlow 6s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 24px 6px rgba(197, 160, 89, 0.6);
-  }
-}
-
-.animate-pulseGlow {
-  animation: pulseGlow 3s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.shimmer-badge {
-  background: linear-gradient(90deg, #c5a059 0%, #fff 50%, #c5a059 100%);
-  background-size: 200% 100%;
-  animation: shimmer 4s infinite;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Inputs & Form Controls Polish */
+/* Form Controls & Inputs */
 input[type="text"],
 input[type="number"],
 input[type="email"],
@@ -158,7 +127,9 @@ textarea {
   color: #111827 !important;
   background-color: #ffffff;
   border: 1px solid var(--border-light);
-  border-radius: 0.75rem;
+  border-radius: 9999px;
+  padding-left: 1rem;
+  padding-right: 1rem;
   transition: all 0.2s ease;
 }
 
@@ -171,12 +142,12 @@ select:focus,
 textarea:focus {
   border-color: var(--accent-gold);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.18);
+  box-shadow: 0 0 0 3.5px rgba(197, 160, 89, 0.20);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #6b7280 !important;
+  color: #9ca3af !important;
   opacity: 1;
 }
 
@@ -195,7 +166,7 @@ label[for] {
   cursor: pointer !important;
 }
 
-/* Buttons Micro-Interactions */
+/* Premium Buttons */
 .btn-stitch-primary {
   background: linear-gradient(135deg, #2d2b29 0%, #1a1918 100%);
   color: #ffffff;
@@ -206,7 +177,7 @@ label[for] {
 
 .btn-stitch-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px -4px rgba(26, 25, 24, 0.35);
+  box-shadow: 0 10px 24px -4px rgba(26, 25, 24, 0.35);
   background: linear-gradient(135deg, #1a1918 0%, #000000 100%);
 }
 
@@ -220,7 +191,7 @@ label[for] {
 
 .btn-stitch-gold:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 10px 28px -4px rgba(197, 160, 89, 0.45);
+  box-shadow: 0 10px 24px -4px rgba(197, 160, 89, 0.45);
   filter: brightness(1.06);
 }
 
@@ -228,11 +199,50 @@ label[for] {
   transform: translateY(0) scale(0.97);
 }
 
-/* Keyframes */
+/* Keyframe Animations */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
+}
+
+.animate-float {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(197, 160, 89, 0.55);
+  }
+}
+
+.animate-pulseGlow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer-badge {
+  background: linear-gradient(90deg, #c5a059 0%, #fff 50%, #c5a059 100%);
+  background-size: 200% 100%;
+  animation: shimmer 4s infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -241,7 +251,7 @@ label[for] {
 }
 
 .animate-slideUp {
-  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
