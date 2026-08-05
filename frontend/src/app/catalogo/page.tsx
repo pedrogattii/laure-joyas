@@ -7,6 +7,8 @@ import ProductCard from '@/components/ProductCard';
 import { CATEGORIES as MOCK_CATEGORIES, MATERIALS as MOCK_MATERIALS } from '@/lib/mockData';
 import { SearchIcon } from '@/components/icons/SvgIcons';
 import { useSupabaseProducts, useSupabaseCategories, useSupabaseMaterials } from '@/lib/supabaseSync';
+import { sanitizeText } from '@/lib/sanitizer';
+
 
 export default function CatalogPage() {
   const { products } = useSupabaseProducts();
@@ -34,16 +36,20 @@ export default function CatalogPage() {
   const effectiveMax = priceRange[1] || priceBounds.max;
 
   // Filter and Sort Logic
+
   const filteredProducts = products
     .filter((p) => {
       const matchesCategory = selectedCategory === 'ALL' || p.category.id === selectedCategory;
       const matchesMaterial = selectedMaterial === 'ALL' || p.material.id === selectedMaterial;
+      const cleanQuery = sanitizeText(searchQuery).toLowerCase();
       const matchesSearch =
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.code.toLowerCase().includes(searchQuery.toLowerCase());
+        cleanQuery === '' ||
+        p.name.toLowerCase().includes(cleanQuery) ||
+        p.code.toLowerCase().includes(cleanQuery);
       const matchesPrice = p.priceCash >= effectiveMin && p.priceCash <= effectiveMax;
       return matchesCategory && matchesMaterial && matchesSearch && matchesPrice;
     })
+
     .sort((a, b) => {
       if (sortBy === 'PRICE_LOW_HIGH') {
         return a.priceCash - b.priceCash;

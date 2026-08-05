@@ -10,6 +10,8 @@ import Image from 'next/image';
 import { useToast } from '@/context/ToastContext';
 import PaymentSimulatorModal from '@/components/PaymentSimulatorModal';
 import { registerSupabaseSale, updateSupabaseProductStock } from '@/lib/supabaseSync';
+import { sanitizeEmail, sanitizePhone, sanitizeText } from '@/lib/sanitizer';
+
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -35,7 +37,38 @@ export default function CheckoutPage() {
   const currentTotal = formData.paymentMethod === 'cash' ? totalCash : totalList;
 
   const handleFinishPurchase = (e: React.FormEvent) => {
+
     e.preventDefault();
+
+    const cleanFirstName = sanitizeText(formData.firstName);
+    const cleanLastName = sanitizeText(formData.lastName);
+    const cleanEmail = sanitizeEmail(formData.email);
+    const cleanPhone = sanitizePhone(formData.phone);
+
+    if (!cleanFirstName || !cleanLastName) {
+      showToast('Por favor ingresá tu nombre y apellido.', 'error');
+      return;
+    }
+
+    if (!cleanEmail) {
+      showToast('Por favor ingresá un correo electrónico válido.', 'error');
+      return;
+    }
+
+    if (!cleanPhone || cleanPhone.length < 6) {
+      showToast('Por favor ingresá un número de teléfono de contacto válido.', 'error');
+      return;
+    }
+
+    // Update sanitized form state
+    setFormData({
+      ...formData,
+      firstName: cleanFirstName,
+      lastName: cleanLastName,
+      email: cleanEmail,
+      phone: cleanPhone,
+      dni: sanitizeText(formData.dni),
+    });
 
     if (formData.paymentMethod === 'mercadopago' || formData.paymentMethod === 'fiserv') {
       setIsSimulatorOpen(true);
@@ -45,6 +78,7 @@ export default function CheckoutPage() {
     // Cash / Transfer payment
     completeOrder('EFECTIVO', 'CASH-DIRECT');
   };
+
 
   const completeOrder = async (method: string, paymentId: string) => {
     const customerFullName = `${formData.firstName} ${formData.lastName}`.trim();
