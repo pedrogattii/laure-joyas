@@ -11,6 +11,9 @@ import {
   CreditCardIcon,
   ClockIcon,
   WifiOffIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  LogoutIcon,
 } from '@/components/icons/SvgIcons';
 
 interface AdminAppShellProps {
@@ -51,27 +54,25 @@ export default function AdminAppShell({
     {
       id: 'dashboard',
       label: 'Analíticas & Métricas',
-      icon: <ClockIcon className="w-4 h-4 text-gold" />,
+      icon: <ClockIcon className="w-5 h-5 text-gold shrink-0" />,
       action: () => handleNavClick('dashboard'),
       active: activeTab === 'dashboard',
     },
     {
       id: 'pos',
       label: 'Punto de Venta (POS)',
-      icon: <CartIcon className="w-4 h-4 text-gold" />,
+      icon: <CartIcon className="w-5 h-5 text-gold shrink-0" />,
       action: () => handleNavClick('pos'),
       active: activeTab === 'pos',
     },
     {
       id: 'inventory',
       label: 'Inventario & Stock',
-      icon: <GearIcon className="w-4 h-4 text-gold" />,
+      icon: <GearIcon className="w-5 h-5 text-gold shrink-0" />,
       action: () => handleNavClick('inventory'),
       active: activeTab === 'inventory',
     },
   ];
-
-
 
   return (
     <div className="min-h-screen flex bg-[#faf8f5] text-[#1a1918] font-sans antialiased">
@@ -83,30 +84,42 @@ export default function AdminAppShell({
       >
         {/* Sidebar Top / Brand Header */}
         <div>
-          <div className="h-16 px-4 flex items-center justify-between border-b border-white/10">
-            <Link href="/" className="flex items-center gap-3 overflow-hidden cursor-pointer group">
-              <div className="w-9 h-9 rounded-full border border-gold flex items-center justify-center bg-black shrink-0 group-hover:scale-105 transition-transform">
-                <span className="font-serif text-gold font-bold text-base">LJ</span>
-              </div>
-              {isSidebarOpen && (
-                <div className="min-w-0">
-                  <span className="font-serif text-sm font-bold tracking-widest text-white block truncate leading-none">
-                    LAURE JOYAS
-                  </span>
-                  <span className="text-[9px] text-gold uppercase font-bold tracking-widest block mt-1">
-                    SaaS Management
-                  </span>
-                </div>
-              )}
-            </Link>
+          <div className={`h-16 border-b border-white/10 flex items-center ${isSidebarOpen ? 'px-4 justify-between' : 'justify-center px-2'}`}>
+            {isSidebarOpen ? (
+              <>
+                <Link href="/" className="flex items-center gap-3 overflow-hidden cursor-pointer group">
+                  <div className="w-9 h-9 rounded-full border border-gold flex items-center justify-center bg-black shrink-0 group-hover:scale-105 transition-transform">
+                    <span className="font-serif text-gold font-bold text-base">LJ</span>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="font-serif text-sm font-bold tracking-widest text-white block truncate leading-none">
+                      LAURE JOYAS
+                    </span>
+                    <span className="text-[9px] text-gold uppercase font-bold tracking-widest block mt-1">
+                      SaaS Management
+                    </span>
+                  </div>
+                </Link>
 
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-gray-400 hover:text-white p-1 rounded hover:bg-white/10 transition-colors cursor-pointer"
-              title={isSidebarOpen ? 'Colapsar menú' : 'Expandir menú'}
-            >
-              {isSidebarOpen ? '◀' : '▶'}
-            </button>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+                  title="Colapsar menú"
+                  aria-label="Colapsar menú"
+                >
+                  <ChevronLeftIcon className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="w-10 h-10 rounded-full border border-gold flex items-center justify-center bg-black text-gold hover:bg-gold hover:text-black transition-all cursor-pointer shadow-sm"
+                title="Expandir menú lateral"
+                aria-label="Expandir menú lateral"
+              >
+                <ChevronRightIcon className="w-5 h-5" />
+              </button>
+            )}
           </div>
 
           {/* Navigation Links */}
@@ -117,7 +130,10 @@ export default function AdminAppShell({
                 <button
                   key={item.id}
                   onClick={item.action}
-                  className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer text-left ${
+                  title={item.label}
+                  className={`w-full flex items-center ${
+                    isSidebarOpen ? 'gap-3 px-3.5 py-3 text-left' : 'justify-center py-3 px-0'
+                  } rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
                     isActive
                       ? 'bg-gold-gradient text-white shadow-md font-bold'
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
@@ -130,72 +146,89 @@ export default function AdminAppShell({
             })}
           </nav>
 
-
-
           {/* Actions & Utilities Section */}
-          {isSidebarOpen && (
-            <div className="p-3 mt-4 border-t border-white/10 space-y-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-gold/80 px-3 block">
+          <div className="p-3 mt-4 border-t border-white/10 space-y-1.5">
+            {isSidebarOpen && (
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-gold/80 px-3 block mb-1">
                 Operaciones
               </span>
+            )}
 
-              {onOpenCashClosureModal && (
-                <button
-                  onClick={onOpenCashClosureModal}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors text-left cursor-pointer"
-                >
-                  <ClockIcon className="w-4 h-4 text-gold" />
-                  <span>Cierre de Caja Diario</span>
-                </button>
-              )}
-
-              {onOpenUserManagementModal && user?.role === 'ADMIN' && (
-                <button
-                  onClick={onOpenUserManagementModal}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors text-left cursor-pointer"
-                >
-                  <UserIcon className="w-4 h-4 text-gold" />
-                  <span>Gestión de Roles</span>
-                </button>
-              )}
-
-              <Link
-                href="/catalogo"
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors text-left cursor-pointer"
+            {onOpenCashClosureModal && (
+              <button
+                onClick={onOpenCashClosureModal}
+                title="Cierre de Caja Diario"
+                className={`w-full flex items-center ${
+                  isSidebarOpen ? 'gap-2.5 px-3 py-2 text-left' : 'justify-center py-2.5 px-0'
+                } rounded-lg text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer`}
               >
-                <CartIcon className="w-4 h-4 text-gold" />
-                <span>Ver Tienda Pública</span>
-              </Link>
-            </div>
-          )}
+                <ClockIcon className="w-4 h-4 text-gold shrink-0" />
+                {isSidebarOpen && <span>Cierre de Caja Diario</span>}
+              </button>
+            )}
+
+            {onOpenUserManagementModal && user?.role === 'ADMIN' && (
+              <button
+                onClick={onOpenUserManagementModal}
+                title="Gestión de Roles"
+                className={`w-full flex items-center ${
+                  isSidebarOpen ? 'gap-2.5 px-3 py-2 text-left' : 'justify-center py-2.5 px-0'
+                } rounded-lg text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer`}
+              >
+                <UserIcon className="w-4 h-4 text-gold shrink-0" />
+                {isSidebarOpen && <span>Gestión de Roles</span>}
+              </button>
+            )}
+
+            <Link
+              href="/catalogo"
+              title="Ver Tienda Pública"
+              className={`w-full flex items-center ${
+                isSidebarOpen ? 'gap-2.5 px-3 py-2 text-left' : 'justify-center py-2.5 px-0'
+              } rounded-lg text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer`}
+            >
+              <CartIcon className="w-4 h-4 text-gold shrink-0" />
+              {isSidebarOpen && <span>Ver Tienda Pública</span>}
+            </Link>
+          </div>
         </div>
 
         {/* User Status Profile Footer */}
         <div className="p-3 border-t border-white/10 bg-black/40">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gold/20 border border-gold flex items-center justify-center text-gold font-bold text-xs shrink-0">
+          <div className={`flex items-center ${isSidebarOpen ? 'gap-3' : 'flex-col justify-center gap-2'}`}>
+            <div
+              className="w-8 h-8 rounded-full bg-gold/20 border border-gold flex items-center justify-center text-gold font-bold text-xs shrink-0"
+              title={user?.name || 'Usuario'}
+            >
               {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
-            {isSidebarOpen && (
-              <div className="min-w-0 flex-grow">
-                <span className="text-xs font-bold text-white block truncate">
-                  {user?.name || 'Usuario'}
-                </span>
-                <span className="text-[10px] text-gold font-mono font-semibold block uppercase">
-                  {user?.role || 'ADMIN'}
-                </span>
-              </div>
-            )}
-            {isSidebarOpen && (
+            {isSidebarOpen ? (
+              <>
+                <div className="min-w-0 flex-grow">
+                  <span className="text-xs font-bold text-white block truncate">
+                    {user?.name || 'Usuario'}
+                  </span>
+                  <span className="text-[10px] text-gold font-mono font-semibold block uppercase">
+                    {user?.role || 'ADMIN'}
+                  </span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="text-gray-400 hover:text-rose-400 text-xs p-1.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors"
+                  title="Cerrar Sesión"
+                  aria-label="Cerrar Sesión"
+                >
+                  <LogoutIcon className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
               <button
                 onClick={logout}
                 className="text-gray-400 hover:text-rose-400 text-xs p-1.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors"
                 title="Cerrar Sesión"
                 aria-label="Cerrar Sesión"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+                <LogoutIcon className="w-4 h-4" />
               </button>
             )}
           </div>
