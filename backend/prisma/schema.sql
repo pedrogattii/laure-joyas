@@ -157,3 +157,24 @@ CREATE TABLE IF NOT EXISTS "expenses" (
     "receiptUrl" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Tabla Site Banners (Banners Decorativos de la Web en Supabase)
+CREATE TABLE IF NOT EXISTS "site_banners" (
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    "section" TEXT NOT NULL UNIQUE, -- 'hero_banner' | 'alliance_banner' | 'promo_banner'
+    "title" TEXT NOT NULL,
+    "subtitle" TEXT,
+    "imageUrl" TEXT NOT NULL,
+    "buttonText" TEXT,
+    "buttonLink" TEXT,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla Store Settings (Configuración General del Comercio en Supabase)
+CREATE TABLE IF NOT EXISTS "store_settings" (
+    "key" TEXT NOT NULL PRIMARY KEY,
+    "value" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+

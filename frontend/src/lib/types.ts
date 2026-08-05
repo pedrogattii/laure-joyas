@@ -55,3 +55,20 @@ export interface SalesRecord {
   channel?: 'POS' | 'ONLINE'; // Físico (Isla) u Online (Web)
   rawDate?: string; // ISO date string e.g. "2026-08-03T12:00:00.000Z"
 }
+
+export interface SiteBanner {
+  id: string;
+  section: string; // 'hero_banner' | 'alliance_banner' | 'promo_banner'
+  title: string;
+  subtitle?: string;
+  imageUrl: string;
+  buttonText?: string;
+  buttonLink?: string;
+  active?: boolean;
+}
+
+export interface StoreSetting {
+  key: string;
+  value: string;
+}
+

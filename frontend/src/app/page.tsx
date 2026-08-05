@@ -7,10 +7,11 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { MapPinIcon, SparklesIcon } from '@/components/icons/SvgIcons';
-import { useSupabaseProducts } from '@/lib/supabaseSync';
+import { useSupabaseProducts, useSupabaseBanners } from '@/lib/supabaseSync';
 
 export default function HomePage() {
   const { products } = useSupabaseProducts();
+  const { banners } = useSupabaseBanners();
 
   const featuredProducts = products.filter((p) => p.isFeatured || true);
   const offerProducts = products.filter((p) => p.isOffer || true);
@@ -60,13 +61,14 @@ export default function HomePage() {
           <div className="lg:col-span-5 relative flex justify-center">
             <div className="relative w-full max-w-md h-80 sm:h-96 rounded-3xl overflow-hidden shadow-2xl border-2 border-[#c5a059]/40 group">
               <Image
-                src="/images/hero_jewelry.png"
+                src={banners.hero_banner || '/images/hero_jewelry.png'}
                 alt="Laure Joyas Alta Joyería"
                 fill
                 priority
                 className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
 
               {/* Floating Badge */}
               <div className="absolute bottom-6 left-6 right-6 glass-dark p-4 rounded-2xl animate-float">
@@ -243,12 +245,13 @@ export default function HomePage() {
           {/* Dynamic Image Tile */}
           <div className="relative w-full lg:w-96 h-64 sm:h-80 rounded-2xl overflow-hidden shadow-xl border border-white/20 shrink-0 group">
             <Image
-              src="/images/alliances_jewelry.png"
+              src={banners.alliance_banner || '/images/alliances_jewelry.png'}
               alt="Alianzas en Oro y Plata Laure Joyas"
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
             <span className="absolute bottom-4 left-4 text-xs font-serif font-bold text-white tracking-wider">
               Trabajos a Medida &amp; Grabados
             </span>

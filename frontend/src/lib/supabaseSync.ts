@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 import { compressAndConvertToWebP } from './imageOptimizer';
-import type { ProductItem, SalesRecord, Category, Material, ExpenseRecord, ExpenseCategory } from './types';
+import type { ProductItem, SalesRecord, Category, Material, ExpenseRecord, ExpenseCategory, SiteBanner, StoreSetting } from './types';
 import type { CashClosureRecord } from './cashClosureManager';
+
 
 // Store ID for Salsipuedes (Isla 1) - Hardcoded for prototype purposes based on Prisma Seed
 const STORE_ID = 'store-salsipuedes-isla';
@@ -964,4 +965,136 @@ export async function updateSupabaseUserRole(userId: string, newRole: 'ADMIN' | 
     return false;
   }
 }
+
+// Default Fallback Banners when DB table is empty or offline
+const DEFAULT_BANNERS: Record<string, string> = {
+  hero_banner: '/images/hero_jewelry.png',
+  alliance_banner: '/images/alliances_jewelry.png',
+};
+
+export function useSupabaseBanners() {
+  const [banners, setBanners] = useState<Record<string, string>>(DEFAULT_BANNERS);
+  const [loading, setLoading] = useState(true);
+
+  const fetchBanners = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.from('site_banners').select('*');
+      if (error) {
+        console.warn('site_banners table not queried or empty, using defaults:', error.message);
+        return;
+      }
+      if (data && data.length > 0) {
+        const bannerMap: Record<string, string> = { ...DEFAULT_BANNERS };
+        data.forEach((b: SiteBanner) => {
+          if (b.section && b.imageUrl) {
+            bannerMap[b.section] = b.imageUrl;
+          }
+        });
+        setBanners(bannerMap);
+      }
+    } catch (e) {
+      console.error('Unexpected error fetching site_banners:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchBanners();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchBanners]);
+
+  return { banners, loading, fetchBanners };
+}
+
+export function useSupabaseStoreSettings() {
+  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.from('store_settings').select('*');
+      if (error) {
+        console.warn('store_settings table not found, using defaults:', error.message);
+        return;
+      }
+      if (data && data.length > 0) {
+        const settingsMap: Record<string, string> = {};
+        data.forEach((s: StoreSetting) => {
+          if (s.key && s.value) {
+            settingsMap[s.key] = s.value;
+          }
+        });
+        setSettings(settingsMap);
+      }
+    } catch (e) {
+      console.error('Unexpected error fetching store_settings:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchSettings();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchSettings]);
+
+  return { settings, loading, fetchSettings };
+}
+
+export async function uploadBannerImage(file: File): Promise<string | null> {
+  try {
+    const webpFile = await compressAndConvertToWebP(file, { maxWidth: 1600, quality: 0.85 });
+    const fileName = `banner_${Date.now()}.webp`;
+    const filePath = `banners/${fileName}`;
+
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, webpFile, {
+        contentType: 'image/webp',
+        cacheControl: '3600',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error('Error uploading banner to Supabase storage:', uploadError);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return data?.publicUrl || null;
+  } catch (e) {
+    console.error('Unexpected error uploading banner image:', e);
+    return null;
+  }
+}
+
+export async function updateSupabaseBanner(section: string, title: string, imageUrl: string) {
+  try {
+    const { error } = await supabase
+      .from('site_banners')
+      .upsert(
+        { section, title, imageUrl, updatedAt: new Date().toISOString() },
+        { onConflict: 'section' }
+      );
+
+    if (error) {
+      console.error('Error upserting site_banner in Supabase:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Unexpected error upserting site_banner:', e);
+    return false;
+  }
+}
+
 

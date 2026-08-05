@@ -110,9 +110,9 @@
     "semantic_hash": "6f54eb1ac5f0c0c2ae9597fc1a309997"
   },
   "backend/prisma/schema.sql": {
-    "mtime": 1785795725.0650654,
-    "ast_hash": "7227af4b95ffc70f806755a4d96ea50f",
-    "semantic_hash": "7227af4b95ffc70f806755a4d96ea50f"
+    "mtime": 1785931959.3690908,
+    "ast_hash": "913e612c1cc205d04c3de7174d3e29ba",
+    "semantic_hash": ""
   },
   "backend/prisma/seed.js": {
     "mtime": 1785703378.035618,
@@ -305,8 +305,8 @@
     "semantic_hash": ""
   },
   "frontend/src/app/page.tsx": {
-    "mtime": 1785931113.079241,
-    "ast_hash": "12a3df9f07ec7b328a3befdc1d225b77",
+    "mtime": 1785931947.0220344,
+    "ast_hash": "8a8898d37ffdd4948de6577d5d218b20",
     "semantic_hash": ""
   },
   "frontend/src/app/pos/page.tsx": {
@@ -445,14 +445,14 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/supabaseSync.ts": {
-    "mtime": 1785805613.9032018,
-    "ast_hash": "f42204807db8ecb51337bb804c5c874a",
-    "semantic_hash": "f42204807db8ecb51337bb804c5c874a"
+    "mtime": 1785932003.5669234,
+    "ast_hash": "b3b3d81a17b7ed6cdcbfef4f15acc093",
+    "semantic_hash": ""
   },
   "frontend/src/lib/types.ts": {
-    "mtime": 1785765696.3656948,
-    "ast_hash": "50b52efb9cb5de95f55aae875b646abf",
-    "semantic_hash": "50b52efb9cb5de95f55aae875b646abf"
+    "mtime": 1785931886.6149766,
+    "ast_hash": "90826cfdc2f015ebc216f69a43300730",
+    "semantic_hash": ""
   },
   "frontend/tsconfig.json": {
     "mtime": 1785516527.4037666,
