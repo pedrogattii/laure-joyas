@@ -89,19 +89,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
             <button
               onClick={handleToggleWishlist}
-              className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm backdrop-blur-md transition-all active:scale-90 ${
+              className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm backdrop-blur-md transition-all active:scale-90 cursor-pointer ${
                 isFav
-                  ? 'bg-rose-500 text-white'
+                  ? 'bg-rose-500 text-white animate-heartbeat'
                   : 'bg-white/90 text-gray-400 hover:text-rose-500 border border-[#e8e3da]'
               }`}
               title={isFav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
             >
               {isFav ? (
-                <HeartFilledIcon className="w-4 h-4" />
+                <HeartFilledIcon className="w-4 h-4 animate-heartbeat" />
               ) : (
                 <HeartIcon className="w-4 h-4" />
               )}
             </button>
+
           </div>
         </div>
 

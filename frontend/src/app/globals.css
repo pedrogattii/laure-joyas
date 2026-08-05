@@ -69,19 +69,20 @@ h1, h2, h3, h4, h5, h6, .font-serif, .font-heading {
   border: 1px solid rgba(197, 160, 89, 0.3);
 }
 
-/* Modern Elevated Cards (Stripe / Vercel / Linear inspired) */
+/* Modern Elevated Cards with Smooth Hover Effects */
 .stitch-card, .card-elevated {
   background-color: #ffffff;
   border: 1px solid var(--border-light);
   border-radius: 1.25rem;
   box-shadow: 0 4px 20px -4px rgba(26, 25, 24, 0.03), 0 1px 2px rgba(26, 25, 24, 0.02);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
 }
 
 .stitch-card:hover, .card-elevated:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 35px -8px rgba(197, 160, 89, 0.20), 0 4px 16px rgba(26, 25, 24, 0.04);
-  border-color: rgba(197, 160, 89, 0.45);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 35px -8px rgba(197, 160, 89, 0.22), 0 4px 16px rgba(26, 25, 24, 0.04);
+  border-color: rgba(197, 160, 89, 0.5);
 }
 
 /* Luxury Gold & Color Classes */
@@ -130,7 +131,7 @@ textarea {
   border-radius: 9999px;
   padding-left: 1rem;
   padding-right: 1rem;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 input[type="text"]:focus,
@@ -142,7 +143,7 @@ select:focus,
 textarea:focus {
   border-color: var(--accent-gold);
   outline: none;
-  box-shadow: 0 0 0 3.5px rgba(197, 160, 89, 0.20);
+  box-shadow: 0 0 0 3.5px rgba(197, 160, 89, 0.22);
 }
 
 input::placeholder,
@@ -166,13 +167,14 @@ label[for] {
   cursor: pointer !important;
 }
 
-/* Premium Buttons */
+/* Premium Buttons Micro-interactions */
 .btn-stitch-primary {
   background: linear-gradient(135deg, #2d2b29 0%, #1a1918 100%);
   color: #ffffff;
   font-weight: 600;
   border-radius: 9999px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+  will-change: transform;
 }
 
 .btn-stitch-primary:hover {
@@ -186,7 +188,8 @@ label[for] {
   color: #ffffff;
   font-weight: 700;
   border-radius: 9999px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+  will-change: transform;
 }
 
 .btn-stitch-gold:hover {
@@ -196,10 +199,10 @@ label[for] {
 }
 
 .btn-stitch-gold:active, .btn-stitch-primary:active {
-  transform: translateY(0) scale(0.97);
+  transform: translateY(0) scale(0.96);
 }
 
-/* Keyframe Animations */
+/* Modern Keyframe Animations for Iteration 4 */
 @keyframes floatSlow {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
@@ -218,7 +221,7 @@ label[for] {
     box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.4);
   }
   50% {
-    box-shadow: 0 0 20px 5px rgba(197, 160, 89, 0.55);
+    box-shadow: 0 0 22px 6px rgba(197, 160, 89, 0.6);
   }
 }
 
@@ -254,6 +257,32 @@ label[for] {
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.22); }
+  40% { transform: scale(1); }
+  60% { transform: scale(1.15); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -261,4 +290,14 @@ label[for] {
 
 .animate-fadeIn {
   animation: fadeIn 0.25s ease-out;
+}
+
+/* Reduced Motion Respect (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
