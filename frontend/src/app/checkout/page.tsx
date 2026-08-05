@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { useToast } from '@/context/ToastContext';
 import { registerSupabaseSale, updateSupabaseProductStock } from '@/lib/supabaseSync';
 import { sanitizeEmail, sanitizePhone, sanitizeText } from '@/lib/sanitizer';
+import MercadoPagoBrick from '@/components/checkout/MercadoPagoBrick';
 
 
 
@@ -34,9 +35,65 @@ export default function CheckoutPage() {
 
   const currentTotal = formData.paymentMethod === 'cash' ? totalCash : totalList;
 
-  const handleFinishPurchase = (e: React.FormEvent) => {
+  const handleMercadoPagoSubmit = async (mpFormData: any) => {
+    const cleanFirstName = sanitizeText(formData.firstName);
+    const cleanLastName = sanitizeText(formData.lastName);
+    const cleanEmail = sanitizeEmail(formData.email);
+    const cleanPhone = sanitizePhone(formData.phone);
 
+    if (!cleanFirstName || !cleanLastName || !cleanEmail || !cleanPhone) {
+      showToast('Por favor completa todos tus datos personales (Nombre, Apellido, Email, Teléfono) antes de pagar.', 'error');
+      throw new Error('Datos de contacto incompletos');
+    }
+
+    try {
+      const response = await fetch('/api/mercadopago/process-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData: {
+            ...mpFormData,
+            payer: {
+              ...mpFormData.payer,
+              email: cleanEmail,
+              identification: {
+                type: 'DNI',
+                number: sanitizeText(formData.dni) || '12345678',
+              },
+            },
+          },
+          transaction_amount: currentTotal,
+          description: `Compra Laure Joyas - ${cart.length} ítem(s)`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Ocurrió un problema al procesar el pago.');
+      }
+
+      if (data.status === 'approved' || data.status === 'in_process') {
+        showToast(`¡Pago APROBADO por Mercado Pago! ID Transacción: ${data.id}`, 'success');
+        await completeOrder('MERCADO_PAGO', String(data.id));
+      } else {
+        showToast(`El pago fue ${data.status} (${data.status_detail || 'Intenta con otra tarjeta'}).`, 'error');
+        throw new Error(`Estado de pago: ${data.status}`);
+      }
+    } catch (err: any) {
+      console.error('Error procesando pago:', err);
+      showToast(err.message || 'Error al procesar el pago.', 'error');
+      throw err;
+    }
+  };
+
+  const handleFinishPurchase = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.paymentMethod === 'mercadopago') {
+      showToast('Por favor completa los datos de tu tarjeta en el formulario de Mercado Pago a continuación.', 'info');
+      return;
+    }
 
     const cleanFirstName = sanitizeText(formData.firstName);
     const cleanLastName = sanitizeText(formData.lastName);
@@ -69,7 +126,7 @@ export default function CheckoutPage() {
     });
 
     const paymentId = `${formData.paymentMethod.toUpperCase()}-${Math.floor(10000000 + Math.random() * 90000000)}`;
-    const methodTag = formData.paymentMethod === 'cash' ? 'EFECTIVO' : formData.paymentMethod === 'mercadopago' ? 'MERCADO_PAGO' : 'FISERV';
+    const methodTag = formData.paymentMethod === 'cash' ? 'EFECTIVO' : 'FISERV';
 
     completeOrder(methodTag, paymentId);
   };
@@ -204,6 +261,20 @@ export default function CheckoutPage() {
                   <option value="fiserv">Fiserv / POSNET Direct (Hasta 3 cuotas sin interés)</option>
                 </select>
               </div>
+
+              {formData.paymentMethod === 'mercadopago' && (
+                <div className="mt-6 pt-4 border-t border-[#e8e3da]">
+                  <p className="text-xs font-bold text-gray-700 mb-3 font-sans">
+                    Ingresá los datos de tu tarjeta en la pasarela segura de Mercado Pago:
+                  </p>
+                  <MercadoPagoBrick
+                    amount={currentTotal}
+                    payerEmail={formData.email}
+                    payerDni={formData.dni}
+                    onSubmitPayment={handleMercadoPagoSubmit}
+                  />
+                </div>
+              )}
             </section>
 
           </form>
