@@ -54,21 +54,21 @@ export default function AdminAppShell({
     {
       id: 'dashboard',
       label: 'Analíticas & Métricas',
-      icon: <ClockIcon className="w-5 h-5 text-gold shrink-0" />,
+      icon: <ClockIcon className="w-5 h-5 shrink-0" />,
       action: () => handleNavClick('dashboard'),
       active: activeTab === 'dashboard',
     },
     {
       id: 'pos',
       label: 'Punto de Venta (POS)',
-      icon: <CartIcon className="w-5 h-5 text-gold shrink-0" />,
+      icon: <CartIcon className="w-5 h-5 shrink-0" />,
       action: () => handleNavClick('pos'),
       active: activeTab === 'pos',
     },
     {
       id: 'inventory',
       label: 'Inventario & Stock',
-      icon: <GearIcon className="w-5 h-5 text-gold shrink-0" />,
+      icon: <GearIcon className="w-5 h-5 shrink-0" />,
       action: () => handleNavClick('inventory'),
       active: activeTab === 'inventory',
     },
@@ -135,16 +135,19 @@ export default function AdminAppShell({
                     isSidebarOpen ? 'gap-3 px-3.5 py-3 text-left' : 'justify-center py-3 px-0'
                   } rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-gold-gradient text-white shadow-md font-bold'
+                      ? 'bg-gold-gradient text-[#0d0d0c] shadow-md font-extrabold'
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <span className="shrink-0">{item.icon}</span>
+                  <span className={`shrink-0 transition-colors ${isActive ? 'text-[#0d0d0c]' : 'text-gold'}`}>
+                    {item.icon}
+                  </span>
                   {isSidebarOpen && <span className="truncate">{item.label}</span>}
                 </button>
               );
             })}
           </nav>
+
 
           {/* Actions & Utilities Section */}
           <div className="p-3 mt-4 border-t border-white/10 space-y-1.5">

@@ -1135,8 +1135,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/admin/AdminAppShell.tsx": {
-    "mtime": 1785930067.5298038,
-    "ast_hash": "63a2555bcdfa74920fb64131394b3262",
+    "mtime": 1785930199.6913216,
+    "ast_hash": "c656e26e68a7646b3693ff283c1fa12e",
     "semantic_hash": ""
   },
   "frontend/src/components/ui/Badge.tsx": {
