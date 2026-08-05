@@ -18,30 +18,31 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Banner */}
-      <section className="bg-[#121212] text-white py-16 px-4 sm:px-6 lg:px-8 border-b border-[#2a2a2a] relative overflow-hidden">
+      <section className="bg-gradient-to-b from-[#1a1918] to-[#242220] text-white py-20 px-4 sm:px-6 lg:px-8 border-b border-[#33312e] relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#c5a059_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <span className="text-[#c5a059] text-xs font-semibold tracking-widest uppercase mb-3 block">
+          <span className="badge-gold text-xs tracking-widest uppercase mb-4 inline-block px-4 py-1.5 rounded-full">
             Joyería &amp; Orfebrería • Salsipuedes, Córdoba
           </span>
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-white">
+          <h1 className="font-serif text-4xl sm:text-6xl font-bold tracking-tight mb-5 text-white leading-tight">
             Elegancia en Plata 925 &amp; Oro 18kts
           </h1>
-          <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto mb-8 font-light leading-relaxed">
-            Descubrí nuestras piezas exclusivas. Nos encontrás en <strong>Super Mami N°4 Salsipuedes (Isla 1)</strong>. Aprovechá nuestros descuentos especiales en pago contado por transferencia o efectivo.
+          <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto mb-10 font-sans font-light leading-relaxed">
+            Descubrí nuestras piezas exclusivas. Nos encontrás en <strong className="text-gold font-semibold">Super Mami N°4 Salsipuedes (Isla 1)</strong>. Aprovechá nuestros descuentos especiales en pago contado por transferencia o efectivo.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/catalogo"
-              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-widest px-8 py-3.5 rounded shadow-lg transition-transform hover:scale-105"
+              className="btn-stitch-gold text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-full shadow-lg"
             >
               Ver Catálogo Completo
             </Link>
             <Link
               href="/donde-encontrarnos"
-              className="bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-200 font-semibold text-xs uppercase tracking-widest px-6 py-3.5 rounded border border-[#444] transition-colors flex items-center gap-2"
+              className="bg-white/10 hover:bg-white/20 text-white font-semibold text-xs uppercase tracking-widest px-7 py-4 rounded-full border border-white/20 backdrop-blur-sm transition-all flex items-center gap-2.5 shadow-sm"
             >
-              <MapPinIcon className="w-4 h-4 text-[#c5a059]" />
+              <MapPinIcon className="w-4 h-4 text-gold" />
               <span>Cómo Llegar &amp; Retiros</span>
             </Link>
           </div>
@@ -49,28 +50,28 @@ export default function HomePage() {
       </section>
 
       {/* Main Home Sections */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full space-y-16">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex-grow w-full space-y-20">
         {/* Section 1: Special Offers */}
         {offerProducts.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
+            <div className="flex items-end justify-between mb-10 border-b border-[#e8e3da] pb-5">
               <div>
-                <span className="text-xs font-bold text-rose-600 uppercase tracking-widest block mb-1">
+                <span className="text-xs font-extrabold text-rose-500 uppercase tracking-widest block mb-1 font-sans">
                   Oportunidades del Mes
                 </span>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900">
+                <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1a1918]">
                   Ofertas Especiales
                 </h2>
               </div>
               <Link
                 href="/catalogo"
-                className="text-xs font-bold text-[#c5a059] hover:underline uppercase tracking-wider"
+                className="text-xs font-bold text-gold hover:text-[#9e7d37] uppercase tracking-wider transition-colors font-sans"
               >
-                Ver Todas
+                Ver Todas &rarr;
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
               {offerProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -83,24 +84,24 @@ export default function HomePage() {
 
         {/* Section 2: Featured Products */}
         <section>
-          <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
+          <div className="flex items-end justify-between mb-10 border-b border-[#e8e3da] pb-5">
             <div>
-              <span className="text-xs font-bold text-[#c5a059] uppercase tracking-widest block mb-1">
+              <span className="text-xs font-extrabold text-gold uppercase tracking-widest block mb-1 font-sans">
                 Selección Exclusiva
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900">
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1a1918]">
                 Productos Destacados
               </h2>
             </div>
             <Link
               href="/catalogo"
-              className="text-xs font-bold text-[#c5a059] hover:underline uppercase tracking-wider"
+              className="text-xs font-bold text-gold hover:text-[#9e7d37] uppercase tracking-wider transition-colors font-sans"
             >
-              Ir al Catálogo
+              Ir al Catálogo &rarr;
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
             {featuredProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -111,23 +112,24 @@ export default function HomePage() {
         </section>
 
         {/* Informative Banner */}
-        <section className="bg-[#121212] text-white rounded-2xl p-8 sm:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 border border-[#2a2a2a]">
-          <div className="max-w-xl">
-            <span className="text-xs text-[#c5a059] font-bold uppercase tracking-widest block mb-2">
+        <section className="bg-gradient-to-r from-[#1a1918] to-[#2b2825] text-white rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 border border-[#c5a059]/30 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#c5a059]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-xl relative z-10">
+            <span className="badge-gold text-xs font-bold uppercase tracking-widest block mb-3 px-3 py-1 rounded-full w-fit">
               Atención Personalizada en Salsipuedes
             </span>
-            <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-3">
+            <h3 className="font-serif text-2xl sm:text-4xl font-bold mb-3 text-white leading-tight">
               ¿Buscás un regalo especial o alianzas a medida?
             </h3>
-            <p className="text-gray-300 text-xs sm:text-sm font-light leading-relaxed">
-              En nuestra isla del Super Mami N°4 podés retirar tus compras online sin costo o encargar trabajos a medida en nuestro taller.
+            <p className="text-gray-300 text-xs sm:text-sm font-sans font-light leading-relaxed">
+              En nuestra isla del Super Mami N°4 podés retirar tus compras online sin costo o encargar trabajos a medida en nuestro taller de orfebrería.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto relative z-10 shrink-0">
             <Link
               href="/donde-encontrarnos"
-              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded text-center shadow"
+              className="btn-stitch-gold text-white font-bold text-xs uppercase tracking-wider px-7 py-4 rounded-full text-center shadow-lg"
             >
               Ver Ubicación &amp; Horarios
             </Link>
@@ -139,3 +141,4 @@ export default function HomePage() {
     </div>
   );
 }
+

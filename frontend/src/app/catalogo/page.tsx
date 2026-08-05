@@ -70,53 +70,53 @@ export default function CatalogPage() {
       <Header />
 
       {/* Header Banner */}
-      <div className="bg-[#121212] text-white py-10 px-4 border-b border-[#2a2a2a]">
+      <div className="bg-gradient-to-r from-[#1a1918] to-[#252321] text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-[#33312e]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-semibold text-[#c5a059] uppercase tracking-widest block mb-1">
+            <span className="badge-gold text-xs font-semibold tracking-widest uppercase mb-2 inline-block px-3 py-1 rounded-full">
               Catálogo General
             </span>
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+            <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white">
               Todas nuestras Joyas
             </h1>
           </div>
-          <span className="text-xs text-gray-400">
-            Mostrando {filteredProducts.length} productos disponibles
+          <span className="text-xs text-gray-300 font-sans bg-white/10 px-4 py-2 rounded-full border border-white/10 w-fit">
+            Mostrando <strong className="text-gold font-bold">{filteredProducts.length}</strong> productos disponibles
           </span>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
         {/* Filter and Sorting Control Bar */}
-        <div className="bg-white p-6 rounded-lg border border-[#e5e0d8] shadow-sm mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="stitch-card p-6 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
             {/* Search */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 font-sans">
                 Buscador:
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Nombre o código SKU..."
+                  placeholder="Nombre o SKU..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none"
+                  className="w-full pl-9 pr-3 py-2.5 text-xs font-sans border border-[#e8e3da] rounded-full focus:ring-2 focus:ring-gold focus:outline-none"
                 />
-                <SearchIcon className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                <SearchIcon className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
               </div>
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 font-sans">
                 Categoría:
               </label>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none bg-white"
+                className="w-full px-3.5 py-2.5 text-xs font-sans border border-[#e8e3da] rounded-full focus:ring-2 focus:ring-gold focus:outline-none bg-white cursor-pointer"
               >
                 <option value="ALL">Todas las Categorías</option>
                 {categoriesList.map((cat) => (
@@ -129,13 +129,13 @@ export default function CatalogPage() {
 
             {/* Material */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 font-sans">
                 Material:
               </label>
               <select
                 value={selectedMaterial}
                 onChange={(e) => setSelectedMaterial(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none bg-white"
+                className="w-full px-3.5 py-2.5 text-xs font-sans border border-[#e8e3da] rounded-full focus:ring-2 focus:ring-gold focus:outline-none bg-white cursor-pointer"
               >
                 <option value="ALL">Todos los Materiales</option>
                 {materialsList.map((mat) => (
@@ -148,8 +148,8 @@ export default function CatalogPage() {
 
             {/* Price Range */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                Precio Contado (hasta):
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 font-sans">
+                Precio Contado:
               </label>
               <div className="space-y-1">
                 <input
@@ -159,11 +159,11 @@ export default function CatalogPage() {
                   step={1000}
                   value={effectiveMax}
                   onChange={(e) => setPriceRange([effectiveMin, parseInt(e.target.value)])}
-                  className="w-full accent-[#c5a059]"
+                  className="w-full accent-gold"
                 />
-                <div className="flex justify-between text-[10px] text-gray-500 font-mono">
+                <div className="flex justify-between text-[10px] text-gray-500 font-numeric">
                   <span>${priceBounds.min.toLocaleString('es-AR')}</span>
-                  <span className="font-bold text-[#c5a059] text-xs">
+                  <span className="font-bold text-gold text-xs">
                     Hasta ${effectiveMax.toLocaleString('es-AR')}
                   </span>
                 </div>
@@ -172,13 +172,13 @@ export default function CatalogPage() {
 
             {/* Sort By Price */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 font-sans">
                 Ordenar por:
               </label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#c5a059] focus:outline-none bg-[#fcf8f0] font-semibold text-gray-800"
+                className="w-full px-3.5 py-2.5 text-xs border border-[#e8e3da] rounded-full focus:ring-2 focus:ring-gold focus:outline-none bg-[#fdf9f0] font-semibold text-gray-800 cursor-pointer"
               >
                 <option value="DEFAULT">Relevancia / Novedades</option>
                 <option value="PRICE_LOW_HIGH">Precio: Menor a Mayor</option>
@@ -191,7 +191,7 @@ export default function CatalogPage() {
 
         {/* Product Grid */}
         {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -200,13 +200,13 @@ export default function CatalogPage() {
             ))}
           </div>
         ) : (
-          <div className="bg-white p-12 rounded-lg border border-[#e5e0d8] text-center max-w-md mx-auto my-12">
-            <SearchIcon className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-            <h3 className="font-serif text-lg font-bold text-gray-800 mb-1">No hay resultados</h3>
-            <p className="text-xs text-gray-500 mb-4">No encontramos joyas que coincidan con los filtros seleccionados.</p>
+          <div className="stitch-card p-12 text-center max-w-md mx-auto my-12">
+            <SearchIcon className="w-10 h-10 text-gold mx-auto mb-3" />
+            <h3 className="font-serif text-xl font-bold text-gray-800 mb-1">No hay resultados</h3>
+            <p className="text-xs text-gray-500 mb-5 font-sans">No encontramos joyas que coincidan con los filtros seleccionados.</p>
             <button
               onClick={handleResetFilters}
-              className="bg-[#c5a059] hover:bg-[#a8843e] text-black font-semibold text-xs uppercase px-5 py-2.5 rounded btn-animate cursor-pointer shadow"
+              className="btn-stitch-gold text-white font-semibold text-xs uppercase tracking-wider px-6 py-3 rounded-full cursor-pointer shadow-sm"
             >
               Restablecer Filtros
             </button>
@@ -218,3 +218,4 @@ export default function CatalogPage() {
     </div>
   );
 }
+

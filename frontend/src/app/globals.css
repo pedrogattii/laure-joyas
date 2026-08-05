@@ -2,35 +2,89 @@
 
 :root {
   --background: #faf8f5;
-  --foreground: #1a1a1a;
+  --foreground: #1a1918;
   --accent-gold: #c5a059;
-  --accent-gold-dark: #a8843e;
+  --accent-gold-dark: #9e7d37;
+  --accent-gold-light: #f5ecda;
   --card-bg: #ffffff;
-  --border-light: #e5e0d8;
+  --border-light: #e8e3da;
+  --surface-warm: #fcfbf9;
 }
 
 @theme inline {
-  --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-  --font-sans: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-  --font-mono: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-serif: var(--font-playfair), var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-sans: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-inter), monospace;
   --font-numeric: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
 }
 
-/* Elegant Luxury Numeric & Universal Typography: Cormorant Garamond */
-.font-mono,
-.font-numeric,
-.font-serif,
-.font-sans {
-  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif !important;
-}
-
+/* Elegant Google Stitch Typography Hierarchy */
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif !important;
+  font-family: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
 }
 
-/* Explicit input text visibility and contrast */
+h1, h2, h3, h4, h5, h6, .font-serif, .font-heading {
+  font-family: var(--font-playfair), var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-ui {
+  font-family: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+}
+
+.font-numeric {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+}
+
+/* Glassmorphic Header & Surfaces */
+.glass-stitch {
+  background: rgba(253, 251, 248, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(232, 227, 218, 0.75);
+}
+
+/* Stitch Card Elevation & Lift */
+.stitch-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 20px -4px rgba(26, 25, 24, 0.03);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stitch-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -8px rgba(197, 160, 89, 0.18), 0 4px 12px rgba(26, 25, 24, 0.04);
+  border-color: rgba(197, 160, 89, 0.4);
+}
+
+/* Luxury Gold Palette Classes */
+.text-gold {
+  color: var(--accent-gold);
+}
+
+.bg-gold {
+  background-color: var(--accent-gold);
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 50%, #9e7d37 100%);
+}
+
+.border-gold {
+  border-color: var(--accent-gold);
+}
+
+.badge-gold {
+  background: linear-gradient(135deg, #fdf9f0 0%, #f5ecda 100%);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  color: #8a6b29;
+  font-weight: 600;
+}
+
+/* Inputs & Form Controls Polish */
 input[type="text"],
 input[type="number"],
 input[type="email"],
@@ -40,6 +94,21 @@ select,
 textarea {
   color: #111827 !important;
   background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent-gold);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
 }
 
 input::placeholder,
@@ -48,27 +117,7 @@ textarea::placeholder {
   opacity: 1;
 }
 
-h1, h2, h3, h4, .font-serif {
-  font-family: var(--font-playfair), 'Georgia', serif;
-}
-
-.text-gold {
-  color: var(--accent-gold);
-}
-
-.bg-gold {
-  background-color: var(--accent-gold);
-}
-
-.border-gold {
-  border-color: var(--accent-gold);
-}
-
-.shadow-luxury {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-}
-
-/* Global Clickable Elements Cursor Pointer Rule */
+/* Cursor Pointer Standard */
 button,
 a,
 select,
@@ -83,43 +132,40 @@ label[for] {
   cursor: pointer !important;
 }
 
-/* Custom Cursor & Interactive Polish for Inputs/Selects */
-select, input[type="range"] {
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-select:hover {
-  border-color: var(--accent-gold);
-}
-
-/* Luxury Card Hover Animation */
-.hover-luxury-lift {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
-}
-
-.hover-luxury-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px -12px rgba(197, 160, 89, 0.28);
-}
-
-/* Unified Button Micro-Interactions */
-.btn-animate {
+/* Buttons Micro-Interactions */
+.btn-stitch-primary {
+  background: linear-gradient(135deg, #2d2b29 0%, #1a1918 100%);
+  color: #ffffff;
+  font-weight: 500;
+  border-radius: 9999px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  user-select: none;
 }
 
-.btn-animate:hover {
+.btn-stitch-primary:hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(26, 25, 24, 0.3);
+  background: linear-gradient(135deg, #1a1918 0%, #000000 100%);
+}
+
+.btn-stitch-gold {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 50%, #9e7d37 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-stitch-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(197, 160, 89, 0.4);
   filter: brightness(1.05);
 }
 
-.btn-animate:active {
+.btn-stitch-gold:active, .btn-stitch-primary:active {
   transform: translateY(0) scale(0.97);
-  filter: brightness(0.95);
 }
 
-/* WhatsApp Pulse & Hover Glow */
+/* WhatsApp Glow */
 .btn-whatsapp {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -129,11 +175,7 @@ select:hover {
   box-shadow: 0 8px 24px -4px rgba(37, 211, 102, 0.4);
 }
 
-.btn-whatsapp:active {
-  transform: translateY(0) scale(0.97);
-}
-
-/* Toast slide-up animation */
+/* Keyframes */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -149,7 +191,6 @@ select:hover {
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Fade-in for modals */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -158,4 +199,3 @@ select:hover {
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out;
 }
-
