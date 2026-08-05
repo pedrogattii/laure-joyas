@@ -152,6 +152,21 @@ textarea::placeholder {
   opacity: 1;
 }
 
+/* Accessibility & Focus Order (WCAG 2.1 AA) */
+*:focus-visible {
+  outline: 2px solid var(--accent-gold) !important;
+  outline-offset: 2px !important;
+}
+
+/* Touch Target Minimum Dimensions (WCAG 2.5.5 - 44x44 CSS px) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Cursor Pointer Standard */
 button,
 a,
@@ -166,6 +181,7 @@ input[type="range"],
 label[for] {
   cursor: pointer !important;
 }
+
 
 /* Premium Buttons Micro-interactions */
 .btn-stitch-primary {

@@ -78,10 +78,11 @@ export default function Header() {
             {/* Wishlist Button */}
             <Link
               href="/favoritos"
-              className="relative bg-white hover:bg-[#fcfbf9] text-gray-700 hover:text-rose-500 border border-[#e8e3da] hover:border-rose-300 px-3 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer group active:scale-95"
+              className="relative bg-white hover:bg-[#fcfbf9] text-gray-700 hover:text-rose-500 border border-[#e8e3da] hover:border-rose-300 px-3.5 py-2.5 min-h-[44px] rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer group active:scale-95"
               title="Mis Favoritos"
+              aria-label={`Mis Favoritos (${wishlistCount} ítems)`}
             >
-              <HeartIcon className="w-4 h-4 text-rose-500 group-hover:scale-110 transition-transform" />
+              <HeartIcon className="w-4 h-4 text-rose-500 group-hover:scale-110 transition-transform" aria-hidden="true" />
               <span className="hidden sm:inline transition-colors font-sans">Favoritos</span>
               {wishlistCount > 0 && (
                 <span className="bg-rose-500 text-white font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow">
@@ -93,10 +94,11 @@ export default function Header() {
             {/* Cart Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="bg-white hover:bg-[#fcfbf9] text-gray-800 hover:text-gold border border-[#e8e3da] hover:border-[#c5a059]/50 px-3.5 py-2 rounded-full text-xs font-semibold flex items-center gap-2 transition-all shadow-sm cursor-pointer group active:scale-95"
+              className="bg-white hover:bg-[#fcfbf9] text-gray-800 hover:text-gold border border-[#e8e3da] hover:border-[#c5a059]/50 px-4 py-2.5 min-h-[44px] rounded-full text-xs font-semibold flex items-center gap-2 transition-all shadow-sm cursor-pointer group active:scale-95"
               title="Ver Carrito de Compras"
+              aria-label={`Ver Carrito de Compras (${itemCount} productos)`}
             >
-              <CartIcon className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" />
+              <CartIcon className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" aria-hidden="true" />
               <span className="hidden sm:inline transition-colors font-sans">Carrito</span>
               {itemCount > 0 && (
                 <span className="bg-gold-gradient text-white font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center ml-0.5 shadow">
@@ -108,12 +110,14 @@ export default function Header() {
             {/* Login / User Status Button */}
             <Link
               href="/login"
-              className="text-xs text-gray-700 hover:text-gold hover:bg-[#fcfbf9] px-3.5 py-2 rounded-full bg-white border border-[#e8e3da] hover:border-[#c5a059]/50 flex items-center gap-2 transition-all shadow-sm cursor-pointer group active:scale-95"
+              className="text-xs text-gray-700 hover:text-gold hover:bg-[#fcfbf9] px-4 py-2.5 min-h-[44px] rounded-full bg-white border border-[#e8e3da] hover:border-[#c5a059]/50 flex items-center gap-2 transition-all shadow-sm cursor-pointer group active:scale-95"
               title="Iniciar Sesión"
+              aria-label="Cuenta de usuario e inicio de sesión"
             >
-              <UserIcon className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" />
+              <UserIcon className="w-4 h-4 text-gold group-hover:scale-110 transition-transform" aria-hidden="true" />
               <span className="hidden md:inline transition-colors font-sans">{mounted && user ? user.name.split(' ')[0] : 'Ingresar'}</span>
             </Link>
+
 
             {/* Admin / Stock Button - Visible strictly for authorized ADMIN or EMPLOYEE */}
             {mounted && user && (user.role === 'ADMIN' || user.role === 'EMPLOYEE') && (
