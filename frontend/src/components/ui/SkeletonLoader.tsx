@@ -49,3 +49,17 @@ export function TableRowSkeleton() {
     </div>
   );
 }
+
+export function KpiStatSkeleton() {
+  return (
+    <div className="stitch-card p-5 space-y-3 animate-pulse">
+      <div className="flex justify-between items-center">
+        <Skeleton className="w-24 h-4 rounded" />
+        <Skeleton className="w-8 h-8 rounded-xl shrink-0" />
+      </div>
+      <Skeleton className="w-36 h-8 rounded-lg" />
+      <Skeleton className="w-28 h-3 rounded" />
+    </div>
+  );
+}
+

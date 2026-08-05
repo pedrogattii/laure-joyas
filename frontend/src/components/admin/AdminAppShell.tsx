@@ -51,25 +51,26 @@ export default function AdminAppShell({
     {
       id: 'dashboard',
       label: 'Analíticas & Métricas',
-      icon: '📊',
+      icon: <ClockIcon className="w-4 h-4 text-gold" />,
       action: () => handleNavClick('dashboard'),
       active: activeTab === 'dashboard',
     },
     {
       id: 'pos',
       label: 'Punto de Venta (POS)',
-      icon: '🛒',
+      icon: <CartIcon className="w-4 h-4 text-gold" />,
       action: () => handleNavClick('pos'),
       active: activeTab === 'pos',
     },
     {
       id: 'inventory',
       label: 'Inventario & Stock',
-      icon: '📦',
+      icon: <GearIcon className="w-4 h-4 text-gold" />,
       action: () => handleNavClick('inventory'),
       active: activeTab === 'inventory',
     },
   ];
+
 
 
   return (
@@ -122,12 +123,13 @@ export default function AdminAppShell({
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <span className="text-base leading-none">{item.icon}</span>
+                  <span className="shrink-0">{item.icon}</span>
                   {isSidebarOpen && <span className="truncate">{item.label}</span>}
                 </button>
               );
             })}
           </nav>
+
 
 
           {/* Actions & Utilities Section */}
@@ -187,10 +189,13 @@ export default function AdminAppShell({
             {isSidebarOpen && (
               <button
                 onClick={logout}
-                className="text-gray-400 hover:text-rose-400 text-xs p-1 cursor-pointer transition-colors"
+                className="text-gray-400 hover:text-rose-400 text-xs p-1.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors"
                 title="Cerrar Sesión"
+                aria-label="Cerrar Sesión"
               >
-                🚪
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
               </button>
             )}
           </div>

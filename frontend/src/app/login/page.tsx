@@ -56,18 +56,19 @@ export default function LoginPage() {
     try {
       const { error } = await signInWithGoogle();
       if (error) {
-        showToast('✓ Sesión iniciada con Google. ¡Bienvenido/a!', 'success');
+        showToast('Sesión iniciada con Google. ¡Bienvenido/a!', 'success');
         loginAs('CUSTOMER');
         router.push('/');
       }
     } catch {
-      showToast('✓ Sesión iniciada con Google. ¡Bienvenido/a!', 'success');
+      showToast('Sesión iniciada con Google. ¡Bienvenido/a!', 'success');
       loginAs('CUSTOMER');
       router.push('/');
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
 

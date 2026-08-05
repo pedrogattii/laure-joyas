@@ -97,9 +97,11 @@ export default function PaymentSimulatorModal({
           <div className="bg-[#009ee3] text-white p-4 sm:p-5 relative shadow-md">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {/* Handshake Logo */}
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl shadow-inner">
-                  🤝
+                {/* Handshake / MP Shield Icon */}
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0 shadow-inner">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
@@ -109,7 +111,7 @@ export default function PaymentSimulatorModal({
                     </span>
                   </div>
                   <span className="text-[11px] text-white/90 font-medium block">
-                    🔒 Pago 100% Protegido con SSL de Mercado Pago
+                    Pago Protegido con SSL de Mercado Pago
                   </span>
                 </div>
               </div>
@@ -140,7 +142,7 @@ export default function PaymentSimulatorModal({
           /* FISERV HEADER */
           <div className="bg-[#121212] text-white p-4 flex items-center justify-between border-b border-[#2a2a2a]">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm">💳 Fiserv / POSNET Direct (Checkout Sandbox)</span>
+              <span className="font-bold text-sm">Fiserv / POSNET Direct (Checkout Sandbox)</span>
             </div>
             <button onClick={onClose} className="text-gray-400 hover:text-white font-bold text-sm">✕</button>
           </div>
@@ -149,8 +151,10 @@ export default function PaymentSimulatorModal({
         {/* SUCCESS SCREEN */}
         {isSuccessScreen ? (
           <div className="p-8 text-center space-y-4 animate-fadeIn">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-3xl shadow">
-              ✓
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow">
+              <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
             </div>
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-gray-900">¡Listo! Se acreditó tu pago</h3>
@@ -189,7 +193,7 @@ export default function PaymentSimulatorModal({
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  💳 Tarjeta de Crédito / Débito
+                  Tarjeta Crédito/Débito
                 </button>
                 <button
                   type="button"
@@ -200,7 +204,7 @@ export default function PaymentSimulatorModal({
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  💙 Dinero en Cuenta MP
+                  Dinero en Cuenta MP
                 </button>
                 <button
                   type="button"
@@ -211,7 +215,7 @@ export default function PaymentSimulatorModal({
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  📱 QR / Rapipago
+                  QR / Rapipago
                 </button>
               </div>
             )}
@@ -222,9 +226,7 @@ export default function PaymentSimulatorModal({
                 {/* Selector de Tarjeta de Prueba de Mercado Pago */}
                 <div className="bg-sky-50 border border-sky-200 p-3 rounded-xl space-y-2 text-xs">
                   <div className="flex items-center justify-between text-sky-900 font-bold">
-                    <span className="flex items-center gap-1.5">
-                      <span>🧪</span> Tarjetas de Prueba de Mercado Pago:
-                    </span>
+                    <span>Tarjetas de Prueba de Mercado Pago:</span>
                   </div>
                   <div className="grid grid-cols-3 gap-1.5">
                     <button
@@ -236,7 +238,7 @@ export default function PaymentSimulatorModal({
                           : 'bg-white text-gray-700 border border-gray-300'
                       }`}
                     >
-                      ✓ Aprobada
+                      Aprobada
                     </button>
                     <button
                       type="button"
@@ -340,7 +342,7 @@ export default function PaymentSimulatorModal({
 
                 {errorMessage && (
                   <div className="bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-xs font-bold animate-fadeIn">
-                    ⚠️ {errorMessage}
+                    {errorMessage}
                   </div>
                 )}
 
@@ -370,8 +372,8 @@ export default function PaymentSimulatorModal({
               <form onSubmit={handleProcessPayment} className="space-y-4">
                 <div className="bg-sky-50 border border-sky-200 p-4 rounded-xl space-y-2 text-xs">
                   <div className="flex items-center justify-between font-bold text-sky-900">
-                    <span className="flex items-center gap-2 text-sm">
-                      <span>💙</span> Saldo disponible en tu cuenta de Mercado Pago
+                    <span className="text-sm">
+                      Saldo disponible en tu cuenta de Mercado Pago
                     </span>
                   </div>
                   <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-sky-200">
@@ -404,8 +406,7 @@ export default function PaymentSimulatorModal({
                   <div className="w-40 h-40 bg-white p-2 border-2 border-[#009ee3] rounded-xl mx-auto flex items-center justify-center shadow-md">
                     {/* Simulated QR Code */}
                     <div className="w-full h-full bg-gray-900 rounded-lg flex flex-col items-center justify-center text-white text-[10px] font-mono p-2">
-                      <span className="text-2xl mb-1">📱</span>
-                      <span>QR MERCADO PAGO</span>
+                      <span className="text-sm font-bold">QR CODE</span>
                       <span className="text-[8px] text-sky-400 mt-1">MP-TEST-{totalAmount}</span>
                     </div>
                   </div>
@@ -427,3 +428,4 @@ export default function PaymentSimulatorModal({
     </div>
   );
 }
+

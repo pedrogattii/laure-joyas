@@ -180,11 +180,11 @@ export default function AnalyticsDashboard({
           <select
             value={selectedMonthKey}
             onChange={(e) => setSelectedMonthKey(e.target.value)}
-            className="bg-[#1a1a1a] border border-[#c5a059]/60 text-white font-bold text-xs px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+            className="bg-[#1a1918] border border-gold/60 text-white font-bold text-xs px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold cursor-pointer"
           >
             {availableMonths.map((m) => (
               <option key={m.key} value={m.key}>
-                📅 {m.label} ({m.key})
+                {m.label} ({m.key})
               </option>
             ))}
           </select>
@@ -192,7 +192,7 @@ export default function AnalyticsDashboard({
           {/* Registrar Gasto button */}
           <button
             onClick={() => setIsExpenseModalOpen(true)}
-            className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase px-4 py-2 rounded-xl shadow flex items-center gap-1.5 transition-all"
+            className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <PlusIcon className="w-4 h-4 text-white" />
             <span>Cargar Egreso</span>
@@ -201,9 +201,9 @@ export default function AnalyticsDashboard({
           {/* Descargar Informe button */}
           <button
             onClick={() => setIsReportModalOpen(true)}
-            className="bg-[#c5a059] hover:bg-[#b08d48] text-black font-bold text-xs uppercase px-4 py-2 rounded-xl shadow flex items-center gap-1.5 transition-all"
+            className="btn-stitch-gold text-white font-bold text-xs uppercase px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <span>📄 Informe / Exportar</span>
+            <span>Informe / Exportar</span>
           </button>
         </div>
       </div>
@@ -273,7 +273,7 @@ export default function AnalyticsDashboard({
             ${netBalance.toLocaleString('es-AR')}
           </span>
           <span className="text-[11px] font-bold text-emerald-700 block mt-3 border-t border-gray-100 pt-2">
-            {netBalance >= 0 ? '✓ Utilidad operativa positiva' : '⚠️ Balance en déficit'}
+            {netBalance >= 0 ? 'Utilidad operativa positiva' : 'Balance en déficit'}
           </span>
         </div>
 
@@ -309,7 +309,7 @@ export default function AnalyticsDashboard({
           </div>
           <button
             onClick={() => setIsExpenseModalOpen(true)}
-            className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 font-bold px-3 py-1.5 rounded-lg flex items-center gap-1"
+            className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer"
           >
             <PlusIcon className="w-3.5 h-3.5" />
             <span>Nuevo Egreso</span>
@@ -318,28 +318,28 @@ export default function AnalyticsDashboard({
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           <div className="bg-[#fbf9f5] p-4 rounded-xl border border-[#ede7dc]">
-            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">🏬 Proveedores</span>
+            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">Proveedores</span>
             <span className="font-mono font-extrabold text-lg text-gray-900 block">
               ${expensesByCategory.PROVEEDOR.toLocaleString('es-AR')}
             </span>
           </div>
 
           <div className="bg-[#fbf9f5] p-4 rounded-xl border border-[#ede7dc]">
-            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">👥 Sueldos</span>
+            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">Sueldos</span>
             <span className="font-mono font-extrabold text-lg text-gray-900 block">
               ${expensesByCategory.SUELDO.toLocaleString('es-AR')}
             </span>
           </div>
 
           <div className="bg-[#fbf9f5] p-4 rounded-xl border border-[#ede7dc]">
-            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">🏠 Alquiler</span>
+            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">Alquiler</span>
             <span className="font-mono font-extrabold text-lg text-gray-900 block">
               ${expensesByCategory.ALQUILER.toLocaleString('es-AR')}
             </span>
           </div>
 
           <div className="bg-[#fbf9f5] p-4 rounded-xl border border-[#ede7dc]">
-            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">⚡ Gastos Variables</span>
+            <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1">Gastos Variables</span>
             <span className="font-mono font-extrabold text-lg text-gray-900 block">
               ${expensesByCategory.VARIABLE.toLocaleString('es-AR')}
             </span>
@@ -380,9 +380,11 @@ export default function AnalyticsDashboard({
                         <button
                           onClick={() => handleDeleteExpense(e.id, e.description)}
                           title="Eliminar gasto"
-                          className="text-rose-600 hover:text-rose-800 p-1"
+                          className="text-rose-600 hover:text-rose-800 p-1 cursor-pointer"
                         >
-                          🗑️
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
                       </td>
                     </tr>
@@ -393,6 +395,7 @@ export default function AnalyticsDashboard({
           </div>
         )}
       </div>
+
 
       {/* Charts Grid Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
