@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import {
   GearIcon,
@@ -35,32 +35,42 @@ export default function AdminAppShell({
   offlinePendingCount = 0,
 }: AdminAppShellProps) {
   const pathname = usePathname();
+
+  const router = useRouter();
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const handleNavClick = (tab: 'dashboard' | 'pos' | 'inventory') => {
+    onTabChange(tab);
+    if (pathname !== '/admin') {
+      router.push('/admin');
+    }
+  };
 
   const navigationItems = [
     {
       id: 'dashboard',
       label: 'Analíticas & Métricas',
       icon: '📊',
-      action: () => onTabChange('dashboard'),
-      active: activeTab === 'dashboard' && pathname === '/admin',
+      action: () => handleNavClick('dashboard'),
+      active: activeTab === 'dashboard',
     },
     {
       id: 'pos',
       label: 'Punto de Venta (POS)',
       icon: '🛒',
-      href: '/pos',
-      active: pathname === '/pos',
+      action: () => handleNavClick('pos'),
+      active: activeTab === 'pos',
     },
     {
       id: 'inventory',
       label: 'Inventario & Stock',
       icon: '📦',
-      action: () => onTabChange('inventory'),
-      active: activeTab === 'inventory' && pathname === '/admin',
+      action: () => handleNavClick('inventory'),
+      active: activeTab === 'inventory',
     },
   ];
+
 
   return (
     <div className="min-h-screen flex bg-[#faf8f5] text-[#1a1918] font-sans antialiased">
@@ -102,20 +112,7 @@ export default function AdminAppShell({
           <nav className="p-3 space-y-1.5 mt-3">
             {navigationItems.map((item) => {
               const isActive = item.active;
-              return item.href ? (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-gold-gradient text-white shadow-md font-bold'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <span className="text-base leading-none">{item.icon}</span>
-                  {isSidebarOpen && <span className="truncate">{item.label}</span>}
-                </Link>
-              ) : (
+              return (
                 <button
                   key={item.id}
                   onClick={item.action}
@@ -131,6 +128,7 @@ export default function AdminAppShell({
               );
             })}
           </nav>
+
 
           {/* Actions & Utilities Section */}
           {isSidebarOpen && (
