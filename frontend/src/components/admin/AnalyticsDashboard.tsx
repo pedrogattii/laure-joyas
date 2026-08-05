@@ -211,64 +211,92 @@ export default function AnalyticsDashboard({
       {/* Top Financial KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Ingresos Totales */}
-        <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+        <div className="bg-white p-6 rounded-2xl border border-[#e8e3da] shadow-xs hover:shadow-md transition-all">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
             Ingresos Totales (Ventas)
           </span>
-          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-emerald-800 font-mono block">
+          <span className="font-numeric text-3xl font-extrabold text-emerald-800 block">
             ${totalSalesIncome.toLocaleString('es-AR')}
           </span>
-          <div className="text-[10px] text-gray-500 mt-2 space-y-0.5 border-t border-gray-100 pt-1">
-            <div>• Isla Salsipuedes (POS): <span className="font-bold text-emerald-700">${posSalesIncome.toLocaleString('es-AR')}</span></div>
-            <div>• Tienda Web (Online): <span className="font-bold text-blue-700">${onlineSalesIncome.toLocaleString('es-AR')}</span></div>
+          {/* Progress Bar for Channel Split */}
+          <div className="mt-3 space-y-1.5 border-t border-gray-100 pt-2">
+            <div className="flex justify-between text-[11px] font-sans font-medium text-gray-600">
+              <span>Isla (POS): ${posSalesIncome.toLocaleString('es-AR')}</span>
+              <span>Web: ${onlineSalesIncome.toLocaleString('es-AR')}</span>
+            </div>
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden flex">
+              <div
+                className="bg-emerald-600 h-full transition-all duration-500"
+                style={{
+                  width: `${
+                    totalSalesIncome > 0 ? Math.round((posSalesIncome / totalSalesIncome) * 100) : 0
+                  }%`,
+                }}
+                title="Ventas POS"
+              />
+              <div
+                className="bg-blue-500 h-full transition-all duration-500"
+                style={{
+                  width: `${
+                    totalSalesIncome > 0 ? Math.round((onlineSalesIncome / totalSalesIncome) * 100) : 0
+                  }%`,
+                }}
+                title="Ventas Web"
+              />
+            </div>
           </div>
         </div>
 
         {/* Egresos Totales */}
-        <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+        <div className="bg-white p-6 rounded-2xl border border-[#e8e3da] shadow-xs hover:shadow-md transition-all">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
             Egresos / Gastos del Mes
           </span>
-          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-rose-700 font-mono block">
+          <span className="font-numeric text-3xl font-extrabold text-rose-700 block">
             ${totalExpensesAmount.toLocaleString('es-AR')}
           </span>
-          <span className="text-[10px] text-gray-400 block mt-2 border-t border-gray-100 pt-1">
+          <span className="text-[10px] font-bold text-gray-500 block mt-3 border-t border-gray-100 pt-2 uppercase tracking-wider">
             {monthExpenses.length} gastos registrados en {selectedMonthObj.label}
           </span>
         </div>
 
         {/* Balance Neto */}
-        <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+        <div className="bg-white p-6 rounded-2xl border border-[#e8e3da] shadow-xs hover:shadow-md transition-all">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
             Balance Neto del Mes
           </span>
           <span
-            className={`font-serif text-2xl sm:text-3xl font-extrabold font-mono block ${
-              netBalance >= 0 ? 'text-gray-900' : 'text-rose-600'
+            className={`font-numeric text-3xl font-extrabold block ${
+              netBalance >= 0 ? 'text-[#1a1918]' : 'text-rose-600'
             }`}
           >
             ${netBalance.toLocaleString('es-AR')}
           </span>
-          <span className="text-[10px] text-emerald-600 block mt-2 border-t border-gray-100 pt-1 font-semibold">
-            {netBalance >= 0 ? '✓ Utilidad positiva' : '⚠️ Balance en déficit'}
+          <span className="text-[11px] font-bold text-emerald-700 block mt-3 border-t border-gray-100 pt-2">
+            {netBalance >= 0 ? '✓ Utilidad operativa positiva' : '⚠️ Balance en déficit'}
           </span>
         </div>
 
         {/* Transacciones Totales */}
-        <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
+        <div className="bg-white p-6 rounded-2xl border border-[#e8e3da] shadow-xs hover:shadow-md transition-all">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">
             Transacciones Registradas
           </span>
-          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-[#c5a059] block">
-            {monthSales.length} ventas
+          <span className="font-numeric text-3xl font-extrabold text-gold block">
+            {monthSales.length} operaciones
           </span>
-          <span className="text-[10px] text-gray-400 block mt-2 border-t border-gray-100 pt-1">
-            En {selectedMonthObj.label}
+          <span className="text-[10px] font-bold text-gray-500 block mt-3 border-t border-gray-100 pt-2 uppercase tracking-wider">
+            Promedio: $
+            {monthSales.length > 0
+              ? Math.round(totalSalesIncome / monthSales.length).toLocaleString('es-AR')
+              : 0}{' '}
+            / ticket
           </span>
         </div>
       </div>
 
       {/* Expenses Breakdown Cards */}
+
       <div className="bg-white p-6 rounded-xl border border-[#e5e0d8] shadow-sm">
         <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
           <div>
