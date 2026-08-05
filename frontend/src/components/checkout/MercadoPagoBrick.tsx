@@ -1,17 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 
 const publicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY || '';
-
-if (typeof window !== 'undefined' && publicKey) {
-  try {
-    initMercadoPago(publicKey, { locale: 'es-AR' });
-  } catch (e) {
-    console.error('Error inicializando Mercado Pago SDK:', e);
-  }
-}
 
 export type MPFormData = Record<string, unknown>;
 
@@ -28,6 +20,16 @@ export default function MercadoPagoBrick({
   payerDni,
   onSubmitPayment,
 }: MercadoPagoBrickProps) {
+  useEffect(() => {
+    if (publicKey) {
+      try {
+        initMercadoPago(publicKey, { locale: 'es-AR' });
+      } catch (e) {
+        console.warn('Mercado Pago SDK Init Notice:', e);
+      }
+    }
+  }, []);
+
   if (!publicKey) {
     return (
       <div className="p-4 bg-amber-50 text-amber-800 text-xs rounded-xl border border-amber-200 font-sans">
@@ -39,8 +41,16 @@ export default function MercadoPagoBrick({
     );
   }
 
+  if (!amount || amount <= 0) {
+    return (
+      <div className="p-4 text-center text-xs text-gray-500 font-sans">
+        El monto a pagar debe ser mayor a $0 para cargar el formulario de tarjeta.
+      </div>
+    );
+  }
+
   const initialization = {
-    amount: amount,
+    amount: Number(amount),
     payer: {
       email: payerEmail || 'test_user_328222467@testuser.com',
       identification: {
@@ -69,13 +79,14 @@ export default function MercadoPagoBrick({
     try {
       await onSubmitPayment(param.formData as unknown as MPFormData);
     } catch (error) {
-      console.error('Error al enviar el pago:', error);
+      console.warn('Error al procesar el envío del pago:', error);
       throw error;
     }
   };
 
   const handleError = async (error: unknown) => {
-    console.error('Mercado Pago Brick error:', error);
+    // Usamos console.warn para evitar que Next.js dev overlay capture objetos de error vacíos del SDK
+    console.warn('Mercado Pago Brick Callback Notice:', error);
   };
 
   return (
