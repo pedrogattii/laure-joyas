@@ -34,7 +34,11 @@ import {
   deleteSupabaseProduct,
 } from '@/lib/supabaseSync';
 
+import AdminAppShell from '@/components/admin/AdminAppShell';
+
 export default function MobilePosAppPage() {
+
+
   const { user, loginAs } = useAuth();
   const { showToast } = useToast();
 
@@ -212,10 +216,17 @@ export default function MobilePosAppPage() {
     );
   }
 
-  const currentUser = user;
-
   return (
-    <div className="min-h-screen flex flex-col bg-[#121212] text-white font-sans pb-24 select-none">
+    <AdminAppShell
+      activeTab="pos"
+      onTabChange={() => {}}
+      onOpenProductModal={() => setIsProductModalOpen(true)}
+      onOpenCashClosureModal={() => setIsCashClosureOpen(true)}
+      online={online}
+      offlinePendingCount={offlinePending}
+    >
+      <div className="flex flex-col text-white font-sans select-none">
+
       {/* Top App Bar */}
       <header className="bg-[#1e1e1e] border-b border-[#2a2a2a] p-4 sticky top-0 z-30 shadow-lg">
         <div className="max-w-lg mx-auto flex items-center justify-between gap-3">
@@ -233,7 +244,7 @@ export default function MobilePosAppPage() {
                 </span>
               </div>
               <span className="text-xs text-gray-400 block">
-                Operaria: <strong className="text-gray-200">{currentUser.name.split(' ')[0]}</strong>
+                Operaria: <strong className="text-gray-200">{user?.name ? user.name.split(' ')[0] : 'Dueña'}</strong>
               </span>
             </div>
           </div>
@@ -241,12 +252,10 @@ export default function MobilePosAppPage() {
           {/* Quick Role Switcher for Test */}
           <div className="flex gap-1 shrink-0">
             <button
-              onClick={() => loginAs(currentUser.role === 'ADMIN' ? 'EMPLOYEE' : 'ADMIN')}
-              className="bg-[#2a2a2a] hover:bg-[#333] border border-[#444] text-[10px] text-[#c5a059] font-bold px-2.5 py-1.5 rounded flex items-center gap-1 active:scale-95 btn-animate"
-              title="Cambiar usuario de prueba"
+              onClick={() => loginAs(user?.role === 'ADMIN' ? 'EMPLOYEE' : 'ADMIN')}
+              className="text-[10px] bg-[#2a2a2a] hover:bg-[#333] border border-[#444] text-[#c5a059] px-2.5 py-1 rounded font-bold transition-colors cursor-pointer"
             >
-              <UserIcon className="w-3.5 h-3.5 text-[#c5a059]" />
-              <span>{currentUser.role === 'ADMIN' ? 'Adriana' : 'Martina'}</span>
+              Rol: {user?.role || 'ADMIN'} ↺
             </button>
           </div>
         </div>
@@ -384,7 +393,8 @@ export default function MobilePosAppPage() {
           <div className="space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between">
               <h2 className="font-serif text-lg font-bold text-white">Stock en la Isla</h2>
-              {currentUser.role === 'ADMIN' && (
+              {user?.role === 'ADMIN' && (
+
                 <button
                   onClick={() => setIsProductModalOpen(true)}
                   className="bg-[#c5a059] text-black font-bold text-xs uppercase px-3 py-2 rounded flex items-center gap-1 btn-animate"
@@ -509,7 +519,7 @@ export default function MobilePosAppPage() {
         )}
 
         {/* TAB 4: DASHBOARD (ADMIN / ADRIANA ONLY) */}
-        {activeTab === 'dashboard' && currentUser.role === 'ADMIN' && (
+        {activeTab === 'dashboard' && user?.role === 'ADMIN' && (
           <div className="space-y-4 animate-fadeIn bg-white text-gray-900 p-4 rounded-2xl shadow-xl border border-[#333]">
             <div className="border-b border-gray-200 pb-2 mb-2">
               <span className="text-[10px] font-bold text-[#c5a059] uppercase tracking-widest block">
@@ -526,7 +536,7 @@ export default function MobilePosAppPage() {
 
       {/* Bottom App Navigation Bar (Mobile Native Style) */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#1e1e1e] border-t border-[#2a2a2a] p-2 max-w-lg mx-auto shadow-2xl">
-        <div className={`grid ${currentUser.role === 'ADMIN' ? 'grid-cols-4' : 'grid-cols-3'} gap-1`}>
+        <div className={`grid ${user?.role === 'ADMIN' ? 'grid-cols-4' : 'grid-cols-3'} gap-1`}>
           <button
             onClick={() => setActiveTab('cobrar')}
             className={`flex flex-col items-center py-2 px-1 rounded-xl text-xs font-bold transition-all btn-animate ${
@@ -563,7 +573,7 @@ export default function MobilePosAppPage() {
             <span>Cierre</span>
           </button>
 
-          {currentUser.role === 'ADMIN' && (
+          {user?.role === 'ADMIN' && (
             <button
               onClick={() => setActiveTab('dashboard')}
               className={`flex flex-col items-center py-2 px-1 rounded-xl text-xs font-bold transition-all btn-animate ${
@@ -591,7 +601,8 @@ export default function MobilePosAppPage() {
         isOpen={isCashClosureOpen}
         onClose={() => setIsCashClosureOpen(false)}
         salesHistory={activeSessionSales}
-        operatorName={currentUser.name}
+        operatorName={user ? user.name : 'Dueña (Adriana)'}
+
         onSessionStatusChange={() => {
           fetchClosures();
           fetchSales();
@@ -611,6 +622,9 @@ export default function MobilePosAppPage() {
         product={selectedProductForStock}
         onSaveStock={handleSaveStock}
       />
-    </div>
+      </div>
+    </AdminAppShell>
   );
 }
+
+

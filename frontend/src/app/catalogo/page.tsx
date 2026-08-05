@@ -8,7 +8,7 @@ import { CATEGORIES as MOCK_CATEGORIES, MATERIALS as MOCK_MATERIALS } from '@/li
 import { SearchIcon } from '@/components/icons/SvgIcons';
 import { useSupabaseProducts, useSupabaseCategories, useSupabaseMaterials } from '@/lib/supabaseSync';
 import { sanitizeText } from '@/lib/sanitizer';
-
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function CatalogPage() {
   const { products } = useSupabaseProducts();
@@ -23,6 +23,7 @@ export default function CatalogPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('DEFAULT');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Compute price boundaries from product data
   const priceBounds = useMemo(() => {
@@ -71,31 +72,65 @@ export default function CatalogPage() {
     setPriceRange([0, 0]);
   };
 
+  const hasActiveFilters =
+    selectedCategory !== 'ALL' ||
+    selectedMaterial !== 'ALL' ||
+    searchQuery.trim() !== '' ||
+    effectiveMax < priceBounds.max;
+
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
       <Header />
 
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-[#1a1918] to-[#252321] text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-[#33312e]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <span className="badge-gold text-xs font-semibold tracking-widest uppercase mb-2 inline-block px-3 py-1 rounded-full">
-              Catálogo General
-            </span>
-            <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white">
-              Todas nuestras Joyas
-            </h1>
+      {/* Breadcrumbs & Header Banner */}
+      <div className="bg-gradient-to-r from-[#1a1918] to-[#252321] text-white py-10 px-4 sm:px-6 lg:px-8 border-b border-[#33312e]">
+        <div className="max-w-7xl mx-auto space-y-3">
+          <div className="text-gray-300">
+            <Breadcrumbs />
           </div>
-          <span className="text-xs text-gray-300 font-sans bg-white/10 px-4 py-2 rounded-full border border-white/10 w-fit">
-            Mostrando <strong className="text-gold font-bold">{filteredProducts.length}</strong> productos disponibles
-          </span>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span className="badge-gold text-xs font-semibold tracking-widest uppercase mb-2 inline-block px-3 py-1 rounded-full">
+                Catálogo General
+              </span>
+              <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white">
+                Todas nuestras Joyas
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-300 font-sans bg-white/10 px-4 py-2 rounded-full border border-white/10 w-fit">
+                Mostrando <strong className="text-gold font-bold">{filteredProducts.length}</strong> productos
+              </span>
+              {/* Density View Switcher */}
+              <div className="bg-white/10 p-1 rounded-full border border-white/10 flex items-center gap-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    viewMode === 'grid' ? 'bg-gold text-white shadow' : 'text-gray-300 hover:text-white'
+                  }`}
+                  title="Vista Cuadrícula"
+                >
+                  ▦ Grid
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    viewMode === 'list' ? 'bg-gold text-white shadow' : 'text-gray-300 hover:text-white'
+                  }`}
+                  title="Vista Lista Compacta"
+                >
+                  ≡ Lista
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
-        {/* Filter and Sorting Control Bar */}
-        <div className="stitch-card p-6 mb-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        {/* Filter Control Bar */}
+        <div className="stitch-card p-6 mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
             {/* Search */}
             <div>
@@ -195,21 +230,69 @@ export default function CatalogPage() {
           </div>
         </div>
 
-        {/* Product Grid */}
+        {/* Product Display (Grid vs List) */}
         {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
-            ))}
-          </div>
+          viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="stitch-card overflow-hidden divide-y divide-[#e8e3da]">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#fdfbf7] transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-gray-100 relative overflow-hidden shrink-0 border border-[#e8e3da]">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <span className="font-sku text-[10px] text-gray-500 font-bold tracking-wider uppercase block">
+                        SKU: {product.code} • {product.category.name}
+                      </span>
+                      <h3 className="font-serif font-bold text-base text-[#1a1918]">
+                        {product.name}
+                      </h3>
+                      <span className="text-xs text-gray-500 font-sans">
+                        Material: {product.material.name} • Stock: {product.stock} un.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between sm:justify-end gap-6">
+                    <div className="text-right">
+                      <span className="font-numeric text-lg font-bold text-gold block">
+                        ${product.priceCash.toLocaleString('es-AR')}
+                      </span>
+                      <span className="text-[10px] text-gray-500 font-numeric block">
+                        Lista: ${product.priceList.toLocaleString('es-AR')}
+                      </span>
+                    </div>
+                    <a
+                      href={`/catalogo/${product.id}`}
+                      className="btn-stitch-gold text-white font-bold text-xs uppercase px-4 py-2 rounded-full cursor-pointer shadow-xs"
+                    >
+                      Ver Detalle
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
         ) : (
           <div className="stitch-card p-12 text-center max-w-md mx-auto my-12">
             <SearchIcon className="w-10 h-10 text-gold mx-auto mb-3" />
             <h3 className="font-serif text-xl font-bold text-gray-800 mb-1">No hay resultados</h3>
-            <p className="text-xs text-gray-500 mb-5 font-sans">No encontramos joyas que coincidan con los filtros seleccionados.</p>
+            <p className="text-xs text-gray-500 mb-5 font-sans">
+              No encontramos joyas que coincidan con los filtros seleccionados.
+            </p>
             <button
               onClick={handleResetFilters}
               className="btn-stitch-gold text-white font-semibold text-xs uppercase tracking-wider px-6 py-3 rounded-full cursor-pointer shadow-sm"
@@ -218,6 +301,7 @@ export default function CatalogPage() {
             </button>
           </div>
         )}
+
       </main>
 
       <Footer />
