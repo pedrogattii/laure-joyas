@@ -8,9 +8,9 @@ import { WhatsAppIcon } from '@/components/icons/SvgIcons';
 import { BUSINESS_CONFIG } from '@/lib/constants';
 import Image from 'next/image';
 import { useToast } from '@/context/ToastContext';
-import PaymentSimulatorModal from '@/components/PaymentSimulatorModal';
 import { registerSupabaseSale, updateSupabaseProductStock } from '@/lib/supabaseSync';
 import { sanitizeEmail, sanitizePhone, sanitizeText } from '@/lib/sanitizer';
+
 
 
 export default function CheckoutPage() {
@@ -27,8 +27,6 @@ export default function CheckoutPage() {
     deliveryMethod: 'pickup',
     paymentMethod: 'cash',
   });
-
-  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -70,13 +68,10 @@ export default function CheckoutPage() {
       dni: sanitizeText(formData.dni),
     });
 
-    if (formData.paymentMethod === 'mercadopago' || formData.paymentMethod === 'fiserv') {
-      setIsSimulatorOpen(true);
-      return;
-    }
+    const paymentId = `${formData.paymentMethod.toUpperCase()}-${Math.floor(10000000 + Math.random() * 90000000)}`;
+    const methodTag = formData.paymentMethod === 'cash' ? 'EFECTIVO' : formData.paymentMethod === 'mercadopago' ? 'MERCADO_PAGO' : 'FISERV';
 
-    // Cash / Transfer payment
-    completeOrder('EFECTIVO', 'CASH-DIRECT');
+    completeOrder(methodTag, paymentId);
   };
 
 
@@ -105,10 +100,6 @@ export default function CheckoutPage() {
     router.push('/');
   };
 
-  const handleSimulatedPaymentSuccess = async (paymentDetails: { paymentId: string; method: string; installments: number }) => {
-    setIsSimulatorOpen(false);
-    await completeOrder(paymentDetails.method, paymentDetails.paymentId);
-  };
 
   const handleWhatsAppModification = async () => {
     const itemsList = cart
@@ -284,18 +275,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       </main>
-
-
-      {/* Payment Gateway Sandbox Modal */}
-      <PaymentSimulatorModal
-        isOpen={isSimulatorOpen}
-        onClose={() => setIsSimulatorOpen(false)}
-        provider={formData.paymentMethod === 'mercadopago' ? 'MERCADO_PAGO' : 'FISERV'}
-        totalAmount={currentTotal}
-        customerName={`${formData.firstName} ${formData.lastName}`}
-        customerEmail={formData.email}
-        onPaymentSuccess={handleSimulatedPaymentSuccess}
-      />
     </div>
   );
 }
+

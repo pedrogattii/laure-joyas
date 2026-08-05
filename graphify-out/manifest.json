@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "frontend/src/app/checkout/page.tsx": {
-    "mtime": 1785929541.0141978,
-    "ast_hash": "420c57e606647444dd52516fd6ee561f",
+    "mtime": 1785930861.1422777,
+    "ast_hash": "94b58617ac779f4c7973a3fa28377a79",
     "semantic_hash": ""
   },
   "frontend/src/app/donde-encontrarnos/page.tsx": {
@@ -327,11 +327,6 @@
   "frontend/src/components/Header.tsx": {
     "mtime": 1785897060.8748684,
     "ast_hash": "0b5168f4ed683073057f9a871275d08c",
-    "semantic_hash": ""
-  },
-  "frontend/src/components/PaymentSimulatorModal.tsx": {
-    "mtime": 1785929501.56408,
-    "ast_hash": "f26fb3c6276a06e81f3038b0b377f317",
     "semantic_hash": ""
   },
   "frontend/src/components/ProductCard.tsx": {

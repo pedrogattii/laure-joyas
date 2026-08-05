@@ -385,8 +385,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/icons/SvgIcons.tsx": {
-    "mtime": 1785929396.4977934,
-    "ast_hash": "3e5b423e08c5a573d8d6d0adf4960d5c",
+    "mtime": 1785930045.109043,
+    "ast_hash": "f725d57f57d1f36c6ce61fff5bcc647e",
     "semantic_hash": ""
   },
   "frontend/src/context/AuthContext.tsx": {
@@ -1135,8 +1135,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/admin/AdminAppShell.tsx": {
-    "mtime": 1785929451.4585986,
-    "ast_hash": "460d5a50f66cf25ae1052fa435cf8030",
+    "mtime": 1785930199.6913216,
+    "ast_hash": "c656e26e68a7646b3693ff283c1fa12e",
     "semantic_hash": ""
   },
   "frontend/src/components/ui/Badge.tsx": {
