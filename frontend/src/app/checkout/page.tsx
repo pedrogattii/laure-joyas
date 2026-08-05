@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
@@ -181,6 +181,23 @@ export default function CheckoutPage() {
       }
     }
   };
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#faf8f5]">
+        <Header />
+        <main className="flex-grow flex items-center justify-center p-8 text-xs text-gray-500 font-sans">
+          Cargando checkout...
+        </main>
+      </div>
+    );
+  }
 
   if (cart.length === 0) {
     return (
